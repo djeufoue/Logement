@@ -2,9 +2,9 @@
 
 namespace Logement.Controllers
 {
-    public class ApartmentController : Controller
+    public class TenantApartmentController : Controller
     {
-        public IActionResult Apartment()
+        public IActionResult MyRentInfo()
         {
             return View();
         }
