@@ -17,9 +17,6 @@ namespace Logement.Models
         [MaxLength(256)]
         public override string? PhoneNumber { get; set; }
 
-        public override string Email { get => base.Email; set => base.Email = value; }
-
-        public DateTime DatOfBirth { get; set; }
     }
 
 

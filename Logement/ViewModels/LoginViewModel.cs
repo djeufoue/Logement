@@ -4,9 +4,10 @@ namespace Logement.ViewModels
 {
     public class LoginViewModel
     {
-        [Required]
+        [Required(ErrorMessage ="Email Address is required")]
         [EmailAddress]
-        public string? Email { get; set; }
+        [Display(Name ="Email Address")]
+        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

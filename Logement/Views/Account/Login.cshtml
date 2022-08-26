@@ -1,5 +1,40 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Logement.ViewModels
+@model LoginViewModel
 @{
+    ViewData["Title"] = "Login";
 }
+
+<style>
+    form > * {
+        margin: 1em auto;
+    }
+
+    .search-box {
+        display: none;
+    }
+</style>
+
+@using (Html.BeginForm("Login", "Account", new { returnUrl = ViewData["ReturnUrl"] }, FormMethod.Post))
+{
+    <h3>@ViewData["Title"]</h3>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email" })</div>
+        <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password" })</div>
+        <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <p>
+        <input type="submit" class="btn btn-success" value="Sign In">
+    </p>
+}
+
+@*<p>
+    <a href="https://localhost:44328/">Return to Store</a>
+    <span>•</span>
+    <a href="/Account/Register" id="RecoverPassword">Create Account?</a>
+</p>*@
