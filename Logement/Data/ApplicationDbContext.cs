@@ -10,8 +10,9 @@ namespace Logement.Data
         {
         }
 
+       
         public DbSet<Apartment> Apartments { get; set; }
-        public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<ApplicationUser> TenantsInfos { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<TenantRentApartment> TenantRentApartments { get; set; }
     }

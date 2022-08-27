@@ -1,12 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Logement.Data.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace Logement.ViewModels
 {
     public class RegisterViewModel
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public string TenantFirstName { get; set; }
 
+        public string TenantLastName { get; set; }
+
+        public MaritalStatusEnum? MaritalStatus { get; set; }
+
+        public string JobTitle { get; set; }
 
         [Required]
         [EmailAddress]

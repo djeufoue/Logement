@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220827165815_DeleteTenantTable")]
+    partial class DeleteTenantTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,11 +26,11 @@ namespace Logement.Migrations
 
             modelBuilder.Entity("Logement.Models.Apartment", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<decimal>("DepositePrice")
                         .HasPrecision(14, 2)
@@ -41,9 +43,6 @@ namespace Logement.Migrations
 
                     b.Property<int?>("FloorNumber")
                         .HasColumnType("int");
-
-                    b.Property<long>("LessorId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("LocatedAt")
                         .IsRequired()
@@ -68,8 +67,11 @@ namespace Logement.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<long>("TemplateContractId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("TemplateContractId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TenantRentApartmentId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -79,9 +81,9 @@ namespace Logement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LessorId");
-
                     b.HasIndex("TemplateContractId");
+
+                    b.HasIndex("TenantRentApartmentId");
 
                     b.ToTable("Apartments");
                 });
@@ -206,11 +208,11 @@ namespace Logement.Migrations
 
             modelBuilder.Entity("Logement.Models.FileModel", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -226,11 +228,11 @@ namespace Logement.Migrations
 
             modelBuilder.Entity("Logement.Models.Payment", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(14, 2)
@@ -239,37 +241,29 @@ namespace Logement.Migrations
                     b.Property<DateTime>("DatePaid")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("LessorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TenantRentApartmentId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("tenantRentApartmentId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LessorId");
-
-                    b.HasIndex("TenantRentApartmentId");
+                    b.HasIndex("tenantRentApartmentId");
 
                     b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("AmountRemainingForRent")
                         .HasColumnType("int");
 
-                    b.Property<long>("ApartmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("BailId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("BailId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("DepositePrice")
                         .HasPrecision(14, 2)
@@ -282,17 +276,17 @@ namespace Logement.Migrations
                         .HasPrecision(14, 2)
                         .HasColumnType("decimal(14,2)");
 
-                    b.Property<long>("TenantId")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TenantId1")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApartmentId")
-                        .IsUnique();
-
                     b.HasIndex("BailId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId1");
 
                     b.ToTable("TenantRentApartments");
                 });
@@ -402,50 +396,34 @@ namespace Logement.Migrations
 
             modelBuilder.Entity("Logement.Models.Apartment", b =>
                 {
-                    b.HasOne("Logement.Models.ApplicationUser", "Lessor")
-                        .WithMany()
-                        .HasForeignKey("LessorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.FileModel", "TemplateContract")
                         .WithMany()
                         .HasForeignKey("TemplateContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Lessor");
+                    b.HasOne("Logement.Models.TenantRentApartment", "TenantRentApartment")
+                        .WithMany()
+                        .HasForeignKey("TenantRentApartmentId");
 
                     b.Navigation("TemplateContract");
+
+                    b.Navigation("TenantRentApartment");
                 });
 
             modelBuilder.Entity("Logement.Models.Payment", b =>
                 {
-                    b.HasOne("Logement.Models.ApplicationUser", "Lessor")
-                        .WithMany()
-                        .HasForeignKey("LessorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.TenantRentApartment", "TenantRentApartment")
                         .WithMany()
-                        .HasForeignKey("TenantRentApartmentId")
+                        .HasForeignKey("tenantRentApartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Lessor");
 
                     b.Navigation("TenantRentApartment");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
                 {
-                    b.HasOne("Logement.Models.Apartment", "Apartment")
-                        .WithMany()
-                        .HasForeignKey("ApartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.FileModel", "Bail")
                         .WithMany()
                         .HasForeignKey("BailId")
@@ -454,11 +432,9 @@ namespace Logement.Migrations
 
                     b.HasOne("Logement.Models.ApplicationUser", "Tenant")
                         .WithMany()
-                        .HasForeignKey("TenantId")
+                        .HasForeignKey("TenantId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Apartment");
 
                     b.Navigation("Bail");
 

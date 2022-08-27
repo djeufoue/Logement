@@ -24,7 +24,8 @@
     </div>
 
     <div>
-        <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password" })</div>
+        <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password", @id ="password" })</div>
+        <input type="button" class="btnshow" value="show" style="font-size:8px;">
         <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
     </div>
 
@@ -34,7 +35,19 @@
 }
 
 @*<p>
-    <a href="https://localhost:44328/">Return to Store</a>
-    <span>•</span>
     <a href="/Account/Register" id="RecoverPassword">Create Account?</a>
 </p>*@
+
+<script src = "~/lib/jquery/dist/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+$(".btnshow").mousedown(function () { 
+    $("#password").attr("type", "text");
+});
+
+$(".btnshow").on("mouseleave" ,function () { 
+    $("#password").attr("type", "password");
+});
+
+</script>

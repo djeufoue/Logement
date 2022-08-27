@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Logement.Data.Enum;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace Logement.Models
@@ -16,6 +17,15 @@ namespace Logement.Models
 
         [MaxLength(256)]
         public override string? PhoneNumber { get; set; }
+
+        public string TenantFirstName { get; set; }
+
+        public string TenantLastName { get; set; }
+
+        // Need to be seed
+        public MaritalStatusEnum? MaritalStatus { get; set; }
+
+        public string JobTitle { get; set; }
 
     }
 

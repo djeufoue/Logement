@@ -29,6 +29,7 @@ namespace Logement.Data
                 var roles = new List<ApplicationRole>()
                 {
                     new ApplicationRole { Name = "Admin", NormalizedName = "ADMIN" },
+                    new ApplicationRole { Name = "SystemAdmin", NormalizedName = "SYSTEMADMIN" },
                 };
                 dbc.Roles.AddRange(roles);
                 dbc.SaveChanges();

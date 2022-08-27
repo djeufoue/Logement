@@ -2,12 +2,15 @@
 {
     public class ApartmentPhoto
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
-        public int FileId { get; set; }
-        public virtual FileModel File { get; set; }
+        /// <summary>
+        /// Removed because i don't know why an ApartmentPhoto will need a File(The contrat)
+        /// </summary>
+/*      public long FileId { get; set; }
+        public virtual FileModel File { get; set; }*/
 
-        public int ApartmentId { get; set; }
+        public long ApartmentId { get; set; }
         public virtual Apartment Apartment { get; set; }
 
         /// <summary>

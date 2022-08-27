@@ -1,4 +1,5 @@
 ﻿using Logement.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Logement.ViewModels
@@ -8,8 +9,11 @@ namespace Logement.ViewModels
         //Some requierments are going to be added on each property
         public int Id { get; set; }
 
+        /// <summary>
+        /// Access to current tenant information if there is one for this apartment
+        /// </summary>
+        [HiddenInput(DisplayValue = false)]
         public int? TenantId { get; set; }
-        public virtual Tenant? Tenant { get; set; } // Nom du locataire actuel
 
         [Required]
         public string? PhotoUrl { get; set; }
@@ -26,24 +30,29 @@ namespace Logement.ViewModels
         [Required]
         public string? LocatedAt { get; set; }
 
-        
+        [Required]
         public int NumberOfbathRooms { get; set; }
 
         [Required]
         public int Area { get; set; } // Superficie
 
 
-        public int FloorNumber { get; set; }
+        public int? FloorNumber { get; set; }
 
         [Required]
         public string? ApartmentType { get; set; }
 
-        
-        public string? Contract { get; set; } // Rental / for Sale
+        [HiddenInput(DisplayValue = false)]
+        public int TemplateContractId { get; set; }
+
+        public string? TemplateContract { get; set; }
+
         public int NumberOfParkingSpaces { get; set; }
 
-
-        public int DepositePrice { get; set; } // La caution
+        /// <summary>
+        ///  La caution juste pour afficher sur le site
+        /// </summary>
+        public int DepositePrice { get; set; }
 
         [Required]
         public string? ApartmentStatus { get; set; } //Busy or free

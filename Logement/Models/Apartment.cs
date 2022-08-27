@@ -6,14 +6,14 @@ namespace Logement.Models
 {
     public class Apartment
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
-        /// Many apartments are associated with one TenantRentStatus(One-to-Many relationship)
-        /// Which mean that a tenant can have many apartment, but an apartment can have just one tenant or can have no tenant
+        /// The lessor is the only person who can make 
+        /// changes (add, delete, update information) on the apartments
         /// </summary>
-        public int? TenantRentApartmentId { get; set; }
-        public virtual TenantRentApartment? TenantRentApartment { get; set; } // Nom du locataire actuel
+        public long LessorId { get; set; }
+        public virtual ApplicationUser Lessor { get; set; }
 
         [Required]
         [MaxLength(2000)]
@@ -28,22 +28,34 @@ namespace Logement.Models
 
         public int? FloorNumber { get; set; }
 
-        // Original price of the apartment
+        /// <summary>
+        /// Original price of the apartment
+        /// </summary>
         [Precision(14, 2)]
         public decimal Price { get; set; }
 
+        /// <summary>
+        /// La caution
+        /// </summary>
         [Precision(14, 2)]
-        public decimal DepositePrice { get; set; } // La caution
+        public decimal DepositePrice { get; set; } 
 
-        // Every apartment has his own payment method
+        /// <summary>
+        /// Every apartment has his own payment method
+        /// </summary>
         public PaymentMethodEnum paymentMethod { get; set; }
 
-        public int TemplateContractId { get; set; }
-        public FileModel TemplateContract { get; set; } // Rental / for Sale
+        /// <summary>
+        /// Just the format of an unfulfilled contract 
+        /// </summary>
+        public long TemplateContractId { get; set; }
+        public virtual FileModel TemplateContract { get; set; }
 
         public int? NumberOfParkingSpaces { get; set; }
-     
-        // Database needs to be migrated to add these colunm 
+
+        /// <summary>
+        /// Database needs to be migrated to add these colunm
+        /// </summary>
         public ApartmentStatusEnum Status { get; set; }
         public ApartmentTypeEnum Type { get; set; }
     }

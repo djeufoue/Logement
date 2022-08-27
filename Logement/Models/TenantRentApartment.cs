@@ -3,12 +3,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Logement.Models
 {
+    [Index(nameof(ApartmentId), IsUnique = true)]
     public class TenantRentApartment
     {
-        public int Id { get; set; }
-        
-        public int TenantId { get; set; }
-        public virtual Tenant Tenant { get; set; }
+        public long Id { get; set; }
+
+        /// <summary>
+        /// An apartment can belong to only one Tenant 
+        /// </summary>
+        public long ApartmentId { get; set; }
+        public virtual Apartment Apartment { get; set; } // Nom du locataire actuel
+
+        /// <summary>
+        /// The tenant who occupies the apartment
+        /// </summary>
+        public long TenantId { get; set; }
+        public virtual ApplicationUser Tenant { get; set; }
 
         /// <summary>
         /// can be zero(0)
@@ -18,7 +28,7 @@ namespace Logement.Models
         /// <summary>
         /// Contrat de bail
         /// </summary>
-        public int BailId { get; set; }
+        public long BailId { get; set; }
         public virtual FileModel Bail { get; set; } 
 
         public int AmountRemainingForRent { get; set; }
