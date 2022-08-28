@@ -30,6 +30,7 @@ namespace Logement.Data
                 {
                     new ApplicationRole { Name = "Admin", NormalizedName = "ADMIN" },
                     new ApplicationRole { Name = "SystemAdmin", NormalizedName = "SYSTEMADMIN" },
+                    new ApplicationRole { Name = "Tenant", NormalizedName = "TENANT" },
                 };
                 dbc.Roles.AddRange(roles);
                 dbc.SaveChanges();
@@ -41,7 +42,7 @@ namespace Logement.Data
             if (!dbc.Users.Any())
             {
                 ApplicationUser user = new ApplicationUser()
-                {
+                {   
                     UserName = "pablodjeufoue@gmail.com",
                     Email = "pablodjeufoue@gmail.com",
                     EmailConfirmed = true,

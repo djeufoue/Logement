@@ -3,6 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Logement.Models
 {
+    /// <summary>
+    /// I will create a view model for this table which will allow the tenant to 
+    /// have access to his information (without being able to modify anything on 
+    /// this of course) and the lessor will also be able to see this same 
+    /// information and modify it if he wants
+    /// 
+    /// The reason for putting "UserRole" is so that this list can only be 
+    /// accessed by those who have been chosen as tenants by the lessor
+    /// </summary>
     [Index(nameof(ApartmentId), IsUnique = true)]
     public class TenantRentApartment
     {
@@ -44,5 +53,31 @@ namespace Logement.Models
         /// </summary>
         [Precision(14, 2)]
         public decimal DepositePrice { get; set; }
+
+        /// <summary>
+        /// There are tenants who pay by the month and others 
+        /// after every two months or even by the year; 
+        /// it depends on the arrangement he has with his owner
+        /// </summary>
+        public PaymentMethodEnum paymentMethodEnum { get; set; }
+
+        /// <summary>
+        /// It is on this date that the tenant begins to pay his rent.
+        /// </summary>
+        public DateTimeOffset StartOfContract { get; set; }
+
+        /// <summary>
+        /// This marks the end of the contract that the tenant had signed 
+        /// with the lessor, but does not mark the end of the payment of 
+        /// the rent: "it is possible that the tenant still owes money to 
+        /// the lessor after the end of his contract"
+        /// </summary>
+        public DateTimeOffset EndOfContract { get; set; }
+
+        /// <summary>
+        /// This allows you to know who is a tenant and who is not among those who have created an account 
+        /// and it will be defined by the lessor
+        /// </summary>
+        public UserRole userRole { get; set; }
     }
 }

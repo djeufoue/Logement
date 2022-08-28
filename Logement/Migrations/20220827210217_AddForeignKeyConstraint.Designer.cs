@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220827201532_AddForeignKeyConstraint")]
+    [Migration("20220827210217_AddForeignKeyConstraint")]
     partial class AddForeignKeyConstraint
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
