@@ -57,6 +57,7 @@ namespace Logement.Models
         /// Database needs to be migrated to add these colunm
         /// </summary>
         public ApartmentStatusEnum Status { get; set; }
+
         public ApartmentTypeEnum Type { get; set; }
     }
 }

@@ -83,7 +83,29 @@ namespace Logement.Migrations
 
                     b.HasIndex("TemplateContractId");
 
-                    b.ToTable("Apartments");
+                    b.ToTable("Apartments", (string)null);
+                });
+
+            modelBuilder.Entity("Logement.Models.ApartmentPhoto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<long>("ApartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Part")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApartmentId");
+
+                    b.ToTable("ApartmentPhotos", (string)null);
                 });
 
             modelBuilder.Entity("Logement.Models.ApplicationRole", b =>
@@ -221,7 +243,7 @@ namespace Logement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileModel");
+                    b.ToTable("FileModel", (string)null);
                 });
 
             modelBuilder.Entity("Logement.Models.Payment", b =>
@@ -251,7 +273,7 @@ namespace Logement.Migrations
 
                     b.HasIndex("TenantRentApartmentId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
@@ -275,6 +297,9 @@ namespace Logement.Migrations
                         .HasPrecision(14, 2)
                         .HasColumnType("decimal(14,2)");
 
+                    b.Property<DateTimeOffset?>("EndOfContract")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("NumberOfMonthsToPay")
                         .HasColumnType("int");
 
@@ -282,8 +307,14 @@ namespace Logement.Migrations
                         .HasPrecision(14, 2)
                         .HasColumnType("decimal(14,2)");
 
+                    b.Property<DateTimeOffset>("StartOfContract")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("paymentMethodEnum")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -294,7 +325,7 @@ namespace Logement.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("TenantRentApartments");
+                    b.ToTable("TenantRentApartments", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
@@ -417,6 +448,17 @@ namespace Logement.Migrations
                     b.Navigation("Lessor");
 
                     b.Navigation("TemplateContract");
+                });
+
+            modelBuilder.Entity("Logement.Models.ApartmentPhoto", b =>
+                {
+                    b.HasOne("Logement.Models.Apartment", "Apartment")
+                        .WithMany()
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Apartment");
                 });
 
             modelBuilder.Entity("Logement.Models.Payment", b =>

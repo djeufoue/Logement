@@ -42,10 +42,13 @@ namespace Logement.Data
             if (!dbc.Users.Any())
             {
                 ApplicationUser user = new ApplicationUser()
-                {   
+                {
                     UserName = "pablodjeufoue@gmail.com",
                     Email = "pablodjeufoue@gmail.com",
                     EmailConfirmed = true,
+                    JobTitle = "info",
+                    TenantFirstName = "Adrien",
+                    TenantLastName = "Lontsi",
                 };
 
                 IdentityResult result = userManager.CreateAsync(user, "Password_1").Result;

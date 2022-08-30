@@ -15,5 +15,6 @@ namespace Logement.Data
         public DbSet<ApplicationUser> TenantsInfos { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<TenantRentApartment> TenantRentApartments { get; set; }
+        public DbSet<ApartmentPhoto> ApartmentPhotos { get; set; }
     }
 }

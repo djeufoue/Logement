@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220827210217_AddForeignKeyConstraint")]
-    partial class AddForeignKeyConstraint
+    [Migration("20220828205831_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -277,6 +277,9 @@ namespace Logement.Migrations
                         .HasPrecision(14, 2)
                         .HasColumnType("decimal(14,2)");
 
+                    b.Property<DateTimeOffset?>("EndOfContract")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<int>("NumberOfMonthsToPay")
                         .HasColumnType("int");
 
@@ -284,8 +287,14 @@ namespace Logement.Migrations
                         .HasPrecision(14, 2)
                         .HasColumnType("decimal(14,2)");
 
+                    b.Property<DateTimeOffset>("StartOfContract")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("paymentMethodEnum")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
