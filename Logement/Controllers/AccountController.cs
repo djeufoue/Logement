@@ -3,6 +3,7 @@ using Logement.Models;
 using Logement.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Logement.Controllers
 {
@@ -34,6 +35,60 @@ namespace Logement.Controllers
             return View(response);
         }
 
+        [HttpGet]
+        public IActionResult Register()
+        {
+            var registerViewModel = new RegisterViewModel();
+            return View(registerViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
+        {
+            if (!ModelState.IsValid)
+                return View(registerViewModel);
+
+            string email = registerViewModel.Email;
+            var user = await _userManager.FindByEmailAsync(email);
+            if(user != null)
+            {
+                ModelState.AddModelError(nameof(email), $"User account {email} already exists");
+                return View(registerViewModel);
+            }
+
+            user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                TenantFirstName = registerViewModel.TenantFirstName,
+                TenantLastName = registerViewModel.TenantLastName,
+                JobTitle = registerViewModel.JobTitle,
+                MaritalStatus = registerViewModel.MaritalStatus
+            };
+            var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+            if (result.Succeeded)
+            {
+                if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                {
+                    throw new ApplicationException("SendConfirmationEmail is not implemented");
+                }
+                _logger.LogInformation($"User account {email} created successfully.");
+
+                return RedirectToAction(nameof(Login));
+            }
+            else
+            {
+                var errorsStr = JsonConvert.SerializeObject(result.Errors);
+                var modelStr = JsonConvert.SerializeObject(registerViewModel);
+                _logger.LogWarning($"Failed to Register. userDTO: {modelStr} errors:{errorsStr}");
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(nameof(registerViewModel.Password), error.Description);
+                }
+                return View(registerViewModel);
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel, [FromQuery] string? returnUrl = null)
@@ -78,6 +133,17 @@ namespace Logement.Controllers
                 ModelState.AddModelError(nameof(loginViewModel.Email), $"User account {loginViewModel.Email} not found.");
             return View(loginViewModel);
 
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+
+            foreach(var cookie in HttpContext.Request.Cookies)
+                Response.Cookies.Delete(cookie.Key);
+
+            _logger.LogInformation($"User {User.Identity.Name} logget out");
+            return LocalRedirect("/");
         }
     }
 }

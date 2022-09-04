@@ -12,6 +12,10 @@
     .search-box {
         display: none;
     }
+
+    input[type='image'] {
+    width: 30px;
+}
 </style>
 
 @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewData["ReturnUrl"] }, FormMethod.Post))
@@ -25,7 +29,7 @@
 
     <div>
         <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password", @id ="password" })</div>
-        <input type="button" class="btnshow" value="show" style="font-size:8px;">
+        <input type="image" class="btnshow" src="~/img/hide_icon.png" style="font-size:8px;", id="image">
         <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
     </div>
 
@@ -34,9 +38,9 @@
     </p>
 }
 
-@*<p>
-    <a href="/Account/Register" id="RecoverPassword">Create Account?</a>
-</p>*@
+<p>
+    <a href="/Account/Register" id="RecoverPassword">Create an account if you don't have one</a>
+</p>
 
 <script src = "~/lib/jquery/dist/jquery.min.js"></script>
 
@@ -44,10 +48,12 @@
 
 $(".btnshow").mousedown(function () { 
     $("#password").attr("type", "text");
+    $("#image").attr("src", "~/img/hide_icon.png");
 });
 
 $(".btnshow").on("mouseleave" ,function () { 
     $("#password").attr("type", "password");
+    $("#image").attr("src", "~/img/show_icon.png");
 });
 
 </script>

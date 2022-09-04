@@ -5,17 +5,18 @@ namespace Logement.ViewModels
 {
     public class RegisterViewModel
     {
+     
         public string TenantFirstName { get; set; }
 
         public string TenantLastName { get; set; }
 
-        public MaritalStatusEnum? MaritalStatus { get; set; }
-
         public string JobTitle { get; set; }
+
+        public MaritalStatusEnum? MaritalStatus { get; set; }
 
         [Required]
         [EmailAddress]
-        public string? Email { get; set; }
+        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -24,5 +25,6 @@ namespace Logement.ViewModels
 
         [Compare(nameof(Password), ErrorMessage = "Confirm password does not match!")]
         public string? ConfirmPassword { get; set; }
+
     }
 }

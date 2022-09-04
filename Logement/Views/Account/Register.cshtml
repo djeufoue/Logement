@@ -1,5 +1,67 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Logement.ViewModels;
+
+@model RegisterViewModel;
 @{
+    ViewData["Title"] = "Create Account";
 }
+
+<style>
+    form > * {
+        margin: 1em auto;
+    }
+
+    .search-box {
+        display: none;
+    }
+</style>
+
+@using (Html.BeginForm("Register", "Account", FormMethod.Post))
+{
+    <h3>@ViewData["Title"]</h3>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.TenantFirstName, new { @class = "form-control", @placeholder = "first name" })</div>
+        <div>@Html.ValidationMessageFor(m => m.TenantFirstName, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.TenantLastName, new { @class = "form-control", @placeholder = "last name" })</div>
+        <div>@Html.ValidationMessageFor(m => m.TenantLastName, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.JobTitle, new { @class = "form-control", @placeholder = "Your job" })</div>
+        <div>@Html.ValidationMessageFor(m => m.JobTitle, "", new { @class = "text-danger" })</div>
+    </div>
+
+     <div>
+        <div>@Html.TextBoxFor(m => m.MaritalStatus, new { @class = "form-control", @placeholder = "Your marital status "})</div>
+        <div>@Html.ValidationMessageFor(m => m.MaritalStatus, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email" })</div>
+        <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password" })</div>
+        <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
+    </div>
+
+    <div>
+        <div>@Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", @placeholder = "Confirm password", @type = "password" })</div>
+        <div>@Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })</div>
+    </div>
+
+
+    <p>
+        <input type="submit" class="btn btn-success" value="Register">
+    </p>
+}
+
+<p>
+    <a href="https://localhost:44328/">Return to Home Page</a>
+    <span>•</span>
+    <a href="/Account/Login" id="RecoverPassword">Login?</a>
+</p>
