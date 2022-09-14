@@ -108,7 +108,7 @@ namespace Logement.Controllers
                 if (passwordCheck)
                 {
                     // Password correct, Sign in
-                    var result = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, false, false);
+                    var result = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, loginViewModel.RememberMe , false);
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"User account {loginViewModel.Email} has logged in.");
