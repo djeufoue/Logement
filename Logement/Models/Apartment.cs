@@ -1,6 +1,7 @@
 ﻿using Logement.Data.Enum;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 
 namespace Logement.Models
 {
@@ -59,5 +60,10 @@ namespace Logement.Models
         public ApartmentStatusEnum Status { get; set; }
 
         public ApartmentTypeEnum Type { get; set; }
+
+        /// <summary>
+        /// Apartment Images"
+        /// </summary>
+        public string ImageURL { get; set; }
     }
 }

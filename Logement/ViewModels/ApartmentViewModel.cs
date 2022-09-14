@@ -58,6 +58,11 @@ namespace Logement.ViewModels
         public ApartmentStatusEnum Status { get; set; }
 
         public ApartmentTypeEnum Type { get; set; }
-    
+
+        [Display(Name = "Apartment Images")]
+        public IFormFile ImageFile { get; set; }
+
+        public string ImageURL { get; set; }
+
     }
 }
