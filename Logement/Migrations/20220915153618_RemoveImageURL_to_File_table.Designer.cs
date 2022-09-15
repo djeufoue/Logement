@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220915153618_RemoveImageURL_to_File_table")]
+    partial class RemoveImageURL_to_File_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,7 +85,7 @@ namespace Logement.Migrations
 
                     b.HasIndex("TemplateContractId");
 
-                    b.ToTable("Apartments", (string)null);
+                    b.ToTable("Apartments");
                 });
 
             modelBuilder.Entity("Logement.Models.ApartmentPhoto", b =>
@@ -109,7 +111,7 @@ namespace Logement.Migrations
 
                     b.HasIndex("ApartmentId");
 
-                    b.ToTable("ApartmentPhotos", (string)null);
+                    b.ToTable("ApartmentPhotos");
                 });
 
             modelBuilder.Entity("Logement.Models.ApplicationRole", b =>
@@ -251,7 +253,7 @@ namespace Logement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileModel", (string)null);
+                    b.ToTable("FileModel");
                 });
 
             modelBuilder.Entity("Logement.Models.Payment", b =>
@@ -281,7 +283,7 @@ namespace Logement.Migrations
 
                     b.HasIndex("TenantRentApartmentId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
@@ -333,7 +335,7 @@ namespace Logement.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("TenantRentApartments", (string)null);
+                    b.ToTable("TenantRentApartments");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>

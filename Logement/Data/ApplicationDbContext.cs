@@ -1,6 +1,7 @@
 ﻿using Logement.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Logement.ViewModels;
 
 namespace Logement.Data
 {
@@ -16,5 +17,7 @@ namespace Logement.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<TenantRentApartment> TenantRentApartments { get; set; }
         public DbSet<ApartmentPhoto> ApartmentPhotos { get; set; }
+
+        public DbSet<FileModel> FileModel { get; set; }
     }
 }
