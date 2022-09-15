@@ -4,18 +4,20 @@
     ViewData["Title"] = "AddApartment";
 }
 
-<h3>Add an apartment</h3>
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<h3>Add a new apartment</h3>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="AddApartment">
+        <form asp-action="AddApartment" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="LessorId" class="control-label"></label>
-                <input asp-for="LessorId" class="form-control" />
-                <span asp-validation-for="LessorId" class="text-danger"></span>
-            </div>
+
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
@@ -57,8 +59,15 @@
                 <span asp-validation-for="DepositePrice" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PaymentMethod" class="control-label"></label>
-                <select asp-for="PaymentMethod" class="form-control"></select>
+                <label asp-for="PaymentMethod" class="control-label">
+                   Select the Payment method
+                </label>
+                <select asp-for="PaymentMethod" class="form-control">
+                    <option value="Annually">Annually</option>
+                    <option value="Half yearly">Half yearly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Monthly">Monthly</option>
+                </select>
                 <span asp-validation-for="PaymentMethod" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -67,14 +76,41 @@
                 <span asp-validation-for="NumberOfParkingSpaces" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
+                <label asp-for="Status" class="control-label">
+                    Set the Apartment Status
+                </label>
+                <select asp-for="Status" class="form-control">
+                    <option value="Free">Busy</option>
+                    <option value="Free">Free</option>
+                    <option value="Under construction">Under construction</option>
+                </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <select asp-for="Type" class="form-control"></select>
+                <label asp-for="Type" class="control-label">
+                    Select the apartment type
+                </label>
+                <select asp-for="Type" class="form-control">
+                    <option value ="Studio">Studio</option>
+                    <option value="Room">Room</option>
+                    <option value="Apartment">Apartment</option>
+                </select>
                 <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label"></label>
+                <input asp-for="ImageFile" class="form-control-file" accept="image/*" required />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Part" class="control-label"></label>
+                <input asp-for="Part" class="form-control-file"/>
+                <span asp-validation-for="Part" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UploadTemplateContract" class="control-label"></label>
+                <input asp-for="UploadTemplateContract" class="form-control-file" accept="file/*" required />
+                <span asp-validation-for="UploadTemplateContract" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -84,7 +120,7 @@
 </div>
 
 <div>
-    <a asp-action="Apartment">Back to List</a>
+    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

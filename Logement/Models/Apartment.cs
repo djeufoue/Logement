@@ -61,9 +61,5 @@ namespace Logement.Models
 
         public ApartmentTypeEnum Type { get; set; }
 
-        /// <summary>
-        /// Apartment Images"
-        /// </summary>
-        public string ImageURL { get; set; }
     }
 }
