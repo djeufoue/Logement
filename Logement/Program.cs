@@ -54,7 +54,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Apartment}/{action=Apartment}/{id?}");
+    pattern: "{controller=Admin}/{action=ApartmentList}/{id?}");
 
 using (var serviceScope = app.Services.CreateScope())
 {

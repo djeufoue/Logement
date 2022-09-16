@@ -1,6 +1,7 @@
 ﻿using Logement.Data;
 using Logement.Models;
 using Logement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -116,9 +117,9 @@ namespace Logement.Controllers
                         if (string.IsNullOrEmpty(returnUrl))
                         {
                             if (await _userManager.IsInRoleAsync(user, "Admin"))
-                                returnUrl = "/Admin/Index";
+                                returnUrl = "/Admin/AllAccess";
                             else
-                                returnUrl = "/";
+                                returnUrl = "/Apartment/Index";
                         }
 
                         return LocalRedirect(returnUrl);
@@ -135,6 +136,7 @@ namespace Logement.Controllers
 
         }
 
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
@@ -143,7 +145,7 @@ namespace Logement.Controllers
                 Response.Cookies.Delete(cookie.Key);
 
             _logger.LogInformation($"User {User.Identity.Name} logget out");
-            return LocalRedirect("/");
+            return LocalRedirect("/Apartment/index");
         }
     }
 }
