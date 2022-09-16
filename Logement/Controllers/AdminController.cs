@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Logement.Controllers
 {
@@ -60,7 +61,6 @@ namespace Logement.Controllers
         /// <returns></returns>
         private ApartmentViewModel GetAllApartmentsFromModel(Apartment apartment)
         {
-            GetApartmentPhoto(apartment.Id);
             ApartmentViewModel apartmentViewModel = new ApartmentViewModel()
             {
                 Id = apartment.Id,
@@ -123,7 +123,11 @@ namespace Logement.Controllers
             List<ApartmentViewModel> apartmentViewModels = new List<ApartmentViewModel>();
 
             foreach (Apartment apartment in apartments)
+            {
+                //Retrieve the photo and share of each apartment
+                GetApartmentPhoto(apartment.Id);
                 apartmentViewModels.Add(GetAllApartmentsFromModel(apartment));
+            }
 
             return View(apartmentViewModels);
         }
@@ -157,11 +161,8 @@ namespace Logement.Controllers
                 {
                     GetPhoto = apartmentPhoto.ImageURL;
                     GetPart = apartmentPhoto.Part;
-                }
-                if (GetPhoto != null && GetPhoto != null)
                     break;
-                else
-                    continue;
+                }
             }
         }
 
@@ -302,6 +303,11 @@ namespace Logement.Controllers
                 return RedirectToAction(nameof(ApartmentList));
             }
             return View(apartmentViewModel);
+        }
+
+        public IActionResult AddAstenant()
+        {
+            return View();
         }
     }
 }

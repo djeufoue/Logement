@@ -19,6 +19,7 @@ namespace Logement.ViewModels
 
 
         [Required]
+        [Display(Name = "Located At")]
         public string LocatedAt { get; set; }
 
         [Required]
@@ -30,7 +31,10 @@ namespace Logement.ViewModels
         public int NumberOfbathRooms { get; set; }
 
         [Required]
+        [Display(Name = "Room Area")]
         public int RoomArea { get; set; } // Superficie
+
+        [Display(Name ="Floor")]
         public int? FloorNumber { get; set; }
 
         [Required]
@@ -66,7 +70,6 @@ namespace Logement.ViewModels
 
         public ApartmentTypeEnum Type { get; set; }
 
-        [NotMapped]
         [Display(Name = "Apartment Image")]
         public IFormFile ImageFile { get; set; }
 
@@ -76,12 +79,11 @@ namespace Logement.ViewModels
         [Display(Name = "Which part")]
         public string Part { get; set; }
 
-        [NotMapped]
         [Display(Name = "Upload template Contract")]
         public IFormFile UploadTemplateContract { get; set; }
 
 
         [Display(Name = "Apartment Image")]
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
     }
 }
