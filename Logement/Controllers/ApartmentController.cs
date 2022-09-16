@@ -4,6 +4,8 @@ using Logement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using MimeKit;
 using NuGet.Protocol.Core.Types;
 using System.IO;
@@ -20,6 +22,9 @@ namespace Logement.Controllers
         private readonly IConfiguration _configuration;
         private string part;
         private long getTemplateId;
+        private ApartmentPhoto apartmentPhoto = new ApartmentPhoto();
+        private string GetPhoto;
+        private string GetPart;
 
         public ApartmentController(ApplicationDbContext context, IConfiguration configuration)
         {
@@ -34,8 +39,7 @@ namespace Logement.Controllers
         /// <returns></returns>
         private ApartmentViewModel GetAllApartmentsFromModel(Apartment apartment)
         {
-            ApartmentPhoto apartmentPhoto = new ApartmentPhoto();
-
+            GetApartmentPhoto(apartment.Id);
             ApartmentViewModel apartmentViewModel = new ApartmentViewModel()
             {
                 Id = apartment.Id,
@@ -53,7 +57,8 @@ namespace Logement.Controllers
                 NumberOfParkingSpaces = apartment.NumberOfParkingSpaces,
                 Status = apartment.Status,
                 Type = apartment.Type,
-                ImageURL = apartmentPhoto.ImageURL
+                ImageURL = GetPhoto,
+                Part = GetPart
             };
             return apartmentViewModel;
         }
@@ -95,14 +100,35 @@ namespace Logement.Controllers
         {
             List<Apartment> apartments = await _context.Apartments.ToListAsync();
             List<ApartmentViewModel> apartmentViewModels = new List<ApartmentViewModel>();
+
             foreach (Apartment apartment in apartments)
-            {
                 apartmentViewModels.Add(GetAllApartmentsFromModel(apartment));
-            }
+
             return View(apartmentViewModels);
         }
 
+        /// <summary>
+        /// Get the apartment photo and part
+        /// </summary>
+        /// <param name="apartmentId"></param>
+        /// <returns></returns>
+        public void GetApartmentPhoto(long apartmentId)
+        {
+            List<ApartmentPhoto> getapartmentPhotos = _context.ApartmentPhotos.ToList();
 
+            foreach (ApartmentPhoto apartmentPhoto in getapartmentPhotos)
+            {
+                if (apartmentPhoto.ApartmentId == apartmentId)
+                {
+                   GetPhoto = apartmentPhoto.ImageURL;
+                   GetPart = apartmentPhoto.Part;
+                }
+                if (GetPhoto != null && GetPhoto != null)
+                    break;
+                else
+                    continue;
+            }
+        }
 
         [AllowAnonymous]
         public IActionResult GetFile(string fileName)
@@ -140,7 +166,6 @@ namespace Logement.Controllers
             }
         }
 
-        private ApartmentPhoto apartmentPhoto = new ApartmentPhoto();
         public async Task SaveImageFile(IFormFile formFile, Apartment apartment)
         {
             if (formFile != null)

@@ -7,7 +7,7 @@
 <h3>Apartments List</h3>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="AddApartment">Add a new Apartment</a>
 </p>
 <table class="table">
     <thead>
@@ -100,7 +100,7 @@
                 @Html.DisplayFor(modelItem => item.Part)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageURL)
+                <img src="@item.ImageURL" style="width: 50px;">
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

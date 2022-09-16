@@ -22,6 +22,7 @@ namespace Logement.ViewModels
         public string LocatedAt { get; set; }
 
         [Required]
+        [Display(Name = "Rooms")]
         public int NumberOfRooms { get; set; }
 
         [Required]
