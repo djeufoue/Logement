@@ -85,5 +85,7 @@ namespace Logement.ViewModels
 
         [Display(Name = "Apartment Image")]
         public string? ImageURL { get; set; }
+
+        public DateTime CreatedOn { get; set; }
     }
 }

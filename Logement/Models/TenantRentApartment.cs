@@ -1,4 +1,5 @@
 ﻿using Logement.Data.Enum;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logement.Models
@@ -17,7 +18,7 @@ namespace Logement.Models
         /// <summary>
         /// An apartment can belong to only one Tenant 
         /// </summary>
-        public long ApartmentId { get; set; }
+        public long? ApartmentId { get; set; }
         public virtual Apartment Apartment { get; set; } // Nom du locataire actuel
 
         /// <summary>
@@ -27,23 +28,27 @@ namespace Logement.Models
         public virtual ApplicationUser Tenant { get; set; }
 
         /// <summary>
-        /// can be zero(0)
+        /// Can be zero(0)
         /// </summary>
-        public int NumberOfMonthsToPay { get; set; }  
+        public int NumberOfMonthsToPay { get; set; } = 0;
 
         /// <summary>
         /// Contrat de bail
         /// </summary>
         public long BailId { get; set; }
-        public virtual FileModel Bail { get; set; } 
+        public virtual FileModel Bail { get; set; }
 
-        public int AmountRemainingForRent { get; set; }
+        public decimal AmountRemainingForRent { get; set; } = 0;
+
+        public decimal AmountPaidInAdvance { get; set; } = 0;
 
         /// <summary>
         /// Price after nagociations
         /// </summary>
         [Precision(14, 2)]
         public decimal Price { get; set; }
+
+        public decimal AmountPaidByTenant { get; set; }
 
         /// <summary>
         /// La caution qui a ete paye
@@ -56,7 +61,7 @@ namespace Logement.Models
         /// after every two months or even by the year; 
         /// it depends on the arrangement he has with his owner
         /// </summary>
-        public PaymentMethodEnum paymentMethodEnum { get; set; }
+        public PaymentMethodEnum PaymentMethodEnum { get; set; }
 
         /// <summary>
         /// It is on this date that the tenant begins to pay his rent.

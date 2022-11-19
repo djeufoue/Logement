@@ -20,7 +20,7 @@
 
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <textarea asp-for="Description" class="form-control" rows="10"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -64,7 +64,7 @@
                 </label>
                 <select asp-for="PaymentMethod" class="form-control">
                     <option value="Annually">Annually</option>
-                    <option value="Half yearly">Half yearly</option>
+                    <option value="Half_early">Half_yearly</option>
                     <option value="Quarterly">Quarterly</option>
                     <option value="Monthly">Monthly</option>
                 </select>
@@ -82,7 +82,7 @@
                 <select asp-for="Status" class="form-control">
                     <option value="Free">Busy</option>
                     <option value="Free">Free</option>
-                    <option value="Under construction">Under construction</option>
+                    <option value="Under_construction">Under_construction</option>
                 </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
@@ -111,6 +111,11 @@
                 <label asp-for="UploadTemplateContract" class="control-label"></label>
                 <input asp-for="UploadTemplateContract" class="form-control-file" accept="file/*" required />
                 <span asp-validation-for="UploadTemplateContract" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedOn" class="control-label"></label>
+                <input asp-for="CreatedOn" class="form-control-file" accept="file/*" required />
+                <span asp-validation-for="CreatedOn" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

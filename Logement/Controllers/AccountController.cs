@@ -28,15 +28,6 @@ namespace Logement.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
-        {
-            //We are using viewModel to keep track of the data in case the user accidently reload the page. 
-            ViewData["ReturnUrl"] = returnUrl;
-            var response = new LoginViewModel();
-            return View(response);
-        }
-
-        [HttpGet]
         public IActionResult Register()
         {
             var registerViewModel = new RegisterViewModel();
@@ -89,6 +80,15 @@ namespace Logement.Controllers
                 }
                 return View(registerViewModel);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            //We are using viewModel to keep track of the data in case the user accidently reload the page. 
+            ViewData["ReturnUrl"] = returnUrl;
+            var response = new LoginViewModel();
+            return View(response);
         }
 
         [HttpPost]

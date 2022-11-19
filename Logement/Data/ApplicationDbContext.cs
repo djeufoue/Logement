@@ -19,5 +19,7 @@ namespace Logement.Data
         public DbSet<ApartmentPhoto> ApartmentPhotos { get; set; }
 
         public DbSet<FileModel> FileModel { get; set; }
+
+        public DbSet<Logement.ViewModels.TenantRentApartmentViewModel> TenantRentApartmentViewModel { get; set; }
     }
 }

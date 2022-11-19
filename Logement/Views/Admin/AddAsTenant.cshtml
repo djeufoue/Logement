@@ -1,0 +1,81 @@
+﻿@model Logement.ViewModels.TenantRentApartmentViewModel
+
+@{
+    ViewData["Title"] = "AddAsTenant";
+}
+
+
+<style >
+    .form-group {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<h3>Add as tenant</h3>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddTenantRentInfos" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="TenantEmail" class="control-label"></label>
+                <input asp-for="TenantEmail" class="form-control" />
+                <span asp-validation-for="TenantEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AmountPaidByTenant" class="control-label"></label>
+                <input asp-for="AmountPaidByTenant" class="form-control" />
+                <span asp-validation-for="AmountPaidByTenant" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DepositePrice" class="control-label"></label>
+                <input asp-for="DepositePrice" class="form-control" />
+                <span asp-validation-for="DepositePrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentMethod" class="control-label">
+                    Select the Payment method
+                </label>
+                <select asp-for="PaymentMethod" class="form-control">
+                    <option value="Annually">Annually</option>
+                    <option value="Half_yearly">Half_yearly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Monthly">Monthly</option>
+                </select>
+                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartOfContract" class="control-label"></label>
+                <input asp-for="StartOfContract" class="form-control"/>
+                <span asp-validation-for="StartOfContract" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndOfContract" class="control-label"></label>
+                <input asp-for="EndOfContract" class="form-control"/>
+                <span asp-validation-for="EndOfContract" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContractFile" class="control-label"></label>
+                <input asp-for="ContractFile" class="form-control-file" accept="file/*" required />
+                <span asp-validation-for="ContractFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
