@@ -180,6 +180,18 @@ namespace Logement.Controllers
             return View(allTenantsViewModels);
         }
 
+        
+        public IActionResult GetAllUsersPartialView()
+        {
+            List<ApplicationUser> users = _userManager.Users.ToList();
+            List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
+            foreach (ApplicationUser user in users)
+            {
+                allUsersViewModels.Add(GetViewModelFromModel(user));
+            }
+            return PartialView("_AssignTenantPartialView", allUsersViewModels);
+        }
+
         public IActionResult AllAccess()
         {
             return View();

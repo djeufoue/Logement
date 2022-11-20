@@ -1,9 +1,12 @@
-﻿@model IEnumerable<Logement.ViewModels.ApartmentViewModel>
+﻿@using Logement.ViewModels
+
+@model IEnumerable<Logement.ViewModels.ApartmentViewModel>
 
 @{
     ViewData["Title"] = "ApartmentList";
 }
 
+<div id ="PlaceHolderHere"></div>
 <h3>Apartments List</h3>
 
 <p>
@@ -105,7 +108,12 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+
+                <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant" 
+                        data-url="@Url.Action("GetAllUsersPartialView")">
+                    Assign
+                </button>
             </td>
         </tr>
 }
