@@ -11,6 +11,7 @@ using NPOI.SS.Formula.Functions;
 using Org.BouncyCastle.Crypto.Tls;
 using System.Diagnostics.Eventing.Reader;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Logement.Controllers
@@ -157,12 +158,14 @@ namespace Logement.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
             List<ApplicationUser> users = _userManager.Users.ToList();
             List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
             foreach (ApplicationUser user in users)
             {
+                if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    continue;
                 allUsersViewModels.Add(GetViewModelFromModel(user));
             }
             return View(allUsersViewModels);

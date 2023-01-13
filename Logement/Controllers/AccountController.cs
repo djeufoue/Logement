@@ -60,6 +60,8 @@ namespace Logement.Controllers
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
             if (result.Succeeded)
             {
+                await _userManager.AddToRoleAsync(user, "Tenant");
+
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {
                     throw new ApplicationException("SendConfirmationEmail is not implemented");
@@ -113,14 +115,11 @@ namespace Logement.Controllers
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"User account {loginViewModel.Email} has logged in.");
-
-                        if (string.IsNullOrEmpty(returnUrl))
-                        {
+               
                             if (await _userManager.IsInRoleAsync(user, "Admin"))
                                 returnUrl = "/Admin/AllAccess";
                             else
-                                returnUrl = "/Apartment/Index";
-                        }
+                                returnUrl = "/Apartment/Index";                       
 
                         return LocalRedirect(returnUrl);
                     }
