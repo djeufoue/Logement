@@ -14,12 +14,13 @@ namespace Logement.Data
        
         public DbSet<Apartment> Apartments { get; set; }
         public DbSet<ApplicationUser> TenantsInfos { get; set; }
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<TenantRentApartment> TenantRentApartments { get; set; }
         public DbSet<ApartmentPhoto> ApartmentPhotos { get; set; }
 
         public DbSet<FileModel> FileModel { get; set; }
+        
+        public DbSet<PaymentHistory> PaymentHistories { get; set; }
 
-        public DbSet<Logement.ViewModels.TenantRentApartmentViewModel> TenantRentApartmentViewModel { get; set; }
+        public DbSet<TenantPaymentStatus> TenantPaymentStatuses { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Logement.Data.Enum;
-using Logement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
@@ -22,11 +21,13 @@ namespace Logement.ViewModels
         /// Which is going to be use find the user that he just 
         /// add as tenant
         /// </summary>
-        [Required]
         public string TenantEmail { get; set; }
 
+       
+        public string? TenantPhoneNumber { get;set; }
+
         //to be added automatically in the code(the id of the new FileModel)
-        public long BailId { get; set; }
+        public long? BailId { get; set; }
 
         public string? Contract { get; set; }
 
@@ -35,9 +36,13 @@ namespace Logement.ViewModels
         /// Price after nagociations 
         /// </summary>
         [Precision(14, 2)]
-        [Display(Name = "Price after nagociations")]
+        [Display(Name = "Price per month after negotiation")]
         [Required]
         public decimal Price { get; set; }
+
+  
+        [Display(Name = " First payment made by the tenant")]     
+        public decimal AmountPaidByTenant { get; set; }
 
         //to be added automatically by the Lessor
         /// <summary>
@@ -45,23 +50,7 @@ namespace Logement.ViewModels
         /// </summary>
         [Precision(14, 2)]
         public decimal DepositePrice { get; set; }
-
-        [Display(Name = "Amount given by the tenant")]
-        public decimal AmountPaidByTenant { get; set; }
-
-        /// <summary>
-        /// Need to be calculate automaticaly base on the apartment price
-        /// the amount that was paid by the tenant and also the amount of months before set.
-        /// </summary>
-        public int NumberOfMonthsToPay { get; set; }
-
-        /// <summary>
-        /// Need to be calculate automaticaly base on the apartment price
-        /// the amount that was paid by the tenant and also the amount of months before set.
-        /// </summary>
-        public decimal AmountRemainingForRent { get; set; }
-
-        public decimal AmountPaidInAdvance { get; set; }
+        
 
         //to be added automatically by the Lessor
         /// <summary>

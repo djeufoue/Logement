@@ -39,18 +39,7 @@ namespace Logement.Models
         /// La caution
         /// </summary>
         [Precision(14, 2)]
-        public decimal DepositePrice { get; set; } 
-
-        /// <summary>
-        /// Every apartment has his own payment method
-        /// </summary>
-        public PaymentMethodEnum paymentMethod { get; set; }
-
-        /// <summary>
-        /// Just the format of an unfulfilled contract 
-        /// </summary>
-        public long TemplateContractId { get; set; }
-        public virtual FileModel TemplateContract { get; set; }
+        public decimal DepositePrice { get; set; }        
 
         public int? NumberOfParkingSpaces { get; set; }
 
@@ -61,7 +50,7 @@ namespace Logement.Models
 
         public ApartmentTypeEnum Type { get; set; }
 
-        public DateTimeOffset CreatedOn { get; set; }
+        public DateTime CreatedOn { get; set; }
 
     }
 }

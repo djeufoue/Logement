@@ -19,28 +19,20 @@ namespace Logement.Models
         /// An apartment can belong to only one Tenant 
         /// </summary>
         public long? ApartmentId { get; set; }
-        public virtual Apartment Apartment { get; set; } // Nom du locataire actuel
+        public virtual Apartment? Apartment { get; set; } // Nom du locataire actuel
 
         /// <summary>
         /// The tenant who occupies the apartment
         /// </summary>
-        public long TenantId { get; set; }
-        public virtual ApplicationUser Tenant { get; set; }
+        public string TenantEmail { get; set; }
 
-        /// <summary>
-        /// Can be zero(0)
-        /// </summary>
-        public int NumberOfMonthsToPay { get; set; } = 0;
+        public string TenantPhoneNumber { get; set; }
 
         /// <summary>
         /// Contrat de bail
         /// </summary>
-        public long BailId { get; set; }
-        public virtual FileModel Bail { get; set; }
-
-        public decimal AmountRemainingForRent { get; set; } = 0;
-
-        public decimal AmountPaidInAdvance { get; set; } = 0;
+        public long? BailId { get; set; }
+        public virtual FileModel? Bail { get; set; }
 
         /// <summary>
         /// Price after nagociations
@@ -66,7 +58,7 @@ namespace Logement.Models
         /// <summary>
         /// It is on this date that the tenant begins to pay his rent.
         /// </summary>
-        public DateTimeOffset StartOfContract { get; set; }
+        public DateTime StartOfContract { get; set; }
 
         /// <summary>
         /// This marks the end of the contract that the tenant had signed 
@@ -74,6 +66,6 @@ namespace Logement.Models
         /// the rent: "it is possible that the tenant still owes money to 
         /// the lessor after the end of his contract"
         /// </summary>
-        public DateTimeOffset? EndOfContract { get; set; }
+        public DateTime? EndOfContract { get; set; }
     }
 }

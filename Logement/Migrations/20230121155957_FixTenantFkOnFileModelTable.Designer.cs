@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230121155957_FixTenantFkOnFileModelTable")]
+    partial class FixTenantFkOnFileModelTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,12 +73,20 @@ namespace Logement.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<long>("TemplateContractId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int>("paymentMethod")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LessorId");
+
+                    b.HasIndex("TemplateContractId");
 
                     b.ToTable("Apartments");
                 });
@@ -272,11 +282,12 @@ namespace Logement.Migrations
                     b.Property<DateTime>("PaidDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("TenantEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("PaymentHistories");
                 });
@@ -298,11 +309,12 @@ namespace Logement.Migrations
                     b.Property<int>("RentStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("TenantEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("TenantPaymentStatuses");
                 });
@@ -341,13 +353,8 @@ namespace Logement.Migrations
                     b.Property<DateTime>("StartOfContract")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("TenantEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenantPhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -356,6 +363,8 @@ namespace Logement.Migrations
                         .HasFilter("[ApartmentId] IS NOT NULL");
 
                     b.HasIndex("BailId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("TenantRentApartments");
                 });
@@ -471,7 +480,15 @@ namespace Logement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Logement.Models.FileModel", "TemplateContract")
+                        .WithMany()
+                        .HasForeignKey("TemplateContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Lessor");
+
+                    b.Navigation("TemplateContract");
                 });
 
             modelBuilder.Entity("Logement.Models.ApartmentPhoto", b =>
@@ -494,6 +511,28 @@ namespace Logement.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
+                {
+                    b.HasOne("Logement.Models.ApplicationUser", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Logement.Models.TenantPaymentStatus", b =>
+                {
+                    b.HasOne("Logement.Models.ApplicationUser", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
                 {
                     b.HasOne("Logement.Models.Apartment", "Apartment")
@@ -504,9 +543,17 @@ namespace Logement.Migrations
                         .WithMany()
                         .HasForeignKey("BailId");
 
+                    b.HasOne("Logement.Models.ApplicationUser", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Apartment");
 
                     b.Navigation("Bail");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>

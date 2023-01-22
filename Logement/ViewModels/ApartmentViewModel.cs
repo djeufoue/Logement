@@ -48,19 +48,6 @@ namespace Logement.ViewModels
         [Precision(14, 2)]
         public decimal DepositePrice { get; set; }
 
-        /// <summary>
-        /// Every apartment has his own payment method
-        /// </summary>
-        [Display(Name = "Payment Method")]
-        public PaymentMethodEnum PaymentMethod { get; set; }
-
-
-        /// <summary>
-        /// Just the format of an unfulfilled contract 
-        /// </summary>
-        [HiddenInput(DisplayValue = true)]
-        public long TemplateContractId { get; set; }
-
         [Display(Name = "Parkings")]
         public int? NumberOfParkingSpaces { get; set; }
         /// <summary>
@@ -78,10 +65,6 @@ namespace Logement.ViewModels
 
         [Display(Name = "Which part")]
         public string Part { get; set; }
-
-        [Display(Name = "Upload template Contract")]
-        public IFormFile UploadTemplateContract { get; set; }
-
 
         [Display(Name = "Apartment Image")]
         public string? ImageURL { get; set; }
