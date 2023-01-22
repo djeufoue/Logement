@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/js/site.js" asp-append-version="true" />
     <link rel="stylesheet" href="~/Logement.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body>   
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -25,21 +25,50 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-
-                        @if(string.IsNullOrEmpty(User.Identity.Name)){
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                            </li>
-                        }
+                        </li>                        
                     </ul>
+                </div>
+                <div class="info-bar">
+                    <div class="wrapper">
+                        <div class="text-left">
+
+                            @if (!string.IsNullOrEmpty(User.Identity.Name))
+                            {
+                                @if (User.IsInRole("Admin") || User.IsInRole("SystemAdmin"))
+                                {
+                                    <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
+                                    <div id="myDropdown" class="dropdown-content">
+                                        <a asp-area="" asp-controller="Admin" asp-action="ApartmentList">Apartments</a>
+                                        <a asp-area="" asp-controller="Admin" asp-action="GetAllTenants">Tenant</a> 
+                                        <a asp-area="" asp-controller="Admin" asp-action="GetAllUsers">Pending users</a>
+                                        <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
+                                    </div>
+                                }
+                                else if (User.IsInRole("Tenant"))
+                                {
+                                    <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
+                                    <div id="myDropdown" class="dropdown-content">
+                                        <a href="#">Profile</a>
+                                        <a asp-area="" asp-controller="TenantApartment" asp-action="TenantRentStatus" asp-route-tenantEmail="@User.Identity.Name">My rent status</a>
+                                        <a asp-area="" asp-controller="TenantApartment" asp-action="GetAllPaymentsHistory" asp-route-userEmail="@User.Identity.Name">My Payment history</a>
+                                        <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
+                                    <div id="myDropdown" class="dropdown-content">
+                                       <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
+                                    </div>
+                                }
+                            }
+                            else if(string.IsNullOrEmpty(User.Identity.Name))
+                            {
+                                <strong><a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a></strong>
+                            }
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </nav>
@@ -61,3 +90,50 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
+<style>
+     /* Dropdown Button */
+    .dropbtn {
+        background-color: white;
+        color: black;
+        border-radius: 10px;
+        border: 2px solid #e7e7e7;
+      cursor: pointer;
+    }
+
+    /* Dropdown button on hover & focus */
+    .dropbtn:hover, .dropbtn:focus {
+      background-color: #2980B9;
+    }
+
+    /* The container <div> - needed to position the dropdown content */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* Dropdown Content (Hidden by Default) */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f1f1f1;
+      min-width: 150px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    /* Links inside the dropdown */
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    /* Change color of dropdown links on hover */
+    .dropdown-content a:hover {background-color: #ddd;}
+
+    /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+    .show {display:block;}
+</style>

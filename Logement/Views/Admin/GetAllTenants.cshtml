@@ -4,11 +4,8 @@
     ViewData["Title"] = "GetAllTenants";
 }
 
-<h1>GetAllTenants</h1>
+<h3>List of all tenants</h3>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -16,7 +13,7 @@
                 @Html.DisplayNameFor(model => model.TenantEmail)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Contract)
+                @Html.DisplayNameFor(model => model.TenantPhoneNumber)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Price)
@@ -26,15 +23,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AmountPaidByTenant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NumberOfMonthsToPay)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AmountRemainingForRent)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AmountPaidInAdvance)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PaymentMethod)
@@ -55,7 +43,7 @@
                 @Html.DisplayFor(modelItem => item.TenantEmail)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Contract)
+                @Html.DisplayFor(modelItem => item.TenantPhoneNumber)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
@@ -67,15 +55,6 @@
                 @Html.DisplayFor(modelItem => item.AmountPaidByTenant)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NumberOfMonthsToPay)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmountRemainingForRent)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmountPaidInAdvance)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.PaymentMethod)
             </td>
             <td>
@@ -85,9 +64,8 @@
                 @Html.DisplayFor(modelItem => item.EndOfContract)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a href="/TenantApartment/TenantRentStatus?tenantEmail=@item.TenantEmail">Rent status</a> |
+                <a asp-area="" asp-controller="TenantApartment" asp-action="GetAllPaymentsHistory" asp-route-userEmail="@item.TenantEmail">Payment history</a>
             </td>
         </tr>
 }

@@ -15,6 +15,7 @@
 
     input[type='image'] {
     width: 30px;
+
 }
 </style>
 
@@ -27,15 +28,19 @@
         <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
     </div>
 
-    <div>
-        <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password", @id ="password" })</div>
-        <input type="image" class="btnshow" src="~/img/hide_icon.png" style="font-size:8px;", id="image">
+    <div class="pword">
+        <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password", @id ="password" })</div>       
         <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
+        <span>
+            <input type="image" class="btnshow" src="~/img/hide_icon.png" style="font-size:8px;" , id="image">
+        </span>
     </div>
 
-    <p>
+   
+
+    <div>
         <input type="submit" class="btn btn-success" value="Sign In">
-    </p>
+    </div>
 }
 
 <p>

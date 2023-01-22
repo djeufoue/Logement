@@ -34,6 +34,8 @@ namespace Logement.Controllers
             return View(registerViewModel);
         }
 
+
+        //Register people like simple users
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
@@ -52,6 +54,7 @@ namespace Logement.Controllers
             {
                 UserName = email,
                 Email = email,
+                PhoneNumber = registerViewModel.PhoneNumber,
                 TenantFirstName = registerViewModel.TenantFirstName,
                 TenantLastName = registerViewModel.TenantLastName,
                 JobTitle = registerViewModel.JobTitle,
@@ -59,9 +62,7 @@ namespace Logement.Controllers
             };
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
             if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, "Tenant");
-
+            {           
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {
                     throw new ApplicationException("SendConfirmationEmail is not implemented");
@@ -116,12 +117,12 @@ namespace Logement.Controllers
                     {
                         _logger.LogInformation($"User account {loginViewModel.Email} has logged in.");
                
-                            if (await _userManager.IsInRoleAsync(user, "Admin"))
+                          /*  if (await _userManager.IsInRoleAsync(user, "Admin"))
                                 returnUrl = "/Admin/AllAccess";
                             else
-                                returnUrl = "/Apartment/Index";                       
+                                returnUrl = "/Apartment/Index";                */       
 
-                        return LocalRedirect(returnUrl);
+                        return LocalRedirect("/Apartment/Index");
                     }
                 }
                 else

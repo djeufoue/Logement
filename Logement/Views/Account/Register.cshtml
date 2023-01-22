@@ -44,6 +44,11 @@
         <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
     </div>
 
+     <div>
+        <div>@Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", @placeholder = "Phone number with country code" })</div>
+        <div>@Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })</div>
+    </div>
+
     <div>
         <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password" })</div>
         <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>

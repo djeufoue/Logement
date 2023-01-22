@@ -1,0 +1,44 @@
+﻿@model Logement.ViewModels.TenantPaymentStatusViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+<h2 style="margin-bottom: 30px;">Rent status</h2>
+
+<table style="width:auto">
+      <tr>
+        <td class="title">@Html.DisplayNameFor(model => model.TenantName)</td>
+        <td>@Html.DisplayFor(model => model.TenantName)</td>
+      </tr>
+      <tr>
+        <td class="title">@Html.DisplayNameFor(model => model.NumberOfMonthsToPay)</td>
+        <td>@Html.DisplayFor(model => model.NumberOfMonthsToPay)</td>
+      </tr>
+      <tr>
+        <td class="title"> @Html.DisplayNameFor(model => model.AmountRemainingForRent)</td>
+        <td> @Html.DisplayFor(model => model.AmountRemainingForRent)</td>
+      </tr>
+      <tr>
+        <td class="title">@Html.DisplayNameFor(model => model.RentStatus)</td>
+        <td>@Html.DisplayFor(model => model.RentStatus)</td>
+      </tr>
+</table>
+
+
+@if (!(User.IsInRole("Tenant")))
+{
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+        <a asp-action="Index">Back to List</a>
+    </div>
+}
+<style>
+
+    .title{
+        font-weight: bold;
+        padding-top: 10px;
+        padding-right: 20px;
+    }
+</style>

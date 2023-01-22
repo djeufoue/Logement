@@ -57,19 +57,7 @@
                 <label asp-for="DepositePrice" class="control-label"></label>
                 <input asp-for="DepositePrice" class="form-control" />
                 <span asp-validation-for="DepositePrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PaymentMethod" class="control-label">
-                   Select the Payment method
-                </label>
-                <select asp-for="PaymentMethod" class="form-control">
-                    <option value="Annually">Annually</option>
-                    <option value="Half_early">Half_yearly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Monthly">Monthly</option>
-                </select>
-                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
-            </div>
+            </div>            
             <div class="form-group">
                 <label asp-for="NumberOfParkingSpaces" class="control-label"></label>
                 <input asp-for="NumberOfParkingSpaces" class="form-control" />
@@ -106,11 +94,6 @@
                 <label asp-for="Part" class="control-label"></label>
                 <input asp-for="Part" class="form-control-file"/>
                 <span asp-validation-for="Part" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UploadTemplateContract" class="control-label"></label>
-                <input asp-for="UploadTemplateContract" class="form-control-file" accept="file/*" required />
-                <span asp-validation-for="UploadTemplateContract" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CreatedOn" class="control-label"></label>

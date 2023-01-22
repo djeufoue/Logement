@@ -1,6 +1,6 @@
-﻿@model IEnumerable<Logement.ViewModels.AllUsersViewModel>
+﻿@model Logement.ViewModels.BaseAllUsersViewModel
 
-<div class="modal fade" id="addTenant">
+<div class="modal fade" id="addTenant" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -15,18 +15,18 @@
                     <thead>
                         <tr>
                             <th>
-                                @Html.DisplayNameFor(model => model.FirstName)
+                                @Html.DisplayName("FirstName")
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.LastName)
+                                @Html.DisplayName("LastName")
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.Email)
+                                @Html.DisplayName("Email")
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Users)
                         {
                             <tr>
                                 <td>
@@ -37,6 +37,9 @@
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Email)
+                                </td>
+                                <td>
+                                    <a asp-action="AddAsTenant" asp-route-tenantId="@item.Id" asp-route-email="@item.Email" asp-route-ChoosenApartmentId ="@Model.ApartmentId">Add As Tenant</a>
                                 </td>
                             </tr>
                         }
