@@ -1,6 +1,4 @@
-﻿@using Logement.ViewModels
-
-@model IEnumerable<Logement.ViewModels.ApartmentViewModel>
+﻿@model IEnumerable<Logement.ViewModels.ApartmentViewModel>
 
 @{
     ViewData["Title"] = "ApartmentList";
@@ -105,35 +103,27 @@
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
                      
-                    @if (item.Status.Equals("Free"))
+                    @if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Free))
                     {
                          <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
                                  data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
                             Assign
                         </button>
                     }
-                    else if (item.Status.Equals("Under_construction") && item.Status.Equals("Free"))
+                    else if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Under_construction))
                     {
                         <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
                                  data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
                             Assign
                         </button>
                     }
-                    else if (item.Status.Equals("Under_construction") && item.Status.Equals("Busy"))
+                    else if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Busy))
                     {
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" disabled="disabled" data-target="#addTenant"
+                        <button type="button" id="not-allowed" class="btn btn-primary" disabled data-toggle="ajax-modal" data-target="#addTenant"
                         data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
                             Assign
                         </button>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" disabled="disabled" data-target="#addTenant"
-                        data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
-                            Assign
-                        </button>
-                    }
-
+                    }     
             </td>
         </tr>
 }
@@ -148,5 +138,10 @@
         -webkit-line-clamp: 4;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+
+    #not-allowed{
+        cursor: not-allowed;
+        pointer-events: all !important;
     }
 </style>
