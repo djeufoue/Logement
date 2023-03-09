@@ -1,5 +1,8 @@
-﻿namespace Logement.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Logement.Models
 {
+    
     public class PaymentHistory
     {
         public long Id { get; set; }

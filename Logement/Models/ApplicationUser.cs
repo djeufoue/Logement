@@ -16,7 +16,7 @@ namespace Logement.Models
         public override string? ConcurrencyStamp { get; set; }
 
         [MaxLength(256)]
-        public override string? PhoneNumber { get; set; }
+        public override string PhoneNumber { get; set; }
 
         public string TenantFirstName { get; set; }
 

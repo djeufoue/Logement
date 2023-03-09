@@ -1,6 +1,7 @@
 ﻿using Logement.Data.Enum;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NPOI.SS.UserModel;
 
 namespace Logement.Models
 {
@@ -67,5 +68,7 @@ namespace Logement.Models
         /// the lessor after the end of his contract"
         /// </summary>
         public DateTime? EndOfContract { get; set; }
+
+        public bool IsActiveAsTenant { get; set; }
     }
 }
