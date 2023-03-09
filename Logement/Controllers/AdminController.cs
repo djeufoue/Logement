@@ -414,7 +414,8 @@ namespace Logement.Controllers
                             DepositePrice = model.DepositePrice,                               
                             PaymentMethodEnum = model.PaymentMethod,
                             StartOfContract = model.StartOfContract,
-                            EndOfContract = model.EndOfContract
+                            EndOfContract = model.EndOfContract,
+                            IsActiveAsTenant = true
                         };
 
                         _context.Add(tenantRentApartment);
@@ -460,13 +461,16 @@ namespace Logement.Controllers
                         decimal nbOfMonthPaid = 0;
                         PaymentHistory newPayment ;
                         TenantPaymentStatus tenantPaymentStatus;
+                        RentPaymentDatesSchedular rentPaymentDatesSchedular;
 
 
                         //Sachant que le premier versement(1 ans de loyer) doit etre largement suprerieur au prix de l'apartement
                         if (model.AmountPaidByTenant > apartmentPrice)
                         {
-                            nbOfMonthPaid = model.AmountPaidByTenant - apartmentPrice;
+                            nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
 
+                            /*Add 30 days on the current payment date in case the amount paid is not enough
+                            Remind tenant after 30 days that he must pay his rent*/
                             newPayment = new PaymentHistory()
                             {
                                 TenantEmail = user.Email,
@@ -474,9 +478,21 @@ namespace Logement.Controllers
                                 NunberOfMonthPaid = nbOfMonthPaid.ToString(),
                                 PaidDate = DateTime.UtcNow
                             };
-
                             _context.Add(newPayment);
                             await _context.SaveChangesAsync();
+
+
+                            //Schedule the next date to pay the rent 
+                            rentPaymentDatesSchedular = new RentPaymentDatesSchedular
+                            {
+                                TenantEmail = user.Email,
+                                IsRentPaidForThisDate = false,
+                                AmmountSupposedToPay = apartmentPrice,
+                                NextDateToPay = DateTimeOffset.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
+                            };
+                            _context.Add(rentPaymentDatesSchedular);
+                            await _context.SaveChangesAsync();
+
 
                             tenantPaymentStatus = new TenantPaymentStatus()
                             {
@@ -485,7 +501,6 @@ namespace Logement.Controllers
                                 AmountRemainingForRent = 0,
                                 RentStatus = Data.Enum.RentStatusEnum.Paid
                             };
-
                             _context.Add(tenantPaymentStatus);
                             await _context.SaveChangesAsync();
                         }//To Do: Should remove this one 
@@ -498,8 +513,17 @@ namespace Logement.Controllers
                                 NunberOfMonthPaid = "The amount less than 1 month of payment",
                                 PaidDate = DateTime.UtcNow
                             };
-
                             _context.Add(newPayment);
+                            await _context.SaveChangesAsync();
+
+                            //Schedule the next date to pay the rent 
+                            rentPaymentDatesSchedular = new RentPaymentDatesSchedular
+                            {
+                                TenantEmail = user.Email,
+                                IsRentPaidForThisDate = false,
+                                NextDateToPay = DateTimeOffset.UtcNow.AddMonths(30)
+                            };
+                            _context.Add(rentPaymentDatesSchedular);
                             await _context.SaveChangesAsync();
 
 
@@ -510,7 +534,6 @@ namespace Logement.Controllers
                                 AmountRemainingForRent = 0,
                                 RentStatus = Data.Enum.RentStatusEnum.Partially_paid
                             };
-
                             _context.Add(tenantPaymentStatus);
                             await _context.SaveChangesAsync();
                         }
