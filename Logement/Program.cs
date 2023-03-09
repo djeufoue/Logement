@@ -1,67 +1,123 @@
+using Hangfire;
+using Hangfire.SqlServer;
 using Logement.Data;
 using Logement.Models;
+using Logement.Schedular;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NPOI.SS.Formula.Functions;
+using System.Threading.Tasks;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+namespace Logement
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-});
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            ILogger logger = LoggerService.CreateLogger("Program");
+            try
+            {
+                var builder = WebApplication.CreateBuilder(args);
+                DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
 
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+                LoggerService.ConfigureLogging(builder.Host);
 
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    // Password settings.
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredUniqueChars = 1;
-    options.Password.RequiredLength = 6;
+                ConfigureDatabase(builder.Services, builder.Configuration);
+                ConfigureIdentity(builder.Services);
 
-    // User settings.
-    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    options.User.RequireUniqueEmail = true;
+                builder.Services.AddControllersWithViews();
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                {
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                });
 
-    // SignIn settings.
-    options.SignIn.RequireConfirmedAccount = false;
-});
+                builder.Services.AddScoped<Schedular.PaymentSchedular>();
 
+                var app = builder.Build();
 
-var app = builder.Build();
+                ConfigureApp(app);
+                app.Run();
+            }
+            catch (Exception exception)
+            {
+                logger.LogCritical(exception, "Server Shutdown");
+                throw;
+            }
+            finally
+            {
+                LoggerService.Shutdown();
+            }
+        }
 
+        private static void ConfigureDatabase(IServiceCollection services, IConfiguration configuration)
+        {
+            string connectionString = configuration.GetConnectionString("DefaultConnection");
+           
+            services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
+            services.AddHangfireServer();
+        }
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+        private static void ConfigureIdentity(IServiceCollection services)
+        {
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddSingleton<Services.EmailService>();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequiredUniqueChars = 1;
+                options.Password.RequiredLength = 6;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+
+                // SignIn settings.
+                options.SignIn.RequireConfirmedAccount = false;
+            });
+        }
+        private static void ConfigureApp(WebApplication app)
+        {
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseHangfireDashboard();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Admin}/{action=ApartmentList}/{id?}");
+
+            using (var serviceScope = app.Services.CreateScope())
+            {
+                ApplicationDbSeed.SeedDatabase(serviceScope.ServiceProvider);
+            }
+
+            app.UseHangfireDashboard(); // must come before setup below, and after initialization above
+            BaseScheduler.Setup();
+        }
+    }
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Admin}/{action=ApartmentList}/{id?}");
-
-using (var serviceScope = app.Services.CreateScope())
-{
-    ApplicationDbSeed.SeedDatabase(serviceScope.ServiceProvider);
-}
-
-app.Run();

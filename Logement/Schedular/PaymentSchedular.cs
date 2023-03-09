@@ -82,9 +82,6 @@ namespace Logement.Schedular
                         }
                     }
                 }
-
-                //Send an email to this tenant
-                //To Do Create a table to Store tenant Email and accossiate date where they was 
             }
 
         }
