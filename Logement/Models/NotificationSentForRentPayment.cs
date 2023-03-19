@@ -2,7 +2,7 @@
 
 namespace Logement.Models
 {
-    public class NotificationSentForRentPayments
+    public class NotificationSentForRentPayment
     {
         public long Id { get; set; }
         public string TenantEmail { get; set; }

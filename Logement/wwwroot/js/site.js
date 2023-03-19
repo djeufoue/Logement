@@ -4,7 +4,7 @@
 // Write your JavaScript code.
 
 
-$(function () {
+(function () {
     var PlaceHolderElement = $('#PlaceHolderHere');
     $('button[data-toggle="ajax-modal"]').click(function (event) {
 
@@ -39,5 +39,75 @@ window.onclick = function (event) {
                 openDropdown.classList.remove('show');
             }
         }
+    }
+}
+
+function addAnotherPicture(button, path) {
+    var html = ""
+        + "  <div class='row'>\n"
+        + "    <div class='col-sm-2'>\n"
+        + "      Picture\n"
+        + "    </div>\n"
+        + "    <div class='col-sm-10'>\n"
+        + "      <img src = '(path)[(index)].ImageURL' class='form-control ChosenImage' style = 'width: 50px;' value='(image)' />"
+        + "    </div>\n"
+        + "  </div>\n"
+        + "  <div class='row'>\n"
+        + "    <div class='col-sm-2'>\n"
+        + "       Which Part\n"
+        + "    </div>\n"
+        + "    <div class='col-sm-10'>\n"
+        + "       <input image='text' readonly='readonly' class='form-control ItemPart' name='(path)[(index)].Part' value='(apartmentPart)' />\n"
+        + "    </div>\n"
+        + "  </div>\n"
+        + "  <div style='text-align: right;'>\n"
+        + "    <a class='btn btn-danger' onclick=\"removePicture(this, '(path)'); updateItemCount(0)\">Remove</a>\n"
+        + "  </div>\n";
+
+    var linkedItem = button.parentElement.parentElement;
+
+    var chosenImage = linkedItem.getElementsByClassName("ChosenImage")[0];
+    var whichPart = linkedItem.getElementsByClassName("ItemPart")[0];
+
+    var image = chosenImage.value;
+    var apartmentPart = whichPart.value;
+
+    if (!image) {
+        alert("Please choose a picture");
+    }
+    else if (!apartmentPart) {
+        alert("Please add the apartment part");
+    }
+    else if (apartmentPart.length > 50) {
+        alert("Number of character should be less than 50");
+    }
+    else {
+        var linkedItems = linkedItem.parentElement;
+        var index = linkedItems.children.length - 1;
+
+        html = html.replaceAll("(path)", path);
+        html = html.replaceAll("(index)", index);
+        html = html.replaceAll("(image)", image);
+        html = html.replaceAll("(apartmentPart)", apartmentPart);
+
+        var div = document.createElement("DIV");
+        div.innerHTML = html;
+        linkedItems.insertBefore(div, linkedItem);
+    }
+}
+
+function removePicture(button, path) {
+    var linkedItem = button.parentElement.parentElement;
+    var linkedItems = linkedItem.parentElement;
+    linkedItem.remove();
+
+    for (var i = 0; i < linkedItems.children.length - 1; i++) {
+        linkedItem = linkedItems.children[i];
+
+        var chosenImage = linkedItem.getElementsByClassName("ChosenImage")[0];
+        var whichPart = linkedItem.getElementsByClassName("ItemPart")[0];
+
+        chosenImage.name = path + "[" + i + "]" + ".ImageURL";
+        whichPart.name = path + "[" + i + "]" + ".Part";
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Logement.Data.Enum;
+using Logement.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
@@ -26,6 +27,8 @@ namespace Logement.Models
         public int NumberOfbathRooms { get; set; }
 
         public int RoomArea { get; set; } // Superficie
+
+        public virtual ICollection<ApartmentPhoto> PhotoSlots { get; set; }
 
         public int? FloorNumber { get; set; }
 

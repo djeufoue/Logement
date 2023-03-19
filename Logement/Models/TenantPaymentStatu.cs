@@ -3,7 +3,7 @@
 namespace Logement.Models
 {
     //Fill this table after we add a tenant, and conditionally per month or per year and so on..
-    public class TenantPaymentStatus
+    public class TenantPaymentStatu
     {
         public long Id { get; set; }
         

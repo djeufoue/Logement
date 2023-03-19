@@ -58,13 +58,49 @@ namespace Logement.ViewModels
         public ApartmentTypeEnum Type { get; set; }
 
         [Display(Name = "Apartment Image")]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
 
         /*[Display(Name = "Image")]
         public string? ImageURL { get; set; }*/
 
         [Display(Name = "Which part")]
-        public string Part { get; set; }
+        public string? Part { get; set; }
+
+        //To do: if PhotoSlosts count is Zero, then take apartmentPhotoViewModel value a add it there
+        public List<ApartmentPhotoViewModel> _PhotoSlots;
+        public List<ApartmentPhotoViewModel> PhotoSlots 
+        {
+            get
+            {
+                if(PhotoSlots == null) 
+                {
+                    _PhotoSlots = new List<ApartmentPhotoViewModel>()
+                    {
+                        new ApartmentPhotoViewModel
+                        {
+                            Part = apartmentPhotoViewModel.Part,
+                            ImageURL = apartmentPhotoViewModel.ImageURL,
+                        }
+                    };                    
+                }
+                return _PhotoSlots;
+            }
+            set
+            {
+                if (PhotoSlots == null)
+                {
+                    _PhotoSlots = new List<ApartmentPhotoViewModel>()
+                    {
+                        new ApartmentPhotoViewModel
+                        {
+                            Part = apartmentPhotoViewModel.Part,
+                            ImageURL = apartmentPhotoViewModel.ImageURL,
+                        }
+                    };
+                }
+            } 
+        } 
+        public ApartmentPhotoViewModel apartmentPhotoViewModel { get; set; }
 
         [Display(Name = "Apartment Image")]
         public string? ImageURL { get; set; }

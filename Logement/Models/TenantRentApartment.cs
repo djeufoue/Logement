@@ -25,9 +25,9 @@ namespace Logement.Models
         /// <summary>
         /// The tenant who occupies the apartment
         /// </summary>
-        public string TenantEmail { get; set; }
+        public string? TenantEmail { get; set; }
 
-        public string TenantPhoneNumber { get; set; }
+        public string? TenantPhoneNumber { get; set; }
 
         /// <summary>
         /// Contrat de bail

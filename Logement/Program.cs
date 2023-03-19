@@ -66,6 +66,7 @@ namespace Logement
                 .AddDefaultTokenProviders();
 
             services.AddSingleton<Services.EmailService>();
+            services.AddSingleton<Services.SMSservice>();
 
             services.Configure<IdentityOptions>(options =>
             {

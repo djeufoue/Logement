@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using NPOI.SS.Formula.Functions;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace Logement.Controllers
 {
@@ -57,7 +58,7 @@ namespace Logement.Controllers
             return allUsersViewModel;
         }
 
-             
+
         private TenantRentApartmentViewModel GetTenantFromModel(TenantRentApartment tenant)
         {
             TenantRentApartmentViewModel allTenant = new TenantRentApartmentViewModel()
@@ -68,7 +69,7 @@ namespace Logement.Controllers
                 Price = tenant.Price,
                 AmountPaidByTenant = tenant.AmountPaidByTenant,
                 DepositePrice = tenant.DepositePrice,
-                PaymentMethod = tenant.PaymentMethodEnum,              
+                PaymentMethod = tenant.PaymentMethodEnum,
                 StartOfContract = tenant.StartOfContract,
             };
             return allTenant;
@@ -92,7 +93,7 @@ namespace Logement.Controllers
                 RoomArea = apartment.RoomArea,
                 FloorNumber = apartment.FloorNumber,
                 Price = apartment.Price,
-                DepositePrice = apartment.DepositePrice,                           
+                DepositePrice = apartment.DepositePrice,
                 NumberOfParkingSpaces = apartment.NumberOfParkingSpaces,
                 Status = apartment.Status,
                 Type = apartment.Type,
@@ -156,9 +157,9 @@ namespace Logement.Controllers
                 if (await _userManager.IsInRoleAsync(user, "Admin"))
                     continue;
 
-                var tenant = _context.TenantRentApartments
+                var tenant = await _context.TenantRentApartments
                                            .Where(t => t.TenantEmail == user.Email)
-                                           .FirstOrDefault();
+                                           .FirstOrDefaultAsync();
 
                 //Check if this user is already a tenant
                 if (tenant != null)
@@ -180,7 +181,7 @@ namespace Logement.Controllers
             return View(allTenantsViewModels);
         }
 
-       
+
         [HttpGet]
         public async Task<IActionResult> GetAllUsersPartialViewAsync(long apartmentId)
         {
@@ -193,9 +194,9 @@ namespace Logement.Controllers
                     continue;
 
                 //Check if this apartment as been already assign to this user
-                var output = _context.TenantRentApartments
-                                     .Where(u => u.TenantEmail == user.Email &&  u.ApartmentId == apartmentId)
-                                     .FirstOrDefault();
+                var output = await _context.TenantRentApartments
+                                     .Where(u => u.TenantEmail == user.Email && u.ApartmentId == apartmentId)
+                                     .FirstOrDefaultAsync();
                 if (output != null)
                     continue;
 
@@ -263,12 +264,11 @@ namespace Logement.Controllers
             }
         }
 
-
-        public async Task SaveImageFile(IFormFile formFile)
+        public async Task SaveImageFile(IFormFile formFile, long apartmentId, string photoPart)
         {
             if (formFile != null)
             {
-                string folder = _configuration.GetValue<string>("PathToApartmentsImagesAndFiles");
+                string? folder = _configuration.GetValue<string>("PathToApartmentsImagesAndFiles");
                 string dateTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH-mm-ss");
                 string fileName = $" ApartmentList {dateTime} {formFile.FileName}";
 
@@ -279,9 +279,12 @@ namespace Logement.Controllers
 
                 apartmentPhoto = new ApartmentPhoto()
                 {
+                    ApartmentId = apartmentId,
                     ImageURL = $"/Admin/{nameof(GetFile)}?filename={fileName}",
-                    Part = part
+                    Part = photoPart
                 };
+                _context.Add(apartmentPhoto);
+                await _context.SaveChangesAsync();
             }
         }
 
@@ -295,7 +298,7 @@ namespace Logement.Controllers
         {
             if (formFile != null)
             {
-                string folder = _configuration.GetValue<string>("PathToApartmentsImagesAndFiles");
+                string? folder = _configuration.GetValue<string>("PathToApartmentsImagesAndFiles");
                 string dateTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH-mm-ss");
                 string fileName = $" ApartmentList {dateTime} {formFile.FileName}";
 
@@ -315,18 +318,19 @@ namespace Logement.Controllers
                 await _context.SaveChangesAsync();
 
                 //The file Url is unique because of the time which can't be the same for another file
-                var contract = _context.FileModel
+                var contract = await _context.FileModel
                                        .Where(f => f.Name == fileName)
-                                       .FirstOrDefault();
+                                       .FirstOrDefaultAsync();
                 //contract can't be null
-                contractId = contract.Id; 
-
+                contractId = contract.Id;
             }
         }
         //Get: Apartment/AddApartment
         public IActionResult AddApartment()
         {
-            return View();
+            ApartmentViewModel apartmentViewModel = new ApartmentViewModel();
+            apartmentViewModel.PhotoSlots = new List<ApartmentPhotoViewModel>();
+            return View(apartmentViewModel);
         }
 
         [HttpPost]
@@ -336,7 +340,6 @@ namespace Logement.Controllers
             if (ModelState.IsValid)
             {
                 Apartment apartment = AddApartmenFromViewModel(apartmentViewModel);
-                part = apartmentViewModel.Part;
                 var fileModel = new FileModel();
 
                 //look for the user who is currently Login
@@ -344,230 +347,225 @@ namespace Logement.Controllers
                                                .Where(u => u.UserName == User.Identity.Name)
                                                .First();
 
-           
-                    apartment.LessorId = user.Id;
 
-                    await SaveImageFile(apartmentViewModel.ImageFile);
+                apartment.LessorId = user.Id;
 
-                    _context.Add(apartment);
-                    await _context.SaveChangesAsync();
+                _context.Add(apartment);
+                await _context.SaveChangesAsync();
 
-                    //Find the apartment id that we just add
-                    var getApartmentId = _context.Apartments.Find(apartment.Id);
+                //Find the apartment id that we just add
+                var getApartmentId = _context.Apartments.Find(apartment.Id);
 
-                    //Assign that apartment id to the apartmentId Foreign Key which is inside the ApartmentPhoto Table
-                    if (getApartmentId != null)
+                //Assign that apartment id to the apartmentId Foreign Key which is inside the ApartmentPhoto Table
+                if (getApartmentId != null)
+                {
+                    foreach (var photo in apartmentViewModel.PhotoSlots)
                     {
-                        apartmentPhoto.ApartmentId = getApartmentId.Id;
-
-                        _context.Add(apartmentPhoto);
-                        await _context.SaveChangesAsync();
+                        await SaveImageFile(photo.ImageURL, getApartmentId.Id, photo.Part);
                     }
                     return RedirectToAction(nameof(ApartmentList));
+                }
             }
             return View(apartmentViewModel);
         }
-
-
         // Post: Admin/AddAsTenant/1
         [HttpGet]
-        public IActionResult AddAsTenant(long tenantId, string email, long ChoosenApartmentId)
-        {
-            TenantRentApartmentViewModel result = new TenantRentApartmentViewModel
+            public IActionResult AddAsTenant(long tenantId, string email, long ChoosenApartmentId)
             {
-                TenantId = tenantId,
-                TenantEmail = email,
-                ApartmentId = ChoosenApartmentId
-
-            };
-           return View(result);
-        }
-
-
-        //To Do: Try to get the right bailId, and change the status of the apartment from free to basy.
-        [HttpPost]
-        public async Task<IActionResult> AddAsTenant(TenantRentApartmentViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
+                TenantRentApartmentViewModel result = new TenantRentApartmentViewModel
                 {
-                    var user = _userManager.Users
-                                           .Where(u=> u.Id == model.TenantId)
-                                           .FirstOrDefault();
-                    
-                    if (user != null)
+                    TenantId = tenantId,
+                    TenantEmail = email,
+                    ApartmentId = ChoosenApartmentId
+                };
+                return View(result);
+            }
+
+
+            //To Do: Try to get the right bailId, and change the status of the apartment from free to basy.
+            [HttpPost]
+            public async Task<IActionResult> AddAsTenant(TenantRentApartmentViewModel model)
+            {
+                try
+                {
+                    if (ModelState.IsValid)
                     {
-                        TenantRentApartment tenantRentApartment;
-                        var fileModel = new FileModel();
-                   
-                        await SaveFile(model.ContractFile, fileModel, user.Id);
+                        var user = await _userManager.Users
+                                               .Where(u => u.Id == model.TenantId)
+                                               .FirstOrDefaultAsync();
 
-                        tenantRentApartment = new TenantRentApartment()
+                        if (user != null)
                         {
-                            TenantEmail = model.TenantEmail,
-                            TenantPhoneNumber = user.PhoneNumber,
-                            ApartmentId = model.ApartmentId,                             
-                            Price = model.Price,
-                            BailId = contractId,
-                            AmountPaidByTenant = model.AmountPaidByTenant,                            
-                            DepositePrice = model.DepositePrice,                               
-                            PaymentMethodEnum = model.PaymentMethod,
-                            StartOfContract = model.StartOfContract,
-                            EndOfContract = model.EndOfContract,
-                            IsActiveAsTenant = true
-                        };
+                            TenantRentApartment tenantRentApartment;
+                            var fileModel = new FileModel();
 
-                        _context.Add(tenantRentApartment);
-                        await _context.SaveChangesAsync();
+                            await SaveFile(model.ContractFile, fileModel, user.Id);
 
-
-                        //Change the apartment Status to Busy
-                        var apartment = _context.Apartments
-                                                .Where(a => a.Id == model.ApartmentId)
-                                                .FirstOrDefault();
-                        
-                        if(apartment != null)
-                        {
-                            Apartment apartmt = new Apartment()
+                            tenantRentApartment = new TenantRentApartment()
                             {
-                                Id = apartment.Id,
-                                Description = apartment.Description,
-                                LessorId = apartment.LessorId,
-                                LocatedAt = apartment.LocatedAt,
-                                NumberOfRooms = apartment.NumberOfRooms,
-                                NumberOfbathRooms = apartment.NumberOfbathRooms,
-                                RoomArea = apartment.RoomArea,
-                                FloorNumber = apartment.FloorNumber,
-                                Price = apartment.Price,
-                                DepositePrice = apartment.DepositePrice,
-                                NumberOfParkingSpaces = apartment.NumberOfParkingSpaces,
-                                Type = apartment.Type,
-                                CreatedOn = apartment.CreatedOn,
-                                Status = Data.Enum.ApartmentStatusEnum.Busy
+                                TenantEmail = model.TenantEmail,
+                                TenantPhoneNumber = user.PhoneNumber,
+                                ApartmentId = model.ApartmentId,
+                                Price = model.Price,
+                                BailId = contractId,
+                                AmountPaidByTenant = model.AmountPaidByTenant,
+                                DepositePrice = model.DepositePrice,
+                                PaymentMethodEnum = model.PaymentMethod,
+                                StartOfContract = model.StartOfContract,
+                                EndOfContract = model.EndOfContract,
+                                IsActiveAsTenant = true
                             };
-                            _context.Update(apartmt);
+
+                            _context.Add(tenantRentApartment);
                             await _context.SaveChangesAsync();
+
+
+                            //Change the apartment Status to Busy
+                            var apartment = await _context.Apartments
+                                                    .Where(a => a.Id == model.ApartmentId)
+                                                    .FirstOrDefaultAsync();
+
+                            if (apartment != null)
+                            {
+                                Apartment apartmt = new Apartment()
+                                {
+                                    Id = apartment.Id,
+                                    Description = apartment.Description,
+                                    LessorId = apartment.LessorId,
+                                    LocatedAt = apartment.LocatedAt,
+                                    NumberOfRooms = apartment.NumberOfRooms,
+                                    NumberOfbathRooms = apartment.NumberOfbathRooms,
+                                    RoomArea = apartment.RoomArea,
+                                    FloorNumber = apartment.FloorNumber,
+                                    Price = apartment.Price,
+                                    DepositePrice = apartment.DepositePrice,
+                                    NumberOfParkingSpaces = apartment.NumberOfParkingSpaces,
+                                    Type = apartment.Type,
+                                    CreatedOn = apartment.CreatedOn,
+                                    Status = Data.Enum.ApartmentStatusEnum.Busy
+                                };
+                                _context.Update(apartmt);
+                                await _context.SaveChangesAsync();
+                            }
+
+                            //Assign Tenant role to this user
+                            await _userManager.AddToRoleAsync(user, "Tenant");
+
+                            //Request to the database to find out the price on which the tenant and the lessor have agreed 
+                            var apartmentPrice = await _context.TenantRentApartments
+                                                            .Where(t => t.TenantEmail == user.Email)
+                                                            .Select(t => t.Price)
+                                                            .FirstOrDefaultAsync();
+                            decimal nbOfMonthPaid = 0;
+                            PaymentHistory newPayment;
+                            TenantPaymentStatu tenantPaymentStatus;
+                            RentPaymentDatesSchedular rentPaymentDatesSchedular;
+
+
+                            //Sachant que le premier versement(1 ans de loyer) doit etre largement suprerieur au prix de l'apartement
+                            if (model.AmountPaidByTenant > apartmentPrice)
+                            {
+                                nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
+
+                                /*Add 30 days on the current payment date in case the amount paid is not enough
+                                Remind tenant after 30 days that he must pay his rent*/
+                                newPayment = new PaymentHistory()
+                                {
+                                    TenantEmail = user.Email,
+                                    AmountPaid = model.AmountPaidByTenant,
+                                    NunberOfMonthPaid = nbOfMonthPaid.ToString(),
+                                    PaidDate = DateTime.UtcNow
+                                };
+                                _context.Add(newPayment);
+                                await _context.SaveChangesAsync();
+
+
+                                //Schedule the next date to pay the rent 
+                                rentPaymentDatesSchedular = new RentPaymentDatesSchedular
+                                {
+                                    TenantEmail = user.Email,
+                                    IsRentPaidForThisDate = false,
+                                    AmmountSupposedToPay = apartmentPrice,
+                                    NextDateToPay = DateTimeOffset.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
+                                };
+                                _context.Add(rentPaymentDatesSchedular);
+                                await _context.SaveChangesAsync();
+
+
+                                tenantPaymentStatus = new TenantPaymentStatu()
+                                {
+                                    TenantEmail = user.Email,
+                                    NumberOfMonthsToPay = 0,
+                                    AmountRemainingForRent = 0,
+                                    RentStatus = Data.Enum.RentStatusEnum.Paid
+                                };
+                                _context.Add(tenantPaymentStatus);
+                                await _context.SaveChangesAsync();
+                            }//To Do: Should remove this one 
+                            else if (model.AmountPaidByTenant < apartmentPrice)
+                            {
+                                newPayment = new PaymentHistory()
+                                {
+                                    TenantEmail = user.Email,
+                                    AmountPaid = model.AmountPaidByTenant,
+                                    NunberOfMonthPaid = "The amount less than 1 month of payment",
+                                    PaidDate = DateTime.UtcNow
+                                };
+                                _context.Add(newPayment);
+                                await _context.SaveChangesAsync();
+
+                                //Schedule the next date to pay the rent 
+                                rentPaymentDatesSchedular = new RentPaymentDatesSchedular
+                                {
+                                    TenantEmail = user.Email,
+                                    IsRentPaidForThisDate = false,
+                                    NextDateToPay = DateTimeOffset.UtcNow.AddMonths(30)
+                                };
+                                _context.Add(rentPaymentDatesSchedular);
+                                await _context.SaveChangesAsync();
+
+
+                                tenantPaymentStatus = new TenantPaymentStatu()
+                                {
+                                    TenantEmail = user.Email,
+                                    NumberOfMonthsToPay = 0,
+                                    AmountRemainingForRent = 0,
+                                    RentStatus = Data.Enum.RentStatusEnum.Partially_paid
+                                };
+                                _context.Add(tenantPaymentStatus);
+                                await _context.SaveChangesAsync();
+                            }
+
+                            return RedirectToAction(nameof(GetAllTenants));
                         }
-
-                        //Assign Tenant role to this user
-                        await _userManager.AddToRoleAsync(user, "Tenant");
-
-                        //Request to the database to find out the price on which the tenant and the lessor have agreed 
-                        var apartmentPrice = _context.TenantRentApartments
-                                                        .Where(t => t.TenantEmail == user.Email)
-                                                        .Select(t => t.Price)
-                                                        .FirstOrDefault();
-                        decimal nbOfMonthPaid = 0;
-                        PaymentHistory newPayment ;
-                        TenantPaymentStatus tenantPaymentStatus;
-                        RentPaymentDatesSchedular rentPaymentDatesSchedular;
-
-
-                        //Sachant que le premier versement(1 ans de loyer) doit etre largement suprerieur au prix de l'apartement
-                        if (model.AmountPaidByTenant > apartmentPrice)
-                        {
-                            nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
-
-                            /*Add 30 days on the current payment date in case the amount paid is not enough
-                            Remind tenant after 30 days that he must pay his rent*/
-                            newPayment = new PaymentHistory()
-                            {
-                                TenantEmail = user.Email,
-                                AmountPaid = model.AmountPaidByTenant,
-                                NunberOfMonthPaid = nbOfMonthPaid.ToString(),
-                                PaidDate = DateTime.UtcNow
-                            };
-                            _context.Add(newPayment);
-                            await _context.SaveChangesAsync();
-
-
-                            //Schedule the next date to pay the rent 
-                            rentPaymentDatesSchedular = new RentPaymentDatesSchedular
-                            {
-                                TenantEmail = user.Email,
-                                IsRentPaidForThisDate = false,
-                                AmmountSupposedToPay = apartmentPrice,
-                                NextDateToPay = DateTimeOffset.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
-                            };
-                            _context.Add(rentPaymentDatesSchedular);
-                            await _context.SaveChangesAsync();
-
-
-                            tenantPaymentStatus = new TenantPaymentStatus()
-                            {
-                                TenantEmail = user.Email,
-                                NumberOfMonthsToPay = 0,
-                                AmountRemainingForRent = 0,
-                                RentStatus = Data.Enum.RentStatusEnum.Paid
-                            };
-                            _context.Add(tenantPaymentStatus);
-                            await _context.SaveChangesAsync();
-                        }//To Do: Should remove this one 
-                        else if(model.AmountPaidByTenant < apartmentPrice)
-                        {
-                            newPayment = new PaymentHistory()
-                            {
-                                TenantEmail = user.Email,
-                                AmountPaid = model.AmountPaidByTenant,
-                                NunberOfMonthPaid = "The amount less than 1 month of payment",
-                                PaidDate = DateTime.UtcNow
-                            };
-                            _context.Add(newPayment);
-                            await _context.SaveChangesAsync();
-
-                            //Schedule the next date to pay the rent 
-                            rentPaymentDatesSchedular = new RentPaymentDatesSchedular
-                            {
-                                TenantEmail = user.Email,
-                                IsRentPaidForThisDate = false,
-                                NextDateToPay = DateTimeOffset.UtcNow.AddMonths(30)
-                            };
-                            _context.Add(rentPaymentDatesSchedular);
-                            await _context.SaveChangesAsync();
-
-
-                            tenantPaymentStatus = new TenantPaymentStatus()
-                            {
-                                TenantEmail = user.Email,
-                                NumberOfMonthsToPay = 0,
-                                AmountRemainingForRent = 0,
-                                RentStatus = Data.Enum.RentStatusEnum.Partially_paid
-                            };
-                            _context.Add(tenantPaymentStatus);
-                            await _context.SaveChangesAsync();
-                        }
-                                
-                        return RedirectToAction(nameof(GetAllTenants));                       
+                        else
+                            return BadRequest($"The user {model.TenantEmail} does not even exist as simple user");
                     }
-                    else
-                        return BadRequest($"The user {model.TenantEmail} does not even exist as simple user" );                   
+                    return View(model);
                 }
-                return View(model);
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
             }
-            catch(Exception ex)
-            {
-                return InternalServerError(ex);
-            }           
-        }
 
-        protected ActionResult InternalServerError(Exception ex, string? message = null)
-        {
-            _logger.LogError(ex, message);
-            if (message == null)
+            protected ActionResult InternalServerError(Exception ex, string? message = null)
             {
-                while (ex.InnerException != null)
-                    ex = ex.InnerException;
-                message = ex.Message;
+                _logger.LogError(ex, message);
+                if (message == null)
+                {
+                    while (ex.InnerException != null)
+                        ex = ex.InnerException;
+                    message = ex.Message;
+                }
+                return StatusCode((int)HttpStatusCode.InternalServerError, message);
             }
-            return StatusCode((int)HttpStatusCode.InternalServerError, message);
-        }
 
-        //To do: implement this page
-        [HttpGet]
-        public IActionResult AllMyTenant()
-        {
-            return View();
+            //To do: implement this page
+            [HttpGet]
+            public IActionResult AllMyTenant()
+            {
+                return View();
+            }
         }
     }
-}

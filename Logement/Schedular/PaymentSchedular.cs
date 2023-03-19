@@ -5,85 +5,139 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGeneration.CommandLine;
 using NPOI.SS.Formula.Functions;
+using NPOI.XWPF.UserModel;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Twilio.TwiML.Messaging;
 
 namespace Logement.Schedular
 {
     public class PaymentSchedular : BaseScheduler
     {
 
-        public PaymentSchedular(ApplicationDbContext context, ILogger<PaymentSchedular> logger, Services.EmailService emailService)
-            : base(context, logger, emailService)
+        public PaymentSchedular(ApplicationDbContext context,
+            ILogger<PaymentSchedular> logger,
+            Services.EmailService emailService,
+             UserManager<ApplicationUser> userManager,
+             Services.SMSservice sMSservice)
+            : base(context, logger, emailService, userManager, sMSservice)
         {
         }
 
-
         public async Task RunSchedularMethod()
         {
-            DateTime date = DateTime.Now;
 
+            NotificationSentForRentPayment notificationSentForRentPayments;
             //Find all active tenants
-            var tenantStatus = _context.TenantRentApartments
+            var tenantStatus = await _context.TenantRentApartments
                                        .Where(t => t.IsActiveAsTenant == true)
-                                       .Select(t => t.TenantEmail)
-                                       .ToList();
+                                       .ToListAsync();
 
-            foreach (var tenantEmail in tenantStatus)
+            //For each active tenant 
+            foreach (var tenant in tenantStatus)
             {
-                //Find all tenants who haven't paid their rent yet
-                var tenantRentPaymentStatus = await _context.RentPaymentDatesSchedulars
-                                                      .Where(t => t.TenantEmail == tenantEmail
-                                                       && !t.IsRentPaidForThisDate)
-                                                      .FirstOrDefaultAsync();
+                DateTime currentDate = DateTime.UtcNow;
 
-                if(tenantRentPaymentStatus != null)
+                //Selectionner les dates dont le status est impaye pour ce locataire actif
+                List<RentPaymentDatesSchedular> RentNotPaid = await (from r in _context.RentPaymentDatesSchedulars
+                                                                     where r.IsRentPaidForThisDate != true && r.TenantEmail == tenant.TenantEmail
+                                                                     select new RentPaymentDatesSchedular
+                                                                     {
+                                                                         TenantEmail = r.TenantEmail,
+                                                                         NextDateToPay = r.NextDateToPay,
+                                                                         AmmountSupposedToPay = r.AmmountSupposedToPay
+                                                                     }).ToListAsync();
+
+                //Rents that need to be pay for this tenant
+                List<RentPaymentDatesSchedular> RentsThatNeedToPay = new List<RentPaymentDatesSchedular>();
+
+                if (RentNotPaid != null)
                 {
-
-                    TimeSpan hours = (tenantRentPaymentStatus.NextDateToPay - DateTimeOffset.UtcNow);
-
-                    //True if we are close to the date of payment of the rent for this month
-                    if ((hours.Days) <= 1)
+                    foreach (var t in RentNotPaid)
                     {
-                        //Check if this date exists in this table
-                        var PaymentDate = await _context.NotificationSentForRentPayments
-                                                        .Where(d => d.ScheduledDateForRentPayment == tenantRentPaymentStatus.NextDateToPay)
+                        var dateToPay = await _context.RentPaymentDatesSchedulars
+                                                .Where(r => r.TenantEmail == t.TenantEmail)
+                                                .Select(r => r.NextDateToPay)
+                                                .FirstAsync();
+
+                       
+                        if ((dateToPay - currentDate).Days <= 15)
+                        {
+                            //Notification la plus rescente qui a été pour rappeler ce loyer de payer son loyer:
+                            var lastEmailSentDate = await _context.NotificationSentForRentPayments
+                                                        .Where(t => t.TenantEmail == tenant.TenantEmail)
+                                                        .OrderByDescending(d => d.NotificationSentDate)
+                                                        .Select( t => t.NotificationSentDate)
                                                         .FirstOrDefaultAsync();
 
-                        //True if a notification was already sent for this date 
-                        if (PaymentDate != null)
-                        {
-                            //Number of days that have already passed since this notification was sent
-                            TimeSpan nbrOfDaysPassed = (PaymentDate.NotificationSentDate - DateTime.UtcNow);
-
-                            //
-                            if (nbrOfDaysPassed.Days >= 30)
-                            {
-                                //Send a Notification
-                                string body = "<h2>Merci de bien vouloir Payer votre loyer de ce mois</h2>\n";
-                                body += $"<p>Montant à payer: {PaymentDate.AmmountSupposedToPay}</p>\n";
-                                body += $"Passe une bonne journée!</p>\n";
-                                await SendConfirmationEmail(tenantEmail, body);
-
-                                NotificationSentForRentPayments notificationSentForRentPayments = new NotificationSentForRentPayments
-                                {
-                                    TenantEmail = tenantEmail,
-                                    AmmountSupposedToPay = PaymentDate.AmmountSupposedToPay,
-
-                                };
-                            }
+                            //If true, sent another email to this tenant to remind him/her
+                            if((lastEmailSentDate - currentDate).Days <= -15)
+                                RentsThatNeedToPay.Add(t);
                         }
+                    }
+
+                    if (RentsThatNeedToPay.Count != 0)
+                    {
+                        //Le nonbre de mois impayé
+                        int count = RentsThatNeedToPay.Count();
+
+                        string body;
+                        if (count > 1)
+                            body = "<h2>Merci de bien vouloir Payer votre loyer pour les mois suivant</h2>\n<br>";
                         else
+                            body = "<h2>Merci de bien vouloir Payer votre loyer de ce mois</h2>\n<br>";
+
+                        body += "<table style=\"width:100%\">";
+                        body += "<tr>";
+                        body += "<th>Date de paiement du loyer</th>";
+                        body += "<th>Montant à payer</th>";
+                        body += "</tr>";
+                        foreach (var dt in RentsThatNeedToPay)
                         {
-                            //Send a Notification 
-                            string body = "<h2>Merci de bien vouloir Payer votre loyer de ce mois</h2>\n";
-                            body += $"<p>Montant à payer: {tenantRentPaymentStatus.AmmountSupposedToPay}</p>\n";
-                            body += $"Passe une bonne journée!</p>\n";
-                            await SendConfirmationEmail(tenantEmail, body);
+                            body += "<tr>";
+                            body += $"<td>{dt.NextDateToPay}</td>";
+                            body += $"<td>{dt.AmmountSupposedToPay}</td>";
+                            body += "<tr>";
+
+                            notificationSentForRentPayments = new NotificationSentForRentPayment
+                            {
+                                TenantEmail = tenant.TenantEmail,
+                                AmmountSupposedToPay = dt.AmmountSupposedToPay,
+                                ScheduledDateForRentPayment = dt.NextDateToPay.DateTime,
+                                NotificationSentDate = DateTime.UtcNow
+                            };
+                            _context.Add(notificationSentForRentPayments);
+                            await _context.SaveChangesAsync();
+                        }
+                        body += "</table>";
+                        body += "<br>";
+                        body += "<br>";
+                        body += "<span style=\"font-weight:bold\">NB</span>: Les <span style=\"color:blue;font-weight:bold;font-style:italic\">Date de paiement du loyer</span> représentent les dates auxquelles vous deviez payer votre loyer</p>";
+
+
+                        //To do: condition to check if we need to send an emait to the tenant or an sms 
+                        //Send a Email to this tenant 
+                        await SendConfirmationEmail(tenant.TenantEmail, body);
+
+                        //Send a email to the landlord of this appartment 
+                        var LandLord = await _context.Apartments
+                                   .Where(a => a.Id == tenant.ApartmentId)
+                                   .FirstOrDefaultAsync();
+
+                        if (LandLord != null)
+                        {
+                            ApplicationUser? LandLordinfos = _context.Users.Find(LandLord.LessorId);
+                            //Not suppose to be null 
+                            //To do: Modifier le tritre de cette notification
+                            if (LandLordinfos != null)
+                                await SendConfirmationEmail(LandLordinfos.Email, body);
                         }
                     }
                 }
-            }
 
+                //Add Another Logic to remind tenant that need to pay within one days 
+            }
         }
     }
 }
