@@ -4,7 +4,7 @@
 // Write your JavaScript code.
 
 
-(function () {
+$(function () {
     var PlaceHolderElement = $('#PlaceHolderHere');
     $('button[data-toggle="ajax-modal"]').click(function (event) {
 
