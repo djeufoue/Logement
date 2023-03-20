@@ -6,9 +6,6 @@ namespace Logement.Services
 {
     public class SMSservice : ControllerBase
     {
-        private readonly string accountId = "AC12bbe02cf30a32cd67aa63abe49f3b72";
-        private readonly string authToken = "1d37e369b329da4f06349e9fc35ab8b7";
-
         public class SmSSettings
         {
             public string AccountId { get; set; }
