@@ -66,40 +66,8 @@ namespace Logement.ViewModels
         [Display(Name = "Which part")]
         public string? Part { get; set; }
 
-        //To do: if PhotoSlosts count is Zero, then take apartmentPhotoViewModel value a add it there
-        public List<ApartmentPhotoViewModel> _PhotoSlots;
-        public List<ApartmentPhotoViewModel> PhotoSlots 
-        {
-            get
-            {
-                if(PhotoSlots == null) 
-                {
-                    _PhotoSlots = new List<ApartmentPhotoViewModel>()
-                    {
-                        new ApartmentPhotoViewModel
-                        {
-                            Part = apartmentPhotoViewModel.Part,
-                            ImageURL = apartmentPhotoViewModel.ImageURL,
-                        }
-                    };                    
-                }
-                return _PhotoSlots;
-            }
-            set
-            {
-                if (PhotoSlots == null)
-                {
-                    _PhotoSlots = new List<ApartmentPhotoViewModel>()
-                    {
-                        new ApartmentPhotoViewModel
-                        {
-                            Part = apartmentPhotoViewModel.Part,
-                            ImageURL = apartmentPhotoViewModel.ImageURL,
-                        }
-                    };
-                }
-            } 
-        } 
+        public List<ApartmentPhotoViewModel> PhotoSlots { get; set; }
+         
         public ApartmentPhotoViewModel apartmentPhotoViewModel { get; set; }
 
         [Display(Name = "Apartment Image")]

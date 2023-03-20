@@ -3,6 +3,7 @@ using Logement.Data;
 using Logement.Models;
 using Logement.Services;
 using Microsoft.AspNetCore.Identity;
+using MimeKit;
 
 namespace Logement.Schedular
 {
@@ -26,20 +27,20 @@ namespace Logement.Schedular
             _smsService = smsService;
         }
 
-        protected async Task SendConfirmationEmail(string tenantEmail, string body)
+        protected async Task SendConfirmationEmail(string tenantEmail, string subject, string body)
         {  
-            await _emailService.SendEmailAsync(tenantEmail, "Rappel de paiement du loyer", body);
+            await _emailService.SendEmailAsync(tenantEmail, subject, body);
         }
 
-        protected async Task sendSMStoTenant(string tenantPhoneNumber, string message)
+        protected void sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
         {
-            await _smsService.SendSMS(tenantPhoneNumber, message);
+            _smsService.SendSMS(tenantPhoneNumber, htmlBody);
         }
 
         public static void Setup()
         {
            //RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "59 22 * * *");
-           RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "19 1 * * *");
+           RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "38 22 * * *");
         }
     }
 }

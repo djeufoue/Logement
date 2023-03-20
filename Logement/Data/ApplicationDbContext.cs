@@ -24,8 +24,5 @@ namespace Logement.Data
         public DbSet<TenantPaymentStatu> TenantPaymentStatuses { get; set; }
         public DbSet<RentPaymentDatesSchedular> RentPaymentDatesSchedulars { get; set; }
         public DbSet<NotificationSentForRentPayment> NotificationSentForRentPayments { get; set; }
-        
-
-
     }
 }
