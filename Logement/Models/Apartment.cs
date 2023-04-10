@@ -14,14 +14,17 @@ namespace Logement.Models
         /// The lessor is the only person who can make 
         /// changes (add, delete, update information) on the apartments
         /// </summary>
+        /// 
+        public long ApartmentNumber { get; set; }
         public long LessorId { get; set; }
         public virtual ApplicationUser Lessor { get; set; }
+
+        public long CityId { get; set; }
+        public virtual City City { get; set; }
 
         [Required]
         [MaxLength(2000)]
         public string? Description { get; set; }
-
-        public string LocatedAt { get; set; }
 
         public int NumberOfRooms { get; set; }
         public int NumberOfbathRooms { get; set; }
@@ -42,14 +45,12 @@ namespace Logement.Models
         /// La caution
         /// </summary>
         [Precision(14, 2)]
-        public decimal DepositePrice { get; set; }        
-
-        public int? NumberOfParkingSpaces { get; set; }
+        public decimal DepositePrice { get; set; }
 
         /// <summary>
         /// Database needs to be migrated to add these colunm
         /// </summary>
-        public ApartmentStatusEnum Status { get; set; }
+        public ApartmentStatusEnum? Status { get; set; }
 
         public ApartmentTypeEnum Type { get; set; }
 

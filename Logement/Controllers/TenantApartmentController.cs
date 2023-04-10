@@ -23,35 +23,37 @@ namespace Logement.Controllers
             _logger = logger;
         }
 
-
-        //Get the rent status payment of a specific tenant
-        [HttpGet]
-        public IActionResult TenantRentStatus(string tenantEmail)
+        private RentPaymentDatesSchedularViewModel GetAllTenantInfos(RentPaymentDatesSchedular tenantRents)
         {
-            TenantPaymentStatusViewModel tenantPaymentStatusViewModel = new TenantPaymentStatusViewModel();
-            ApplicationUser getTenant = new ApplicationUser();
+            string IsRentPaid = !tenantRents.IsRentPaidForThisDate ? "No" : "Yes";
+            DateTime dateToPay = tenantRents.NextDateToPay.DateTime;
 
-            var tenantStatus = _context.TenantPaymentStatuses
-                                       .Where(t => t.TenantEmail == tenantEmail)
-                                       .FirstOrDefault();
-          
-            //Not suppose to be null
-             getTenant = _context.Users
-                                 .Where(u => u.Email == tenantStatus.TenantEmail)
-                                 .FirstOrDefault();
-
-            if (tenantStatus != null)
+            RentPaymentDatesSchedularViewModel allTenantRentInfos = new RentPaymentDatesSchedularViewModel()
             {
-                tenantPaymentStatusViewModel = new TenantPaymentStatusViewModel()
-                {
-                    TenantName = getTenant.TenantFirstName,
-                    TenantEmail = tenantStatus.TenantEmail,
-                    AmountRemainingForRent = tenantStatus.AmountRemainingForRent,
-                    NumberOfMonthsToPay = tenantStatus.NumberOfMonthsToPay,
-                    RentStatus = tenantStatus.RentStatus
-                };
+                Id = tenantRents.Id,
+                TenantEmail = tenantRents.TenantEmail,
+                AmmountSupposedToPay = tenantRents.AmmountSupposedToPay,
+                IsRentPaidForThisDate = IsRentPaid,
+                NextDateToPay = String.Format("{0:dddd, MMMM d, yyyy}", dateToPay)
+            };
+            return allTenantRentInfos;
+        }
+
+        [HttpGet]
+        public  async Task<IActionResult> AllTenantRentStatus(string tenantEmail)
+        {
+            List<RentPaymentDatesSchedularViewModel> tenantRentStatus = new List<RentPaymentDatesSchedularViewModel>();
+
+
+            var tenantRentInfos = await _context.RentPaymentDatesSchedulars
+                                           .Where(t => t.TenantEmail == tenantEmail)
+                                           .ToListAsync();
+        
+            foreach(var infos in tenantRentInfos)
+            {
+                tenantRentStatus.Add(GetAllTenantInfos(infos));
             }
-            return View(tenantPaymentStatusViewModel);
+            return View(tenantRentStatus);
         }
 
 

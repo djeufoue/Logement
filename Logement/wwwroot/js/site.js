@@ -49,7 +49,7 @@ function addAnotherPicture(button, path) {
         + "      Picture\n"
         + "    </div>\n"
         + "    <div class='col-sm-10'>\n"
-        + "      <img src = '(path)[(index)].ImageURL' class='form-control ChosenImage' style = 'width: 50px;' value='(image)' />"
+        + "      <input class='form-control ChosenImage' name='(path)[(index)].ImageURL' value='(image)' accept='image/*' required/> "
         + "    </div>\n"
         + "  </div>\n"
         + "  <div class='row'>\n"
@@ -57,11 +57,11 @@ function addAnotherPicture(button, path) {
         + "       Which Part\n"
         + "    </div>\n"
         + "    <div class='col-sm-10'>\n"
-        + "       <input image='text' readonly='readonly' class='form-control ItemPart' name='(path)[(index)].Part' value='(apartmentPart)' />\n"
+        + "       <input type='text' readonly='readonly' class='form-control ItemPart' name='(path)[(index)].Part' value='(apartmentPart)' />\n"
         + "    </div>\n"
         + "  </div>\n"
         + "  <div style='text-align: right;'>\n"
-        + "    <a class='btn btn-danger' onclick=\"removePicture(this, '(path)'); updateItemCount(0)\">Remove</a>\n"
+        + "    <a class='btn btn-danger' style='margin-bottom:10px;' onclick=\"removePicture(this, '(path)'); updateItemCount(0)\">Remove</a>\n"
         + "  </div>\n";
 
     var linkedItem = button.parentElement.parentElement;
@@ -81,7 +81,10 @@ function addAnotherPicture(button, path) {
     else if (apartmentPart.length > 50) {
         alert("Number of character should be less than 50");
     }
-    else {
+    else
+    {
+        chosenImage.value = null
+        whichPart.value = null
         var linkedItems = linkedItem.parentElement;
         var index = linkedItems.children.length - 1;
 

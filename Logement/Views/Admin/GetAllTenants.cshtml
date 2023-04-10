@@ -15,20 +15,18 @@
             <th>
                 @Html.DisplayNameFor(model => model.TenantPhoneNumber)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
+            <th>Apartment price</th>
             <th>
                 @Html.DisplayNameFor(model => model.DepositePrice)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AmountPaidByTenant)
+                First payment
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PaymentMethod)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartOfContract)
+               Contract Effective date
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EndOfContract)
@@ -37,37 +35,84 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenantEmail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenantPhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepositePrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmountPaidByTenant)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PaymentMethod)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartOfContract)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndOfContract)
-            </td>
-            <td>
-                <a href="/TenantApartment/TenantRentStatus?tenantEmail=@item.TenantEmail">Rent status</a> |
-                <a asp-area="" asp-controller="TenantApartment" asp-action="GetAllPaymentsHistory" asp-route-userEmail="@item.TenantEmail">Payment history</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenantEmail)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenantPhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DepositePrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AmountPaidByTenant)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PaymentMethod)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartOfContract)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndOfContract)
+                </td>
+                <td>
+                    <di class="button">
+                        <a class="buttonRentStatus" href="/TenantApartment/AllTenantRentStatus?tenantEmail=@item.TenantEmail">Rent status</a>
+                        <a class="buttonPaymentHis" asp-area="" asp-controller="TenantApartment" asp-action="GetAllPaymentsHistory" asp-route-userEmail="@item.TenantEmail">Payments history</a>
+                    </di>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<style>
+
+    .button{
+        display: flex;
+        justify-content: space-between;
+    }
+    .buttonRentStatus {
+        display: grid;
+        height: 35px;
+        width: 80px;
+        background-color: #445744;
+        margin-right: 5px;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonPaymentHis {
+        display: grid;
+        height: 35px;
+        width: 115px;
+        background-color: #e65959;
+        margin: auto;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    h3{
+        color: #cba40b;
+        font-family: 'Trocchi', serif;
+        font-size: 30px;
+        font-weight: normal;
+        line-height: 35px;
+        margin: 0;
+    }
+</style>

@@ -27,12 +27,12 @@ namespace Logement.Schedular
             _smsService = smsService;
         }
 
-        protected async Task SendConfirmationEmail(string tenantEmail, string subject, string body)
+        public async Task SendConfirmationEmail(string tenantEmail, string subject, string body)
         {  
             await _emailService.SendEmailAsync(tenantEmail, subject, body);
         }
 
-        protected void sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
+        public void sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
         {
             _smsService.SendSMS(tenantPhoneNumber, htmlBody);
         }

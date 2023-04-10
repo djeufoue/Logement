@@ -37,9 +37,10 @@
                             @if (!string.IsNullOrEmpty(User.Identity.Name))
                             {
                                 @if (User.IsInRole("Admin") || User.IsInRole("SystemAdmin"))
-                                {
+                                {                                   
                                     <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
                                     <div id="myDropdown" class="dropdown-content">
+                                        <a asp-area="" asp-controller="Admin" asp-action="GetCities">Cities</a>
                                         <a asp-area="" asp-controller="Admin" asp-action="ApartmentList">Apartments</a>
                                         <a asp-area="" asp-controller="Admin" asp-action="GetAllTenants">Tenant</a> 
                                         <a asp-area="" asp-controller="Admin" asp-action="GetAllUsers">Pending users</a>

@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230406005956_AddNewTableCitiesAndCityPhotos")]
+    partial class AddNewTableCitiesAndCityPhotos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +31,6 @@ namespace Logement.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<long>("ApartmentNumber")
-                        .HasColumnType("bigint");
 
                     b.Property<long>("CityId")
                         .HasColumnType("bigint");
@@ -54,6 +53,13 @@ namespace Logement.Migrations
                     b.Property<long>("LessorId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("LocatedAt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NumberOfParkingSpaces")
+                        .HasColumnType("int");
+
                     b.Property<int>("NumberOfRooms")
                         .HasColumnType("int");
 
@@ -67,7 +73,7 @@ namespace Logement.Migrations
                     b.Property<int>("RoomArea")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Status")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("Type")
@@ -234,12 +240,15 @@ namespace Logement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
+                    b.Property<string>("CityImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Floor")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Floor")
+                        .HasColumnType("int");
 
                     b.Property<long>("LandLordId")
                         .HasColumnType("bigint");

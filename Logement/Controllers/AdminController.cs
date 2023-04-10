@@ -1,12 +1,19 @@
 ﻿using Logement.Data;
+using Logement.Data.Enum;
 using Logement.Models;
+using Logement.Schedular;
 using Logement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using Newtonsoft.Json;
+using NPOI.OpenXmlFormats.Spreadsheet;
+using NPOI.OpenXmlFormats.Vml;
 using NPOI.SS.Formula.Functions;
+using NPOI.XSSF.Streaming.Values;
+using System.Drawing;
 using System.Net;
 using System.Runtime.InteropServices;
 
@@ -20,22 +27,47 @@ namespace Logement.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         protected readonly ILogger<T> _logger;
+        private BaseScheduler baseScheduler;
 
         private string part;
-        private ApartmentPhoto apartmentPhoto = new ApartmentPhoto();
         TenantRentApartment tenantRentApartment = new TenantRentApartment();
-        private string  GetPhoto;
+        private string GetPhoto;
         private string GetPart;
         long contractId;
 
 
         public AdminController(UserManager<ApplicationUser> userManager
-            ,ApplicationDbContext context, IConfiguration configuration, ILogger<T> logger)
+            , ApplicationDbContext context, IConfiguration configuration,
+            ILogger<T> logger,
+            Services.EmailService emailService,
+                Services.SMSservice smsService)
         {
             _userManager = userManager;
             _context = context;
             _configuration = configuration;
             _logger = logger;
+            baseScheduler = new BaseScheduler(context, logger, emailService, userManager, smsService);
+        }
+
+        public class resultModel
+        {
+            public string result { get; set; }
+        }
+
+        public async Task<JsonResult> CheckApartmentNumberAvailability(long apartmentNumber)
+        {       
+            var checkApartment = await _context.Apartments
+                .Where( a => a.ApartmentNumber == apartmentNumber)
+                .FirstOrDefaultAsync();
+
+            if (checkApartment != null)
+            {
+                return Json(1);  //apartment number taken
+            }
+            else if (checkApartment == null)
+                return Json(0); //apartment number not taken
+            else 
+                return Json(-1);  //error occurred
         }
 
         /// <summary>
@@ -61,6 +93,7 @@ namespace Logement.Controllers
 
         private TenantRentApartmentViewModel GetTenantFromModel(TenantRentApartment tenant)
         {
+            DateTime contractStartDate = tenant.StartOfContract;
             TenantRentApartmentViewModel allTenant = new TenantRentApartmentViewModel()
             {
                 Id = tenant.Id,
@@ -70,7 +103,7 @@ namespace Logement.Controllers
                 AmountPaidByTenant = tenant.AmountPaidByTenant,
                 DepositePrice = tenant.DepositePrice,
                 PaymentMethod = tenant.PaymentMethodEnum,
-                StartOfContract = tenant.StartOfContract,
+                StartOfContract = tenant.StartOfContract.ToLocalTime()
             };
             return allTenant;
         }
@@ -80,29 +113,29 @@ namespace Logement.Controllers
         /// </summary>
         /// <param name="apartment"></param>
         /// <returns></returns>
-        private ApartmentViewModel GetAllApartmentsFromModel(Apartment apartment)
+        private ApartmentViewModel GetAllApartmentsFromModel(Apartment apartment, City city)
         {
             ApartmentViewModel apartmentViewModel = new ApartmentViewModel()
             {
                 Id = apartment.Id,
                 LessorId = apartment.LessorId,
                 Description = apartment.Description,
-                LocatedAt = apartment.LocatedAt,
+                LocatedAt = city.LocatedAt,
                 NumberOfRooms = apartment.NumberOfRooms,
                 NumberOfbathRooms = apartment.NumberOfbathRooms,
                 RoomArea = apartment.RoomArea,
                 FloorNumber = apartment.FloorNumber,
                 Price = apartment.Price,
                 DepositePrice = apartment.DepositePrice,
-                NumberOfParkingSpaces = apartment.NumberOfParkingSpaces,
+                NumberOfParkingSpaces = city.NumberOfParkingSpaces,
                 Status = apartment.Status,
                 Type = apartment.Type,
                 ImageURL = GetPhoto,
-                Part = GetPart,
-                CreatedOn = apartment.CreatedOn
+                Part = GetPart
             };
             return apartmentViewModel;
         }
+
 
         /// <summary>
         /// Use to add to collect informations about a new apartment that we want to add
@@ -114,98 +147,273 @@ namespace Logement.Controllers
             Apartment apartment = new Apartment()
             {
                 Id = a.Id,
+                ApartmentNumber = a.ApartmentNunber,
                 LessorId = a.LessorId,
                 Description = a.Description,
-                LocatedAt = a.LocatedAt,
                 NumberOfRooms = a.NumberOfRooms,
                 NumberOfbathRooms = a.NumberOfbathRooms,
                 RoomArea = a.RoomArea,
                 FloorNumber = a.FloorNumber,
                 Price = a.Price,
                 DepositePrice = a.DepositePrice,
-                NumberOfParkingSpaces = a.NumberOfParkingSpaces,
                 Status = a.Status,
+                CreatedOn = DateTime.UtcNow,
                 Type = a.Type,
             };
             return apartment;
         }
 
 
+        private CityViewModel GetCitiesFromModel(City city, string cityImage)
+        {
+            CityViewModel cityViewModel = new CityViewModel()
+            {
+                Id = city.Id,
+                Name = city.Name,
+                LocatedAt = city.LocatedAt,
+                CityPhoto = cityImage,
+                Floor = city.Floor,
+                NumbersOfApartment = city.NumbersOfApartment,
+                NumberOfParkingSpaces = city.NumberOfParkingSpaces
+            };
+            return cityViewModel;
+        }
+
+        private City AddCityFromViewModel(CityViewModel c)
+        {
+            City city = new City()
+            {
+                Id = c.Id,
+                Name = c.Name,
+                LocatedAt = c.LocatedAt,
+                NumbersOfApartment = c.NumbersOfApartment,
+                Floor = c.Floor,
+                NumberOfParkingSpaces = c.NumberOfParkingSpaces,
+                DateAdded = DateTime.UtcNow
+            };
+            return city;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCities()
+        {          
+            try
+            {
+                List<CityViewModel> citiesModel = new List<CityViewModel>();
+
+                var cities = await _context.Cities.ToListAsync();
+
+                if (cities != null)
+                {
+                    foreach (var city in cities)
+                    {
+                        var cityImage = await _context.CityPhotos
+                            .Where(p => p.CityId == city.Id)
+                            .Select(p => p.ImageURL)
+                            .FirstOrDefaultAsync();
+
+                        citiesModel.Add(GetCitiesFromModel(city, cityImage));
+                    }
+                }
+                return View(citiesModel);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCityApartments(long cityId)
+        {
+            try
+            {
+                var currentUser = await _context.Users.FirstOrDefaultAsync();
+
+                if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
+                {
+                    List<ApartmentViewModel> apartmentViewModel = new List<ApartmentViewModel>();
+
+                    var apartmentList = await _context.Apartments
+                        .Where(a => a.CityId == cityId)
+                        .ToListAsync();
+
+                    foreach (Apartment apartment in apartmentList)
+                    {
+                        GetApartmentPhoto(apartment.Id);
+
+                        var city = await _context.Cities
+                            .Where(c => c.Id == cityId)
+                            .FirstOrDefaultAsync();
+
+                        apartmentViewModel.Add(GetAllApartmentsFromModel(apartment, city));
+                    }
+                    return View(apartmentViewModel);
+                }
+                else
+                    return Forbid("Only Admin or System admin can have access to this page");
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        //Get: Admin/AddApartment
+        [HttpGet]
+        public IActionResult AddCity()
+        {
+            CityViewModel city = new CityViewModel();
+            return View(city);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCity(CityViewModel cityViewModel)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    City city = AddCityFromViewModel(cityViewModel);
+                    var fileModel = new FileModel();
+
+                    //look for the user who is currently Login
+                    ApplicationUser user = _context.Users
+                                                   .Where(u => u.UserName == User.Identity.Name)
+                                                   .First();
+
+
+                    if (user != null)
+                        city.LandLordId = user.Id;
+                    else
+                        return BadRequest("Please log out and log in back");
+
+                    _context.Add(city);
+                    await _context.SaveChangesAsync();
+
+                    //Assign that city's id to the apartmentId Foreign Key which is inside the ApartmentPhoto Table
+
+                    //Will be remove to use the methode down with the foreach lop
+                    string methodName = "AddCity";
+                    await SaveImageFile(cityViewModel.CityImage, city.Id, null, methodName);
+
+                    //Will be use later 
+                    /*  foreach (var photo in cityViewModel.CityPhotos)
+                      {
+                          string methodName = "AddCity";
+                          await SaveImageFile(photo.ImageURL, city.Id, null, methodName);
+                      }*/
+                    return RedirectToAction(nameof(GetCities));
+                }
+                return View(cityViewModel);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        //To be removed
         //Get: Apartment
         [HttpGet]
         public async Task<IActionResult> ApartmentList()
-        {
-            List<Apartment> apartments = await _context.Apartments.ToListAsync();
-            List<ApartmentViewModel> apartmentViewModels = new List<ApartmentViewModel>();
-
-            foreach (Apartment apartment in apartments)
+        {       
+            try
             {
-                GetApartmentPhoto(apartment.Id);
-                apartmentViewModels.Add(GetAllApartmentsFromModel(apartment));
-            }
+                List<Apartment> apartments = await _context.Apartments.ToListAsync();
+                List<ApartmentViewModel> apartmentViewModels = new List<ApartmentViewModel>();
 
-            return View(apartmentViewModels);
+                foreach (Apartment apartment in apartments)
+                {
+                    GetApartmentPhoto(apartment.Id);
+
+                    var city = await _context.Cities
+                        .Where(c => c.Id == apartment.CityId)
+                        .FirstOrDefaultAsync();
+
+                    apartmentViewModels.Add(GetAllApartmentsFromModel(apartment, city));
+                }
+
+                return View(apartmentViewModels);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            List<ApplicationUser> users = _userManager.Users.ToList();
-            List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
-            foreach (ApplicationUser user in users)
+            try
             {
-                if (await _userManager.IsInRoleAsync(user, "Admin"))
-                    continue;
+                List<ApplicationUser> users = _userManager.Users.ToList();
+                List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
+                foreach (ApplicationUser user in users)
+                {
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        continue;
 
-                var tenant = await _context.TenantRentApartments
-                                           .Where(t => t.TenantEmail == user.Email)
-                                           .FirstOrDefaultAsync();
-
-                //Check if this user is already a tenant
-                if (tenant != null)
-                    continue;
-                allUsersViewModels.Add(GetViewModelFromModel(user));
+                    allUsersViewModels.Add(GetViewModelFromModel(user));
+                }
+                return View(allUsersViewModels);
             }
-            return View(allUsersViewModels);
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
         }
 
         [HttpGet]
         public IActionResult GetAllTenants()
         {
-            List<TenantRentApartment> tenants = _context.TenantRentApartments.ToList();
-            List<TenantRentApartmentViewModel> allTenantsViewModels = new List<TenantRentApartmentViewModel>();
-            foreach (TenantRentApartment tenant in tenants)
+            try
             {
-                allTenantsViewModels.Add(GetTenantFromModel(tenant));
+                List<TenantRentApartment> tenants = _context.TenantRentApartments.ToList();
+                List<TenantRentApartmentViewModel> allTenantsViewModels = new List<TenantRentApartmentViewModel>();
+                foreach (TenantRentApartment tenant in tenants)
+                    allTenantsViewModels.Add(GetTenantFromModel(tenant));
+
+                return View(allTenantsViewModels);
             }
-            return View(allTenantsViewModels);
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
         }
 
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsersPartialViewAsync(long apartmentId)
         {
-            List<ApplicationUser> users = _userManager.Users.ToList();
-            List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
-
-            foreach (ApplicationUser user in users)
+            try
             {
-                if (await _userManager.IsInRoleAsync(user, "Admin"))
-                    continue;
+                List<ApplicationUser> users = _userManager.Users.ToList();
+                List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
 
-                //Check if this apartment as been already assign to this user
-                var output = await _context.TenantRentApartments
-                                     .Where(u => u.TenantEmail == user.Email && u.ApartmentId == apartmentId)
-                                     .FirstOrDefaultAsync();
-                if (output != null)
-                    continue;
+                foreach (ApplicationUser user in users)
+                {
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        continue;
 
-                allUsersViewModels.Add(GetViewModelFromModel(user));
+                    //Check if this apartment as been already assign to this user
+                    var output = await _context.TenantRentApartments
+                                         .Where(u => u.TenantEmail == user.Email && u.ApartmentId == apartmentId)
+                                         .FirstOrDefaultAsync();
+                    if (output != null)
+                        continue;
+
+                    allUsersViewModels.Add(GetViewModelFromModel(user));
+                }
+                var result = new BaseAllUsersViewModel();
+                result.Users = allUsersViewModels;
+                result.ApartmentId = apartmentId;
+                return PartialView("_AssignTenantPartialView", result);
             }
-            var result = new BaseAllUsersViewModel();
-            result.Users = allUsersViewModels;
-            result.ApartmentId = apartmentId;
-            return PartialView("_AssignTenantPartialView", result);
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
         }
 
         /// <summary>
@@ -264,7 +472,7 @@ namespace Logement.Controllers
             }
         }
 
-        public async Task SaveImageFile(IFormFile formFile, long apartmentId, string photoPart)
+        public async Task SaveImageFile(IFormFile formFile, long Id, string? photoPart, string methodName)
         {
             if (formFile != null)
             {
@@ -277,14 +485,28 @@ namespace Logement.Controllers
                     await formFile.CopyToAsync(fileStream);
                 }
 
-                apartmentPhoto = new ApartmentPhoto()
+                if (methodName == "AddApartment")
                 {
-                    ApartmentId = apartmentId,
-                    ImageURL = $"/Admin/{nameof(GetFile)}?filename={fileName}",
-                    Part = photoPart
-                };
-                _context.Add(apartmentPhoto);
-                await _context.SaveChangesAsync();
+                    ApartmentPhoto apartmentPhoto = new ApartmentPhoto()
+                    {
+                        ApartmentId = Id,
+                        ImageURL = $"/Admin/{nameof(GetFile)}?filename={fileName}",
+                        Part = photoPart
+                    };
+                    _context.Add(apartmentPhoto);
+                    await _context.SaveChangesAsync();
+                }
+                else if (methodName == "AddCity")
+                {
+                    CityPhoto cityPhoto = new CityPhoto()
+                    {
+                        CityId = Id,
+                        Size = formFile.Length,
+                        ImageURL = $"/Admin/{nameof(GetFile)}?filename={fileName}"
+                    };
+                    _context.Add(cityPhoto);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
 
@@ -325,14 +547,36 @@ namespace Logement.Controllers
                 contractId = contract.Id;
             }
         }
-        //Get: Apartment/AddApartment
-        public IActionResult AddApartment()
+
+        //Get: Admin/AddApartment
+        [HttpGet]
+        public async Task<IActionResult> AddApartment()
         {
             ApartmentViewModel apartmentViewModel = new ApartmentViewModel();
+            List<CityViewModel> cityViewModel = new List<CityViewModel>();
             apartmentViewModel.PhotoSlots = new List<ApartmentPhotoViewModel>();
+
+            var cities = await _context.Cities.ToListAsync();
+
+            foreach (var city in cities)
+            {
+                CityViewModel cityV = new CityViewModel()
+                {
+                    Id = city.Id,
+                    Name = city.Name
+                };
+                cityViewModel.Add(cityV);
+            }
+
+            if (cityViewModel != null)
+            {
+                foreach (var city in cityViewModel)
+                    apartmentViewModel.Cities.Add(city);
+            }
             return View(apartmentViewModel);
         }
 
+       //To do: let's dont give to the user the possibility to add an apartment without having added the city first 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddApartment(ApartmentViewModel apartmentViewModel)
@@ -347,52 +591,59 @@ namespace Logement.Controllers
                                                .Where(u => u.UserName == User.Identity.Name)
                                                .First();
 
-
                 apartment.LessorId = user.Id;
+
+                if (apartmentViewModel.CityIds != null)
+                    apartment.CityId = apartmentViewModel.CityIds.FirstOrDefault();
 
                 _context.Add(apartment);
                 await _context.SaveChangesAsync();
 
-                //Find the apartment id that we just add
-                var getApartmentId = _context.Apartments.Find(apartment.Id);
+                apartmentViewModel.PhotoSlots.Add(apartmentViewModel.apartmentPhotoViewModel);
 
-                //Assign that apartment id to the apartmentId Foreign Key which is inside the ApartmentPhoto Table
-                if (getApartmentId != null)
+                foreach (var photo in apartmentViewModel.PhotoSlots)
                 {
-                    foreach (var photo in apartmentViewModel.PhotoSlots)
-                    {
-                        await SaveImageFile(photo.ImageURL, getApartmentId.Id, photo.Part);
-                    }
-                    return RedirectToAction(nameof(ApartmentList));
+                    string methodName = "AddApartment";
+                    await SaveImageFile(photo.ImageURL, apartment.Id, photo.Part, methodName);
                 }
+                return RedirectToAction(nameof(ApartmentList));
             }
             return View(apartmentViewModel);
         }
+
+
         // Post: Admin/AddAsTenant/1
         [HttpGet]
-            public IActionResult AddAsTenant(long tenantId, string email, long ChoosenApartmentId)
+        public IActionResult AddAsTenant(long tenantId, string email, long ChoosenApartmentId)
+        {
+            TenantRentApartmentViewModel result = new TenantRentApartmentViewModel
             {
-                TenantRentApartmentViewModel result = new TenantRentApartmentViewModel
-                {
-                    TenantId = tenantId,
-                    TenantEmail = email,
-                    ApartmentId = ChoosenApartmentId
-                };
-                return View(result);
-            }
+                TenantId = tenantId,
+                TenantEmail = email,
+                ApartmentId = ChoosenApartmentId
+            };
+            return View(result);
+        }
 
 
-            //To Do: Try to get the right bailId, and change the status of the apartment from free to basy.
-            [HttpPost]
-            public async Task<IActionResult> AddAsTenant(TenantRentApartmentViewModel model)
+        //To Do: Try to get the right bailId, and change the status of the apartment from free to basy.
+        [HttpPost]
+        public async Task<IActionResult> AddAsTenant(TenantRentApartmentViewModel model)
+        {
+            try
             {
-                try
+                if (ModelState.IsValid)
                 {
-                    if (ModelState.IsValid)
+                    await AddApartment(model.TenantApartment);                  
+
+                    ApplicationUser landLord = _context.Users
+                                          .Where(u => u.UserName == User.Identity.Name)
+                                        .First();
+                    if (landLord != null)
                     {
                         var user = await _userManager.Users
-                                               .Where(u => u.Id == model.TenantId)
-                                               .FirstOrDefaultAsync();
+                                        .Where(u => u.Id == model.TenantId)
+                                        .FirstOrDefaultAsync();
 
                         if (user != null)
                         {
@@ -405,7 +656,7 @@ namespace Logement.Controllers
                             {
                                 TenantEmail = model.TenantEmail,
                                 TenantPhoneNumber = user.PhoneNumber,
-                                ApartmentId = model.ApartmentId,
+                                ApartmentId = model.TenantApartment.Id,
                                 Price = model.Price,
                                 BailId = contractId,
                                 AmountPaidByTenant = model.AmountPaidByTenant,
@@ -419,33 +670,32 @@ namespace Logement.Controllers
                             _context.Add(tenantRentApartment);
                             await _context.SaveChangesAsync();
 
+                            //For users having email
+                            string emailSubject = $"<h4>Vous avez été ajouté comme locataire par Mr {landLord.TenantLastName} {landLord.TenantFirstName}.\n</h4>";
+                            string emailBody = $"<p>Type de logement:{model.TenantApartment.Type}</p><br>";
+                            emailBody += $"<p>Localisation:{model.TenantApartment.LocatedAt}</p>";
+                            emailBody += $"<p>Superficie:{model.TenantApartment.RoomArea}</p>";
+                            emailBody += $"<p>Nombre de chambres:{model.TenantApartment.NumberOfRooms}</p>";
+                            emailBody += $"<p>Nombre de salle de bain:{model.TenantApartment.NumberOfbathRooms}</p>";
 
-                            //Change the apartment Status to Busy
-                            var apartment = await _context.Apartments
-                                                    .Where(a => a.Id == model.ApartmentId)
-                                                    .FirstOrDefaultAsync();
+                            //For user having phone number                              
+                            string smsBody = $"Vous avez été ajouté comme locataire par Mr {landLord.TenantLastName} {landLord.TenantFirstName}.";
+                            smsBody += $"Type de logement: {model.TenantApartment.Type}";
+                            smsBody += $"Localisation:{model.TenantApartment.LocatedAt}";
+                            smsBody += $"Superficie:{model.TenantApartment.RoomArea}";
+                            smsBody += $"Nombre de chambres:{model.TenantApartment.NumberOfRooms}";
+                            smsBody += $"Nombre de salle de bain:{model.TenantApartment.NumberOfbathRooms}";
 
-                            if (apartment != null)
+                            if (user.PhoneNumber != null && user.Email == null)
+                                baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+
+                            else if (user.Email != null && user.PhoneNumber == null)
+                                await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+
+                            else if (user.Email != null && user.PhoneNumber != null)
                             {
-                                Apartment apartmt = new Apartment()
-                                {
-                                    Id = apartment.Id,
-                                    Description = apartment.Description,
-                                    LessorId = apartment.LessorId,
-                                    LocatedAt = apartment.LocatedAt,
-                                    NumberOfRooms = apartment.NumberOfRooms,
-                                    NumberOfbathRooms = apartment.NumberOfbathRooms,
-                                    RoomArea = apartment.RoomArea,
-                                    FloorNumber = apartment.FloorNumber,
-                                    Price = apartment.Price,
-                                    DepositePrice = apartment.DepositePrice,
-                                    NumberOfParkingSpaces = apartment.NumberOfParkingSpaces,
-                                    Type = apartment.Type,
-                                    CreatedOn = apartment.CreatedOn,
-                                    Status = Data.Enum.ApartmentStatusEnum.Busy
-                                };
-                                _context.Update(apartmt);
-                                await _context.SaveChangesAsync();
+                                baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                                await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
                             }
 
                             //Assign Tenant role to this user
@@ -457,115 +707,77 @@ namespace Logement.Controllers
                                                             .Select(t => t.Price)
                                                             .FirstOrDefaultAsync();
                             decimal nbOfMonthPaid = 0;
-                            PaymentHistory newPayment;
-                            TenantPaymentStatu tenantPaymentStatus;
-                            RentPaymentDatesSchedular rentPaymentDatesSchedular;
+                          
+                            nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
 
-
-                            //Sachant que le premier versement(1 ans de loyer) doit etre largement suprerieur au prix de l'apartement
-                            if (model.AmountPaidByTenant > apartmentPrice)
+                            //Add 30 days on the current payment date in case the amount paid is not enough
+                            //Remind tenant after 30 days that he must pay his rent
+                            PaymentHistory newPayment = new PaymentHistory()
                             {
-                                nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
-
-                                /*Add 30 days on the current payment date in case the amount paid is not enough
-                                Remind tenant after 30 days that he must pay his rent*/
-                                newPayment = new PaymentHistory()
-                                {
-                                    TenantEmail = user.Email,
-                                    AmountPaid = model.AmountPaidByTenant,
-                                    NunberOfMonthPaid = nbOfMonthPaid.ToString(),
-                                    PaidDate = DateTime.UtcNow
-                                };
-                                _context.Add(newPayment);
-                                await _context.SaveChangesAsync();
+                                TenantEmail = user.Email,
+                                AmountPaid = model.AmountPaidByTenant,
+                                NunberOfMonthPaid = nbOfMonthPaid.ToString(),
+                                PaidDate = DateTime.UtcNow
+                            };
+                            _context.Add(newPayment);
+                            await _context.SaveChangesAsync();
 
 
-                                //Schedule the next date to pay the rent 
-                                rentPaymentDatesSchedular = new RentPaymentDatesSchedular
-                                {
-                                    TenantEmail = user.Email,
-                                    IsRentPaidForThisDate = false,
-                                    AmmountSupposedToPay = apartmentPrice,
-                                    NextDateToPay = DateTimeOffset.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
-                                };
-                                _context.Add(rentPaymentDatesSchedular);
-                                await _context.SaveChangesAsync();
-
-
-                                tenantPaymentStatus = new TenantPaymentStatu()
-                                {
-                                    TenantEmail = user.Email,
-                                    NumberOfMonthsToPay = 0,
-                                    AmountRemainingForRent = 0,
-                                    RentStatus = Data.Enum.RentStatusEnum.Paid
-                                };
-                                _context.Add(tenantPaymentStatus);
-                                await _context.SaveChangesAsync();
-                            }//To Do: Should remove this one 
-                            else if (model.AmountPaidByTenant < apartmentPrice)
+                            //Schedule the next date to pay the rent 
+                            RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
                             {
-                                newPayment = new PaymentHistory()
-                                {
-                                    TenantEmail = user.Email,
-                                    AmountPaid = model.AmountPaidByTenant,
-                                    NunberOfMonthPaid = "The amount less than 1 month of payment",
-                                    PaidDate = DateTime.UtcNow
-                                };
-                                _context.Add(newPayment);
-                                await _context.SaveChangesAsync();
+                                TenantEmail = user.Email,
+                                IsRentPaidForThisDate = false,
+                                AmmountSupposedToPay = apartmentPrice,
+                                NextDateToPay = DateTimeOffset.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
+                            };
+                            _context.Add(rentPaymentDatesSchedular);
+                            await _context.SaveChangesAsync();
 
-                                //Schedule the next date to pay the rent 
-                                rentPaymentDatesSchedular = new RentPaymentDatesSchedular
-                                {
-                                    TenantEmail = user.Email,
-                                    IsRentPaidForThisDate = false,
-                                    NextDateToPay = DateTimeOffset.UtcNow.AddMonths(30)
-                                };
-                                _context.Add(rentPaymentDatesSchedular);
-                                await _context.SaveChangesAsync();
-
-
-                                tenantPaymentStatus = new TenantPaymentStatu()
-                                {
-                                    TenantEmail = user.Email,
-                                    NumberOfMonthsToPay = 0,
-                                    AmountRemainingForRent = 0,
-                                    RentStatus = Data.Enum.RentStatusEnum.Partially_paid
-                                };
-                                _context.Add(tenantPaymentStatus);
-                                await _context.SaveChangesAsync();
-                            }
+                            //Need to remove this table
+                            TenantPaymentStatu tenantPaymentStatus = new TenantPaymentStatu()
+                            {
+                                TenantEmail = user.Email,
+                                NumberOfMonthsToPay = 0,
+                                AmountRemainingForRent = 0,
+                                RentStatus = Data.Enum.RentStatusEnum.Paid
+                            };
+                            _context.Add(tenantPaymentStatus);
+                            await _context.SaveChangesAsync();
 
                             return RedirectToAction(nameof(GetAllTenants));
                         }
                         else
                             return BadRequest($"The user {model.TenantEmail} does not even exist as simple user");
                     }
-                    return View(model);
+                    else
+                        return BadRequest("please log in");
                 }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
-                }
+                return View(model);
             }
-
-            protected ActionResult InternalServerError(Exception ex, string? message = null)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, message);
-                if (message == null)
-                {
-                    while (ex.InnerException != null)
-                        ex = ex.InnerException;
-                    message = ex.Message;
-                }
-                return StatusCode((int)HttpStatusCode.InternalServerError, message);
-            }
-
-            //To do: implement this page
-            [HttpGet]
-            public IActionResult AllMyTenant()
-            {
-                return View();
+                return InternalServerError(ex);
             }
         }
+
+        protected ActionResult InternalServerError(Exception ex, string? message = null)
+        {
+            _logger.LogError(ex, message);
+            if (message == null)
+            {
+                while (ex.InnerException != null)
+                    ex = ex.InnerException;
+                message = ex.Message;
+            }
+            return StatusCode((int)HttpStatusCode.InternalServerError, message);
+        }
+
+        //To do: implement this page
+        [HttpGet]
+        public IActionResult AllMyTenant()
+        {
+            return View();
+        }
     }
+}

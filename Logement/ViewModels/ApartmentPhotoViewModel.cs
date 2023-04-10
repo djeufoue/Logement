@@ -15,7 +15,7 @@ namespace Logement.ViewModels
         [Required]
         public string Part { get; set; }
 
-        //[Required]
+        [Required]
         public IFormFile ImageURL { get; set; }
     }
 }

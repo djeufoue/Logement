@@ -44,7 +44,7 @@ namespace Logement.Controllers
 
             string email = registerViewModel.Email;
             var user = await _userManager.FindByEmailAsync(email);
-            if(user != null)
+            if (user != null)
             {
                 ModelState.AddModelError(nameof(email), $"User account {email} already exists");
                 return View(registerViewModel);
@@ -62,7 +62,7 @@ namespace Logement.Controllers
             };
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
             if (result.Succeeded)
-            {           
+            {
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {
                     throw new ApplicationException("SendConfirmationEmail is not implemented");
@@ -112,16 +112,10 @@ namespace Logement.Controllers
                 if (passwordCheck)
                 {
                     // Password correct, Sign in
-                    var result = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, loginViewModel.RememberMe , false);
+                    var result = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, loginViewModel.RememberMe, false);
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"User account {loginViewModel.Email} has logged in.");
-               
-                          /*  if (await _userManager.IsInRoleAsync(user, "Admin"))
-                                returnUrl = "/Admin/AllAccess";
-                            else
-                                returnUrl = "/Apartment/Index";                */       
-
                         return LocalRedirect("/Apartment/Index");
                     }
                 }
@@ -141,7 +135,7 @@ namespace Logement.Controllers
         {
             await _signInManager.SignOutAsync();
 
-            foreach(var cookie in HttpContext.Request.Cookies)
+            foreach (var cookie in HttpContext.Request.Cookies)
                 Response.Cookies.Delete(cookie.Key);
 
             _logger.LogInformation($"User {User.Identity.Name} logget out");

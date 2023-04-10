@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Logement.ViewModels.RentPaymentDatesSchedularViewModel>
+
+@{
+    ViewData["Title"] = "AllTenantRentStatus";
+}
+
+<h3>Payment history</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TenantEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AmmountSupposedToPay)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsRentPaidForThisDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NextDateToPay)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenantEmail)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AmmountSupposedToPay)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsRentPaidForThisDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NextDateToPay)
+                </td>
+                <td>
+                    <a asp-action="PayRent" asp-route-id="@item.Id">Pay</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

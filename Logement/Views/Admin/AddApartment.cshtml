@@ -10,24 +10,44 @@
     }
 </style>
 
+<h3>Cette page doit etre enleve: Raison(go to the addApartment endpoint)</h3>
 <h3>Add a new apartment</h3>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
+
         <form asp-action="AddApartment" enctype="multipart/form-data">
+            <input type="hidden" asp-for="LocatedAt" />
+            <input type="hidden" asp-for="NumberOfParkingSpaces" />
+            <input type="hidden" asp-for="FloorNumber"/>
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @{
+                var cities = Model.Cities.Select(x => new SelectListItem() { Value = x.Id.ToString(), Text = x.Name }).ToList();
+             }
+            <div class="row" style="padding-top:1em">
+                <div class="col-sm-2" align="right">
+                    @Html.LabelFor(m => m.CityIds[0], "City")
+                </div>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(m => m.CityIds[0], cities, new { @class = "form-control dropdown-field"})
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ApartmentNunber" class="control-label"></label>
+                <input asp-for="ApartmentNunber" class="form-control" onchange="CheckApartmentNumber()" />
+                <span asp-validation-for="ApartmentNunber" class="text-danger"></span>
+            </div>
 
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <textarea asp-for="Description" class="form-control" rows="10"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="LocatedAt" class="control-label"></label>
-                <input asp-for="LocatedAt" class="form-control" />
-                <span asp-validation-for="LocatedAt" class="text-danger"></span>
-            </div>
+            
             <div class="form-group">
                 <label asp-for="NumberOfRooms" class="control-label"></label>
                 <input asp-for="NumberOfRooms" class="form-control" />
@@ -44,11 +64,6 @@
                 <span asp-validation-for="RoomArea" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="FloorNumber" class="control-label"></label>
-                <input asp-for="FloorNumber" class="form-control" />
-                <span asp-validation-for="FloorNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
                 <input asp-for="Price" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
@@ -57,22 +72,6 @@
                 <label asp-for="DepositePrice" class="control-label"></label>
                 <input asp-for="DepositePrice" class="form-control" />
                 <span asp-validation-for="DepositePrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NumberOfParkingSpaces" class="control-label"></label>
-                <input asp-for="NumberOfParkingSpaces" class="form-control" />
-                <span asp-validation-for="NumberOfParkingSpaces" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label">
-                    Set the Apartment Status
-                </label>
-                <select asp-for="Status" class="form-control">
-                    <option value="Free">Busy</option>
-                    <option value="Free">Free</option>
-                    <option value="Under_construction">Under_construction</option>
-                </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Type" class="control-label">
@@ -85,73 +84,65 @@
                 </select>
                 <span asp-validation-for="Type" class="text-danger"></span>
             </div>
-           
-            <div>
-                <div class="box-header with-border" style="padding-top:1em">
-                    <h2 class="box-title" style="color: #333; font-weight: bold;">Add apartment images</h2>
-                </div>
-                <div class="Images">
-                    @if (Model.PhotoSlots != null)
+                       
+            <div class="AddImageTitle">
+                <h2 class="box-title" style="color: #333; font-weight: bold;">Add apartment images</h2>
+            </div>
+            <div class="Images">
+                @if (Model.PhotoSlots != null)
+                {
+                    for (var i = 0; i < Model.PhotoSlots.Count; i++)
                     {
-                        for (var i = 0; i < Model.PhotoSlots.Count; i++)
-                        {
-                            <div>
-                                <div class="row">
-                                    <div>
-                                        <div class="col-sm-2">
-                                            @Html.Label("Picture of the apartment")
-                                        </div>
-                                        <div>
-                                            <img src="@Model.PhotoSlots[i].ImageURL" class="form-control ChosenImage" style="width: 50px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="col-sm-2">
-                                            @Html.Label("Which part")
-                                        </div>
-                                        <div class="form-group">
-                                            <div>@Html.TextBoxFor(m => Model.PhotoSlots[i].Part, new { @class = "form-control ItemPart", @placeholder = "What part of the apartment" })</div>
-                                        </div>
-                                    </div>
+                        <div>
+                            <div class="row">
+                                <div>
+                                    @Html.Label("Picture")
                                 </div>
-                                <div style="text-align: right;">
-                                    <a class="btn btn-danger" onclick="removePicture(this, 'PhotoSlots')">Remove</a>
+                                <div>
+                                    <input asp-for=@Model.PhotoSlots[i].ImageURL class="form-control ChosenImage" accept="image/*" required />
+                                    <span asp-validation-for="ImageFile" class="text-danger"></span>
                                 </div>
                             </div>
-                        }
+                            <div class="row">                            
+                                <div class="col-sm-2">
+                                    @Html.Label("Which part")
+                                </div>
+                                <div class="form-group">
+                                    <div>@Html.TextBoxFor(m => Model.PhotoSlots[i].Part, new { @class = "form-control ItemPart", @placeholder = "What part of the apartment" })</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right; margin-top: 10px;">
+                                <a class="btn btn-danger" onclick="removePicture(this, 'PhotoSlots')">Remove</a>
+                            </div>
+                        </div>
                     }
-                    <div>
-                        <div class="row">
-                            <div class="col-sm-2">
-                                @Html.Label("Choose a picture")
-                            </div>
-                            <div class="col-sm-10">
-                                <input asp-for=@Model.apartmentPhotoViewModel.ImageURL class="form-control ChosenImage" accept="image/*" required />
-                                <span asp-validation-for="ImageFile" class="text-danger"></span>
-                            </div>
+                }
+                <div style="margin-bottom: 10px">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            @Html.Label("Choose a picture")
                         </div>
-                        <div class="row">
-                            <div class="col-sm-2">
-                                @Html.Label("Which partr")
-                            </div>
-                            <div class="col-sm-10">
-                                <div>@Html.TextBoxFor(m => m.apartmentPhotoViewModel.Part, new { @class = "form-control ItemPart", @placeholder = "What part of the apartment" })</div>
-                            </div>
+                        <div class="col-sm-10">
+                            <input asp-for=@Model.apartmentPhotoViewModel.ImageURL class="form-control ChosenImage" accept="image/*" required />
+                            <span asp-validation-for="ImageFile" class="text-danger"></span>
                         </div>
-                        <div style="text-align: right;">
-                            <a class="btn btn-default" onclick="addAnotherPicture(this, 'PhotoSlots')">Add another photo</a>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            @Html.Label("Which part")
                         </div>
+                        <div class="col-sm-10">
+                            <div>@Html.TextBoxFor(m => m.apartmentPhotoViewModel.Part, new { @class = "form-control ItemPart", @value ="", @placeholder = "What part of the apartment" })</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <a class="btn btn-default" onclick="addAnotherPicture(this, 'PhotoSlots')">Add another photo</a>
                     </div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label asp-for="CreatedOn" class="control-label"></label>
-                <input asp-for="CreatedOn" class="form-control-file" accept="file/*" required />
-                <span asp-validation-for="CreatedOn" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -164,8 +155,49 @@
 
 <script src="/js/site.js"></script>
 
+<script>
+     // SHIVAM : Check for a duplicate ApartmentNumber
+    function CheckApartmentNumber()
+    {
+        $.post("@Url.Action("CheckApartmentNumberAvailability", "Admin")",
+        {
+             ApartmentNumber: $("#ApartmentNunber").val()
+        },
+
+        function(data)
+        {
+            if (data == 1) {
+                $("#ApartmentNunber").next(".validation").remove(); // remove previous message
+                $("#ApartmentNunber").after("<div class='validation' style='color:red;'>Ce numéro d'appartement existe déjà. Veuillez entrer un autre numéro.</div>");
+
+                //disable save button:
+                $(':input[type="submit"]').prop('disabled', true);
+
+                $('#ApartmentNunber').focus();
+            }
+            else if( data == 0)
+            {
+                $(':input[type="submit"]').prop('disabled', false);
+                $("#ApartmentNunber").next(".validation").remove(); // remove previous message
+            }
+        });
+    }
+</script>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
+
+<style>
+    h2{
+        color: #cba40b;
+        font-family: 'Trocchi', serif;
+        font-size: 20px;
+        font-weight: normal;
+        line-height: 35px;
+        margin-bottom: 15px;
+    }
+</style>

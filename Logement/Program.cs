@@ -108,7 +108,7 @@ namespace Logement
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Admin}/{action=ApartmentList}/{id?}");
+                pattern: "{controller=Admin}/{action=GetCities}");
 
             using (var serviceScope = app.Services.CreateScope())
             {

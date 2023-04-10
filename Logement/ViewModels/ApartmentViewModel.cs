@@ -3,24 +3,29 @@ using Logement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Twilio.Types;
 
 namespace Logement.ViewModels
 {
-    public class ApartmentViewModel
+    public class ApartmentViewModel: IValidatableObject
     {
         //Some requierments are going to be added on each property
         public long Id { get; set; }
+        public long ApartmentNunber { get; set; }
         public long LessorId { get; set; }
 
         [Required]
         public string? Description { get; set; }
 
+        [Required(ErrorMessage = "Veuillez d'abord ajouter au moins une cité.")]
+        public List<long> CityIds { get; set; }
+        public List<CityViewModel> Cities { get; set; } = new List<CityViewModel>();  
 
-        [Required]
         [Display(Name = "Located At")]
-        public string LocatedAt { get; set; }
+        public string? LocatedAt { get; set; }
 
         [Required]
         [Display(Name = "Rooms")]
@@ -53,7 +58,7 @@ namespace Logement.ViewModels
         /// <summary>
         /// Database needs to be migrated to add these colunm
         /// </summary>
-        public ApartmentStatusEnum Status { get; set; }
+        public ApartmentStatusEnum? Status { get; set; }
 
         public ApartmentTypeEnum Type { get; set; }
 
@@ -66,13 +71,17 @@ namespace Logement.ViewModels
         [Display(Name = "Which part")]
         public string? Part { get; set; }
 
-        public List<ApartmentPhotoViewModel> PhotoSlots { get; set; }
+        public List<ApartmentPhotoViewModel> PhotoSlots { get; set; } = new List<ApartmentPhotoViewModel>();
          
-        public ApartmentPhotoViewModel apartmentPhotoViewModel { get; set; }
+        public ApartmentPhotoViewModel apartmentPhotoViewModel { get; set; } = new ApartmentPhotoViewModel();
 
         [Display(Name = "Apartment Image")]
         public string? ImageURL { get; set; }
 
-        public DateTime CreatedOn { get; set; }
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {           
+            if(ApartmentNunber == 0)
+                yield return new ValidationResult("Veuillez choisir un numéro d'appartement autre que zéro(0)!", new[] {"PhY"});
+        }
     }
 }

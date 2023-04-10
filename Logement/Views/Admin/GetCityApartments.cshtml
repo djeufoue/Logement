@@ -5,22 +5,14 @@
 }
 
 <section class="content-header">
-<h1>
-    Apartments
-    @if (User.IsInRole("Admin") || User.IsInRole("SystemAdmin"))
-    {
-        <!--New family, so we don't provide ID-->
-        <a class="btn btn-success" href="@Url.Action("AddApartment", "Admin")">
-                <span>Add Apartment</span>
-            <i class="fa fa-plus"></i>
-        </a>
-    }
-</h1>
+    <h1>
+        Apartments
+    </h1>
 </section>
 
 <table class="table">
     <thead>
-        <tr>          
+        <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
@@ -67,67 +59,68 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <div class="description">
-                    @Html.DisplayFor(modelItem => item.Description)
-                </div>
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.ApartmentNunber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LocatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumberOfRooms)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumberOfbathRooms)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoomArea)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FloorNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepositePrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumberOfParkingSpaces)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Part)
-            </td>
-            <td>
-                <img src="@item.ImageURL" style="width: 50px;">
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                     
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div class="description">
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayNameFor(model => model.ApartmentNunber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfRooms)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfbathRooms)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomArea)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FloorNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DepositePrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfParkingSpaces)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Part)
+                </td>
+                <td>
+                    <img src="@item.ImageURL" style="width: 50px;">
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+
                     @if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Free))
                     {
-                         <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
-                                 data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
+                        data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
                             Assign
                         </button>
                     }
                     else if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Under_construction))
                     {
                         <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
-                                 data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
+                        data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
                             Assign
                         </button>
                     }
@@ -137,10 +130,10 @@
                         data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
                             Assign
                         </button>
-                    }     
-            </td>
-        </tr>
-}
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -155,7 +148,7 @@
         overflow: hidden;
     }
 
-    #not-allowed{
+    #not-allowed {
         cursor: not-allowed;
         pointer-events: all !important;
     }

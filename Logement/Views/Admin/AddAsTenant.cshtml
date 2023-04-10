@@ -22,32 +22,11 @@
             <input type="hidden" asp-for="TenantEmail" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
+        
             <div class="form-group">
                 <label asp-for="AmountPaidByTenant" class="control-label"></label>
                 <input asp-for="AmountPaidByTenant" class="form-control" />
                 <span asp-validation-for="AmountPaidByTenant" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DepositePrice" class="control-label"></label>
-                <input asp-for="DepositePrice" class="form-control" />
-                <span asp-validation-for="DepositePrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PaymentMethod" class="control-label">
-                    Select the Payment method
-                </label>
-                <select asp-for="PaymentMethod" class="form-control">
-                    <option value="Annually">Annually</option>
-                    <option value="Half_yearly">Half_yearly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Monthly">Monthly</option>
-                </select>
-                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="StartOfContract" class="control-label"></label>
@@ -64,8 +43,69 @@
                 <input asp-for="ContractFile" class="form-control-file" accept="file/*" required />
                 <span asp-validation-for="ContractFile" class="text-danger"></span>
             </div>
+
+            <h2>Assign an apartment to this tenant<b><i>(Not faculatatif)</i></b></h2>
+
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label asp-for="TenantApartment.ApartmentNunber" class="control-label"></label>
+                <input asp-for="TenantApartment.ApartmentNunber" class="form-control" />
+                <span asp-validation-for="TenantApartment.ApartmentNunber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TenantApartment.Description" class="control-label"></label>
+                <textarea asp-for="TenantApartment.Description" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="TenantApartment.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantApartment.ImageFile" class="control-label"></label>
+                <input asp-for="TenantApartment.ImageFile" class="form-control-file" accept="file/*" required />
+                <span asp-validation-for="TenantApartment.ImageFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantApartment.NumberOfRooms" class="control-label"></label>
+                <input asp-for="TenantApartment.NumberOfRooms" class="form-control" />
+                <span asp-validation-for="TenantApartment.NumberOfRooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantApartment.NumberOfbathRooms" class="control-label"></label>
+                <input asp-for="TenantApartment.NumberOfbathRooms" class="form-control" />
+                <span asp-validation-for="TenantApartment.NumberOfbathRooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantApartment.RoomArea" class="control-label"></label>
+                <input asp-for="TenantApartment.RoomArea" class="form-control" />
+                <span asp-validation-for="TenantApartment.RoomArea" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantApartment.FloorNumber" class="control-label"></label>
+                <input asp-for="TenantApartment.FloorNumber" class="form-control" />
+                <span asp-validation-for="TenantApartment.FloorNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DepositePrice" class="control-label"></label>
+                <input asp-for="DepositePrice" class="form-control" />
+                <span asp-validation-for="DepositePrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantApartment.Type" class="control-label">
+                    Select the apartment type
+                </label>
+                <select asp-for="TenantApartment.Type" class="form-control">
+                    <option value="Studio">Studio</option>
+                    <option value="Room">Room</option>
+                    <option value="Apartment">Apartment</option>
+                </select>
+                <span asp-validation-for="TenantApartment.Type" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -78,3 +118,20 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+
+<style>
+    h2 {
+        color: #cba40b;
+        font-family: 'Trocchi', serif;
+        font-size: 20px;
+        font-weight: normal;
+        margin-top: 50px;
+        line-height: 35px;
+        margin-bottom: 15px;
+    }
+
+    h2 i{
+        color: red;
+    }
+</style>

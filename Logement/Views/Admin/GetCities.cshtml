@@ -1,0 +1,86 @@
+﻿@model IEnumerable<Logement.ViewModels.CityViewModel>
+
+@{
+    ViewData["Title"] = "ApartmentList";
+}
+
+<style >
+    .content-header {
+        margin: 0;
+        font-size: 30px;
+    }
+</style>
+
+<section class="content-header">
+<h1>
+    Cities
+    @if (User.IsInRole("Admin") || User.IsInRole("SystemAdmin"))
+    {
+        <!--New family, so we don't provide ID-->
+        <a class="btn btn-success" href="@Url.Action("AddCity", "Admin")">
+            <span>Add City</span>
+            <i class="fa fa-plus"></i>
+        </a>
+    }
+</h1>
+</section>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LocatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumbersOfApartment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Floor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CityImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfParkingSpaces)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div class="CityName">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumbersOfApartment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Floor)
+                </td>
+                <td>
+                    <img src="@item.CityPhoto" style="width: 50px;">                   
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfParkingSpaces)
+                </td>              
+                <td>
+                    <di class="button">
+                        <a asp-action="GetCityApartments" class="buttonView" asp-route-cityId="@item.Id">View</a>
+                        <a asp-action="Delete" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
+                        <a asp-action="Delete" class="buttonEdit" asp-route-id="@item.Id">Delete</a>
+                    </di>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

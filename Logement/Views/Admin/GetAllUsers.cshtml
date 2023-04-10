@@ -31,30 +31,81 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaritalStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JobTitle)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>                 
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MaritalStatus)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.JobTitle)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    <di class="button">
+                        <a asp-action="AddAsTenant" class="buttonChoose" asp-route-tenantId="@item.Id" asp-route-email="@item.Email">Choose</a>
+                        <a asp-action="Delete" class="buttonDelete" asp-route-id="@item.Id">Delete</a>
+                    </di>                 
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<style>
+
+
+    .button {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .buttonChoose {
+        display: grid;
+        height: 35px;
+        width: 80px;
+        background-color: #445744;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        margin-right: 2px;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonDelete {
+        display: grid;
+        height: 35px;
+        width: 75px;
+        background-color: red;
+        margin-right: 5px;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonChoose:hover  {
+        background-color: #002ead;
+        transition: 0.7s;
+    }
+
+    .buttonDelete:hover {
+        background-color: #002ead;
+        transition: 0.7s;
+    }
+</style>
