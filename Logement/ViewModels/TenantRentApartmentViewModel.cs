@@ -13,9 +13,6 @@ namespace Logement.ViewModels
     {
         public long Id { get; set; }
 
-        //to be added automatically in the code But the apartment must be choose by the lessor
-        public long ApartmentId { get; set; }
-
         //to be added automatically in the code
         public long TenantId { get; set; }
 

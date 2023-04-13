@@ -49,11 +49,6 @@ namespace Logement.Controllers
             baseScheduler = new BaseScheduler(context, logger, emailService, userManager, smsService);
         }
 
-        public class resultModel
-        {
-            public string result { get; set; }
-        }
-
         public async Task<JsonResult> CheckApartmentNumberAvailability(long apartmentNumber)
         {       
             var checkApartment = await _context.Apartments
@@ -162,7 +157,6 @@ namespace Logement.Controllers
             };
             return apartment;
         }
-
 
         private CityViewModel GetCitiesFromModel(City city, string cityImage)
         {
@@ -382,40 +376,6 @@ namespace Logement.Controllers
             }
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllUsersPartialViewAsync(long apartmentId)
-        {
-            try
-            {
-                List<ApplicationUser> users = _userManager.Users.ToList();
-                List<AllUsersViewModel> allUsersViewModels = new List<AllUsersViewModel>();
-
-                foreach (ApplicationUser user in users)
-                {
-                    if (await _userManager.IsInRoleAsync(user, "Admin"))
-                        continue;
-
-                    //Check if this apartment as been already assign to this user
-                    var output = await _context.TenantRentApartments
-                                         .Where(u => u.TenantEmail == user.Email && u.ApartmentId == apartmentId)
-                                         .FirstOrDefaultAsync();
-                    if (output != null)
-                        continue;
-
-                    allUsersViewModels.Add(GetViewModelFromModel(user));
-                }
-                var result = new BaseAllUsersViewModel();
-                result.Users = allUsersViewModels;
-                result.ApartmentId = apartmentId;
-                return PartialView("_AssignTenantPartialView", result);
-            }
-            catch (Exception e)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
-            }
-        }
-
         /// <summary>
         /// Get the apartment photo and part
         /// </summary>
@@ -576,9 +536,6 @@ namespace Logement.Controllers
             return View(apartmentViewModel);
         }
 
-       //To do: let's dont give to the user the possibility to add an apartment without having added the city first 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddApartment(ApartmentViewModel apartmentViewModel)
         {
             if (ModelState.IsValid)
@@ -614,13 +571,35 @@ namespace Logement.Controllers
 
         // Post: Admin/AddAsTenant/1
         [HttpGet]
-        public IActionResult AddAsTenant(long tenantId, string email, long ChoosenApartmentId)
+        public async Task<IActionResult> AddAsTenantAsync(long tenantId, string email)
         {
+            ApartmentViewModel apartmentViewModel = new ApartmentViewModel();
+            List<CityViewModel> cityViewModel = new List<CityViewModel>();
+            apartmentViewModel.PhotoSlots = new List<ApartmentPhotoViewModel>();
+
+            var cities = await _context.Cities.ToListAsync();
+
+            foreach (var city in cities)
+            {
+                CityViewModel cityV = new CityViewModel()
+                {
+                    Id = city.Id,
+                    Name = city.Name
+                };
+                cityViewModel.Add(cityV);
+            }
+
+            if (cityViewModel != null)
+            {
+                foreach (var city in cityViewModel)
+                    apartmentViewModel.Cities.Add(city);
+            }
+
             TenantRentApartmentViewModel result = new TenantRentApartmentViewModel
             {
                 TenantId = tenantId,
                 TenantEmail = email,
-                ApartmentId = ChoosenApartmentId
+                TenantApartment = apartmentViewModel
             };
             return View(result);
         }

@@ -3,25 +3,6 @@
 
 // Write your JavaScript code.
 
-
-$(function () {
-    var PlaceHolderElement = $('#PlaceHolderHere');
-    $('button[data-toggle="ajax-modal"]').click(function (event) {
-
-        var url = $(this).data('url');
-        $.get(url).done(function (data) {
-            PlaceHolderElement.html(data);
-            PlaceHolderElement.find('.modal').modal('show');
-        })
-    })
-
-    $('button[data-dismiss="modal"]').click(function () {
-        $('.modal').modal("hide");
-    });
-})
-
-
-
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
 function myFunction() {
@@ -49,7 +30,7 @@ function addAnotherPicture(button, path) {
         + "      Picture\n"
         + "    </div>\n"
         + "    <div class='col-sm-10'>\n"
-        + "      <input class='form-control ChosenImage' name='(path)[(index)].ImageURL' value='(image)' accept='image/*' required/> "
+        + "      <input class='form-control ChosenImage' name='TenantApartment.[(index)].ImageURL' value='(image)' accept='image/*' required/> "
         + "    </div>\n"
         + "  </div>\n"
         + "  <div class='row'>\n"
@@ -57,7 +38,7 @@ function addAnotherPicture(button, path) {
         + "       Which Part\n"
         + "    </div>\n"
         + "    <div class='col-sm-10'>\n"
-        + "       <input type='text' readonly='readonly' class='form-control ItemPart' name='(path)[(index)].Part' value='(apartmentPart)' />\n"
+        + "       <input type='text' readonly='readonly' class='form-control ItemPart' name='TenantApartment.(path)[(index)].Part' value='(apartmentPart)' />\n"
         + "    </div>\n"
         + "  </div>\n"
         + "  <div style='text-align: right;'>\n"
