@@ -50,9 +50,9 @@ namespace Logement.Controllers
         }
 
         public async Task<JsonResult> CheckApartmentNumberAvailability(long apartmentNumber)
-        {       
+        {
             var checkApartment = await _context.Apartments
-                .Where( a => a.ApartmentNumber == apartmentNumber)
+                .Where(a => a.ApartmentNumber == apartmentNumber)
                 .FirstOrDefaultAsync();
 
             if (checkApartment != null)
@@ -61,7 +61,7 @@ namespace Logement.Controllers
             }
             else if (checkApartment == null)
                 return Json(0); //apartment number not taken
-            else 
+            else
                 return Json(-1);  //error occurred
         }
 
@@ -190,7 +190,7 @@ namespace Logement.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetCities()
-        {          
+        {
             try
             {
                 List<CityViewModel> citiesModel = new List<CityViewModel>();
@@ -311,7 +311,7 @@ namespace Logement.Controllers
         //Get: Apartment
         [HttpGet]
         public async Task<IActionResult> ApartmentList()
-        {       
+        {
             try
             {
                 List<Apartment> apartments = await _context.Apartments.ToListAsync();
@@ -613,11 +613,12 @@ namespace Logement.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await AddApartment(model.TenantApartment);                  
+                    await AddApartment(model.TenantApartment);
 
                     ApplicationUser landLord = _context.Users
-                                          .Where(u => u.UserName == User.Identity.Name)
-                                        .First();
+                                    .Where(u => u.UserName == User.Identity.Name)
+                                    .First();
+
                     if (landLord != null)
                     {
                         var user = await _userManager.Users
@@ -657,7 +658,7 @@ namespace Logement.Controllers
                             emailBody += $"<p>Nombre de chambres:{model.TenantApartment.NumberOfRooms}</p>";
                             emailBody += $"<p>Nombre de salle de bain:{model.TenantApartment.NumberOfbathRooms}</p>";
 
-                            //For user having phone number                              
+                            //For users having phone number                              
                             string smsBody = $"Vous avez été ajouté comme locataire par Mr {landLord.TenantLastName} {landLord.TenantFirstName}.";
                             smsBody += $"Type de logement: {model.TenantApartment.Type}";
                             smsBody += $"Localisation:{model.TenantApartment.LocatedAt}";
@@ -686,7 +687,7 @@ namespace Logement.Controllers
                                                             .Select(t => t.Price)
                                                             .FirstOrDefaultAsync();
                             decimal nbOfMonthPaid = 0;
-                          
+
                             nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
 
                             //Add 30 days on the current payment date in case the amount paid is not enough
