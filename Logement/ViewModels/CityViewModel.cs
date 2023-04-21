@@ -18,9 +18,8 @@ namespace Logement.ViewModels
         public IFormFile CityImage { get; set; }
 
         public string? CityPhoto { get; set; }
+        public DateTime DateAdded { get; set; }
 
         public int? NumberOfParkingSpaces { get; set; }
-        //public ICollection<CityPhotoViewModel> CityPhotos { get; set; }
-        //public CityPhotoViewModel GetCityPhotoViewModel { get; set; } = new CityPhotoViewModel();
     }
 }

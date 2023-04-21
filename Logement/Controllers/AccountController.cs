@@ -8,22 +8,20 @@ using Newtonsoft.Json;
 
 namespace Logement.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ApplicationDbContext _context;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger):base(context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context;
             _logger = logger;
         }
 
@@ -138,7 +136,7 @@ namespace Logement.Controllers
             foreach (var cookie in HttpContext.Request.Cookies)
                 Response.Cookies.Delete(cookie.Key);
 
-            _logger.LogInformation($"User {User.Identity.Name} logget out");
+            _logger.LogInformation($"User {GetUser().UserName} logget out");
             return LocalRedirect("/Apartment/index");
         }
     }

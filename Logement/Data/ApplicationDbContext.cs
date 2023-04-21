@@ -25,5 +25,7 @@ namespace Logement.Data
         public DbSet<NotificationSentForRentPayment> NotificationSentForRentPayments { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<CityPhoto> CityPhotos { get; set; }
+
+        public DbSet<CityMember> CityMembers { get; set; }
     }
 }

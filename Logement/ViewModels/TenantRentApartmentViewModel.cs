@@ -15,6 +15,7 @@ namespace Logement.ViewModels
 
         //to be added automatically in the code
         public long TenantId { get; set; }
+        public long? CityId { get; set; }
 
         /// <summary>
         /// The lessor must provide a valid Email

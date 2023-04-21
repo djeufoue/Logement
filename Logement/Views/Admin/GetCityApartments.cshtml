@@ -107,30 +107,12 @@
                     <img src="@item.ImageURL" style="width: 50px;">
                 </td>
                 <td>
+                    <a class="buttonDetails" href="@Url.Action("Details", "Admin", new { projectId = ViewData["projectId"], id = item.Id})">
+                            <span>Details</span>
+                    </a>
+
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-
-                    @if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Free))
-                    {
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
-                        data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
-                            Assign
-                        </button>
-                    }
-                    else if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Under_construction))
-                    {
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-target="#addTenant"
-                        data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
-                            Assign
-                        </button>
-                    }
-                    else if (item.Status.Equals(Logement.Data.Enum.ApartmentStatusEnum.Busy))
-                    {
-                        <button type="button" id="not-allowed" class="btn btn-primary" disabled data-toggle="ajax-modal" data-target="#addTenant"
-                        data-url="@Url.Action("GetAllUsersPartialView")?apartmentId=@item.Id">
-                            Assign
-                        </button>
-                    }
                 </td>
             </tr>
         }
