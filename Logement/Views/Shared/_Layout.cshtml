@@ -40,11 +40,7 @@
                                 {                                   
                                     <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
                                     <div id="myDropdown" class="dropdown-content">
-                                        <a asp-area="" asp-controller="Admin" asp-action="GetCities">Cities</a>
-                                        <a class="buttonDelete" href="@Url.Action("GetAllTenants", "Admin", new { projectId = ViewData["cityId"]})">
-                                         <span>Delete</span>
-                                         </a>
-                                        <a asp-area="" asp-controller="Admin" asp-action="GetAllUsers">Pending users</a>
+                                        <a asp-area="" asp-controller="Admin" asp-action="GetCities">Cities</a>    
                                         <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
                                     </div>
                                 }
