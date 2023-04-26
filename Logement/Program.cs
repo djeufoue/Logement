@@ -19,20 +19,13 @@ namespace Logement
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
-                DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
-
+       
                 LoggerService.ConfigureLogging(builder.Host);
 
                 ConfigureDatabase(builder.Services, builder.Configuration);
                 ConfigureIdentity(builder.Services);
 
                 builder.Services.AddControllersWithViews();
-                builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                {
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-                    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                });
-
                 builder.Services.AddScoped<Schedular.PaymentSchedular>();
 
                 var app = builder.Build();
@@ -54,7 +47,11 @@ namespace Logement
         private static void ConfigureDatabase(IServiceCollection services, IConfiguration configuration)
         {
             string connectionString = configuration.GetConnectionString("DefaultConnection");
-           
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            });
             services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
             services.AddHangfireServer();
         }
@@ -95,27 +92,17 @@ namespace Logement
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseHangfireDashboard();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Admin}/{action=GetCities}");
+                pattern: "{controller=City}/{action=Index}");
 
-            using (var serviceScope = app.Services.CreateScope())
-            {
-                ApplicationDbSeed.SeedDatabase(serviceScope.ServiceProvider);
-            }
-
-            app.UseHangfireDashboard(); // must come before setup below, and after initialization above
             BaseScheduler.Setup();
         }
     }

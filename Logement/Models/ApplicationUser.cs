@@ -18,9 +18,9 @@ namespace Logement.Models
         [MaxLength(256)]
         public override string? PhoneNumber { get; set; }
 
-        public string TenantFirstName { get; set; }
+        public string FirstName { get; set; }
 
-        public string TenantLastName { get; set; }
+        public string LastName { get; set; }
 
         // Need to be seed
         public MaritalStatusEnum? MaritalStatus { get; set; }

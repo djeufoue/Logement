@@ -53,7 +53,7 @@ namespace Logement.Schedular
                     if (TenantInfos.Email == null && TenantInfos.PhoneNumber == null)
                     {
                         string subject = "Alerte";
-                        string body = $"<p>Le locataire {TenantInfos.TenantFirstName} n'a pas d'e-mail ou de numéro de <p>\n";
+                        string body = $"<p>Le locataire {TenantInfos.FirstName} n'a pas d'e-mail ou de numéro de <p>\n";
                         body += "<p>téléphone pour lui rappeler de payer son loyer; ";
                         body += "<p>veuillez contacter l'administration pour résoudre ce problème<p>";
 
@@ -183,7 +183,7 @@ namespace Logement.Schedular
 
             //Send an email to the landlord of this appartment                        
             //To do: Modifier le tritre de cette notification
-            subject = $"Loyer non payé par le locataire {tenantInfos.TenantFirstName} {tenantInfos.TenantLastName}";
+            subject = $"Loyer non payé par le locataire {tenantInfos.FirstName} {tenantInfos.LastName}";
             if (tenantInfos != null)
                 await SendConfirmationEmail(tenantInfos.Email, subject, body);
         }

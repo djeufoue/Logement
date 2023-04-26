@@ -54,8 +54,7 @@
                 </td>
                 <td>
                     <di class="button">
-                        <a asp-action="AddAsTenant" class="buttonChoose" asp-route-tenantId="@item.Id" asp-route-email="@item.Email">Choose</a>
-                        <a asp-action="Delete" class="buttonDelete" asp-route-id="@item.Id">Delete</a>
+                        <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.Id&email=@item.Email">Choose</a>
                     </di>                 
                 </td>
             </tr>

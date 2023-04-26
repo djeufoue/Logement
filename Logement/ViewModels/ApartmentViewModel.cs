@@ -16,16 +16,17 @@ namespace Logement.ViewModels
         public long Id { get; set; }
         public long ApartmentNunber { get; set; }
         public long LessorId { get; set; }
+        public string? CityName { get; set;}
 
         [Required]
         public string? Description { get; set; }
 
-        [Required(ErrorMessage = "Veuillez d'abord ajouter au moins une cité.")]
-        public List<long> CityIds { get; set; }
-        public List<CityViewModel> Cities { get; set; } = new List<CityViewModel>();  
+        public long? CityId { get; set; } 
 
         [Display(Name = "Located At")]
         public string? LocatedAt { get; set; }
+
+        public string? OccupiedBy { get; set; }
 
         [Required]
         [Display(Name = "Rooms")]
@@ -81,7 +82,7 @@ namespace Logement.ViewModels
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {           
             if(ApartmentNunber == 0)
-                yield return new ValidationResult("Veuillez choisir un numéro d'appartement autre que zéro(0)!", new[] {"PhY"});
+                yield return new ValidationResult("Veuillez choisir un numéro d'appartement autre que zéro(0)!", new[] { "ApartmentNunber" });
         }
     }
 }

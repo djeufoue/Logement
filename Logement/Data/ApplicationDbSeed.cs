@@ -47,8 +47,8 @@ namespace Logement.Data
                     Email = "pablodjeufoue@gmail.com",
                     EmailConfirmed = true,
                     JobTitle = "info",
-                    TenantFirstName = "Adrien",
-                    TenantLastName = "Lontsi",
+                    FirstName = "Adrien",
+                    LastName = "Lontsi",
                 };
 
                 IdentityResult result = userManager.CreateAsync(user, "Password_1").Result;

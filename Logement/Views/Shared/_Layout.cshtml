@@ -35,32 +35,12 @@
                         <div class="text-left">
 
                             @if (!string.IsNullOrEmpty(User.Identity.Name))
-                            {
-                                @if (User.IsInRole("Admin") || User.IsInRole("SystemAdmin"))
-                                {                                   
+                            {                                  
                                     <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
                                     <div id="myDropdown" class="dropdown-content">
-                                        <a asp-area="" asp-controller="Admin" asp-action="GetCities">Cities</a>    
+                                        <a asp-area="" asp-controller="Admin" asp-action="GetCities">My Cities</a>
                                         <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                                    </div>
-                                }
-                                else if (User.IsInRole("Tenant"))
-                                {
-                                    <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
-                                    <div id="myDropdown" class="dropdown-content">
-                                        <a href="#">Profile</a>
-                                        <a asp-area="" asp-controller="TenantApartment" asp-action="TenantRentStatus" asp-route-tenantEmail="@User.Identity.Name">My rent status</a>
-                                        <a asp-area="" asp-controller="TenantApartment" asp-action="GetAllPaymentsHistory" asp-route-userEmail="@User.Identity.Name">My Payment history</a>
-                                        <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
-                                    <div id="myDropdown" class="dropdown-content">
-                                       <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                                    </div>
-                                }
+                                    </div>                              
                             }
                             else if(string.IsNullOrEmpty(User.Identity.Name))
                             {

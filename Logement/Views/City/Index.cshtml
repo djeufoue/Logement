@@ -4,7 +4,7 @@
     ViewData["Title"] = "ApartmentList";
 }
 
-<style >
+<style>
     .content-header {
         margin: 0;
         font-size: 30px;
@@ -12,17 +12,13 @@
 </style>
 
 <section class="content-header">
-<h1>
-    Cities
-    @if (User.IsInRole("Admin") || User.IsInRole("SystemAdmin"))
-    {
-        <!--New family, so we don't provide ID-->
-        <a class="btn btn-success" href="@Url.Action("AddCity", "Admin")">
-            <span>Add City</span>
-            <i class="fa fa-plus"></i>
+    <h1>
+        Cities
+        <a class="btn btn-success" href="@Url.Action("AddCity", "City")">
+                <span>Add City</span>
+                <i class="fa fa-plus"></i>
         </a>
-    }
-</h1>
+    </h1>
 </section>
 
 
@@ -40,9 +36,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Floor)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CityImage)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.NumberOfParkingSpaces)
@@ -68,16 +61,12 @@
                     @Html.DisplayFor(modelItem => item.Floor)
                 </td>
                 <td>
-                    <img src="@item.CityPhoto" style="width: 50px;">                   
+                    @Html.DisplayFor(modelItem => item.NumberOfParkingSpaces)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.NumberOfParkingSpaces)
-                </td>              
-                <td>
                     <di class="button">
-                        <a asp-action="GetCityApartments" class="buttonView" asp-route-cityId="@item.Id">View</a>
+                        <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
                         <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
-                        <a asp-action="Delete" class="buttonEdit" asp-route-id="@item.Id">Delete</a>
                     </di>
                 </td>
             </tr>

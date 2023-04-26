@@ -12,7 +12,6 @@
         public string LocatedAt { get; set; }
 
         public int? NumberOfParkingSpaces { get; set; }
-        public ICollection<CityPhoto> CityPhoto { get; set; }
 
         public string Floor { get; set; }
 

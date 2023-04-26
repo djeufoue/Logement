@@ -18,7 +18,6 @@
     <div class="col-md-4">
         <form asp-action="AddAsTenant" enctype="multipart/form-data">
             <input type="hidden" asp-for="CityId" />
-            <input type="hidden" asp-for="TenantId" />
             <input type="hidden" asp-for="TenantEmail" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -178,7 +177,7 @@
 <script>
     // SHIVAM : Check for a duplicate ApartmentNumber
     function CheckApartmentNumber() {
-        $.post("@Url.Action("CheckApartmentNumberAvailability", "Admin")",
+        $.post("@Url.Action("CheckApartmentNumberAvailability", "Apartment")",
             {
                 ApartmentNumber: $("#TenantApartment_ApartmentNunber").val()
             },

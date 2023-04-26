@@ -1,0 +1,98 @@
+﻿@model Logement.ViewModels.CityViewModel
+
+@{
+    ViewData["Title"] = "Edit city";
+}
+
+<section class="content-header">
+    <h1>
+        Edit Project
+    </h1>
+</section>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditCity">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+              <div class="form-group">
+                <label asp-for="LocatedAt" class=" control-label"></label>
+                <input asp-for="LocatedAt" class="form-control" />
+                <span asp-validation-for="LocatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumbersOfApartment" class=" control-label"></label>
+                <input asp-for="NumbersOfApartment" class="form-control" />
+                <span asp-validation-for="NumbersOfApartment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Floor" class=" control-label"></label>
+                <input asp-for="Floor" class="form-control" />
+                <span asp-validation-for="Floor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfParkingSpaces" class="control-label"></label>
+                <input asp-for="NumberOfParkingSpaces" class="form-control-file" accept="file/*" required />
+                <span asp-validation-for="NumberOfParkingSpaces" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CityPhoto" class="control-label"></label>
+                <input asp-for="CityPhoto" class="form-control-file" accept="file/*" required />
+                <span asp-validation-for="CityPhoto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="button">
+    <a class="cityList" href="@Url.Action("Index", "City")">
+        <span>Back to List</span>
+    </a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .content-header h1 {
+        margin: 0;
+        font-size: 25px;
+    }
+
+    .form-group {
+        margin-top: 10px;
+    }
+
+    .button {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .cityList {
+        display: grid;
+        height: 35px;
+        width: 100px;
+        background-color: #445744;
+        margin-right: 5px;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+</style>

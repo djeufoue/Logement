@@ -1,5 +1,4 @@
-﻿using Logement.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Logement.ViewModels
 {
@@ -15,7 +14,7 @@ namespace Logement.ViewModels
         public long NumbersOfApartment { get; set; }
 
         public string Floor { get; set; }
-        public IFormFile CityImage { get; set; }
+        public IFormFile? CityImage { get; set; }
 
         public string? CityPhoto { get; set; }
         public DateTime DateAdded { get; set; }

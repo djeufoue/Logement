@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace Logement.Controllers
 {
@@ -18,7 +19,8 @@ namespace Logement.Controllers
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context,
-            ILogger<AccountController> logger):base(context)
+             IConfiguration configuration,
+            ILogger<AccountController> logger):base(context, configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -26,15 +28,15 @@ namespace Logement.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             var registerViewModel = new RegisterViewModel();
             return View(registerViewModel);
         }
 
-
-        //Register people like simple users
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
@@ -53,8 +55,8 @@ namespace Logement.Controllers
                 UserName = email,
                 Email = email,
                 PhoneNumber = registerViewModel.PhoneNumber,
-                TenantFirstName = registerViewModel.TenantFirstName,
-                TenantLastName = registerViewModel.TenantLastName,
+                FirstName = registerViewModel.TenantFirstName,
+                LastName = registerViewModel.TenantLastName,
                 JobTitle = registerViewModel.JobTitle,
                 MaritalStatus = registerViewModel.MaritalStatus
             };
@@ -84,6 +86,7 @@ namespace Logement.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             //We are using viewModel to keep track of the data in case the user accidently reload the page. 
@@ -93,6 +96,7 @@ namespace Logement.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel, [FromQuery] string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -114,7 +118,7 @@ namespace Logement.Controllers
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"User account {loginViewModel.Email} has logged in.");
-                        return LocalRedirect("/Apartment/Index");
+                        return LocalRedirect("/City/Index");
                     }
                 }
                 else
@@ -137,7 +141,7 @@ namespace Logement.Controllers
                 Response.Cookies.Delete(cookie.Key);
 
             _logger.LogInformation($"User {GetUser().UserName} logget out");
-            return LocalRedirect("/Apartment/index");
+            return LocalRedirect("/Account/Login");
         }
     }
 }

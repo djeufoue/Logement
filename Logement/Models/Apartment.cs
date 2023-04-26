@@ -55,6 +55,5 @@ namespace Logement.Models
         public ApartmentTypeEnum Type { get; set; }
 
         public DateTime CreatedOn { get; set; }
-
     }
 }
