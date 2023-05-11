@@ -5,24 +5,20 @@ using Logement.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MimeKit;
 using System.Net;
 
 namespace Logement.Controllers
 {
     public class ApartmentController : BaseController
     {
-
         UserManager<ApplicationUser> _userManager;
         public ApartmentController(ApplicationDbContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager)
             :base(context, configuration)
         {
-
             _userManager = userManager;
         }
 
         private string GetPhoto;
-        private string GetPart;
    
         public void GetApartmentPhoto(long apartmentId)
         {
@@ -32,8 +28,8 @@ namespace Logement.Controllers
             {
                 if (apartmentPhoto.ApartmentId == apartmentId)
                 {
-                    GetPhoto = apartmentPhoto.ImageURL;
-                    GetPart = apartmentPhoto.Part;
+                    GetPhoto = apartmentPhoto.FileName;
+                    //GetPart = apartmentPhoto.Part;
                     break;
                 }
             }
@@ -55,11 +51,11 @@ namespace Logement.Controllers
                 FloorNumber = apartment.FloorNumber,
                 Price = apartment.Price,
                 DepositePrice = apartment.DepositePrice,
-                NumberOfParkingSpaces = city.NumberOfParkingSpaces,
+                //NumberOfParkingSpaces = city.NumberOfParkingSpaces,
                 Status = apartment.Status,
                 Type = apartment.Type,
                 ImageURL = GetPhoto,
-                Part = GetPart
+                //Part = GetPart
             };
             return apartmentViewModel;
         }
@@ -92,7 +88,6 @@ namespace Logement.Controllers
 
                 if (cityCreator != null)
                 {
-
                     List<ApartmentViewModel> apartmentViewModel = new List<ApartmentViewModel>();
 
                     var apartmentList = await dbc.Apartments
@@ -162,7 +157,7 @@ namespace Logement.Controllers
                 foreach (ApplicationUser user in users)
                 {
                     var cityMember = await dbc.CityMembers
-                        .Where(cm => cm.UserId == user.Id && cm.Id == cityId)
+                        .Where(cm => cm.UserId == user.Id && cm.CityId == cityId && cm.Role == CityMemberRoleEnum.Admin)
                         .FirstOrDefaultAsync();
 
                     if (cityMember == null)

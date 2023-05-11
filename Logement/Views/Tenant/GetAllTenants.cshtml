@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Logement.ViewModels.TenantRentApartmentViewModel>
+﻿@model IEnumerable<Logement.ViewModels.TenantInfos>
 
 @{
     ViewData["Title"] = "GetAllTenants";
@@ -10,23 +10,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.TenantEmail)
+                @Html.DisplayNameFor(model => model.TenantFullName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.TenantPhoneNumber)
             </th>
-            <th>Apartment price</th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApartementPrice)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.DepositePrice)
-            </th>
-            <th>
-                First payment
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PaymentMethod)
-            </th>
-            <th>
-                Contract Effective date
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EndOfContract)
@@ -39,29 +32,21 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TenantEmail)
+                    @Html.DisplayFor(modelItem => item.TenantFullName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TenantPhoneNumber)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Price)
+                    @Html.DisplayFor(modelItem => item.ApartementPrice)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DepositePrice)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AmountPaidByTenant)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PaymentMethod)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartOfContract)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.EndOfContract)
                 </td>
+                <td>
                 <td>
                     <di class="button">
                         <a class="buttonRentStatus" href="/TenantApartment/AllTenantRentStatus?tenantEmail=@item.TenantEmail">Rent status</a>

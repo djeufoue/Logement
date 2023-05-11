@@ -49,6 +49,7 @@ namespace Logement
             string connectionString = configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
             {
+                options.EnableSensitiveDataLogging();
                 options.UseSqlServer(connectionString);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
@@ -101,7 +102,7 @@ namespace Logement
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=City}/{action=Index}");
+                pattern: "{controller=CityId}/{action=Index}");
 
             BaseScheduler.Setup();
         }

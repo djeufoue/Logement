@@ -12,7 +12,6 @@ using System.Net;
 
 namespace Logement.Controllers
 {
-    [Authorize(Roles = "Tenant,Admin,SystemAdmin")]
     public class TenantController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -51,14 +50,15 @@ namespace Logement.Controllers
             return apartment;
         }
 
-        private CityMemberViewModel GetTenantFromModel(long cityId, CityMember tenant)
+        private TenantInfos GetTenantFromModel(CityMember tenant)
         {
-            CityMemberViewModel allTenant = new CityMemberViewModel()
+
+            TenantInfos allTenant = new TenantInfos()
             {
-                Id = tenant.City.Id,
+                Id = tenant.Id,
                 TenantEmail = tenant.User.Email,
                 TenantPhoneNumber = tenant.User.PhoneNumber,
-                Price = tenant.Apartment.Price,
+                ApartementPrice = tenant.Apartment.Price,
                 DepositePrice = tenant.Apartment.DepositePrice,
             };        
             return allTenant;
@@ -69,7 +69,7 @@ namespace Logement.Controllers
         {
             try
             {
-                List<CityMemberViewModel> allTenants = new List<CityMemberViewModel>();
+                List<TenantInfos> allTenants = new List<TenantInfos>();
 
                 var landlord = await GetCityCreator(cityId);
 
@@ -78,14 +78,11 @@ namespace Logement.Controllers
 
                 var cityMembers = await dbc.CityMembers
                     .Where(cm => cm.CityId == cityId && cm.Role == CityMemberRoleEnum.Tenant)
-                    .Include(cm => cm.User)
-                    .Include(cm => cm.Apartment)
-                    .Include(cm => cm.City)
                     .ToListAsync();
              
                 foreach (var tenant in cityMembers)
                 {
-                    allTenants.Add(GetTenantFromModel(cityId, tenant));
+                    allTenants.Add(GetTenantFromModel(tenant));
                 }
                 ViewData["cityId"] = cityId;
                 return View(allTenants);
@@ -96,11 +93,11 @@ namespace Logement.Controllers
             }
         }
 
-        public async Task<IActionResult> AddApartment(ApartmentViewModel apartmentViewModel)
+        public async Task<IActionResult> AddApartment(ApartmentViewModel model)
         {
             if (ModelState.IsValid)
             {
-                Apartment apartment = AddApartmenFromViewModel(apartmentViewModel);
+                Apartment apartment = AddApartmenFromViewModel(model);
                 var fileModel = new FileModel();
 
                 //look for the user who is currently Login
@@ -110,21 +107,19 @@ namespace Logement.Controllers
 
                 apartment.LessorId = user.Id;
 
-                apartment.CityId = (long)apartmentViewModel.CityId;
+                apartment.CityId = (long)model.CityId;
 
                 dbc.Apartments.Add(apartment);
                 await dbc.SaveChangesAsync();
 
-                apartmentViewModel.PhotoSlots.Add(apartmentViewModel.apartmentPhotoViewModel);
-
-                foreach (var photo in apartmentViewModel.PhotoSlots)
+                foreach (var file in model.Images)
                 {
                     string methodName = "AddApartment";
-                    await SaveImageFile(photo.ImageURL, apartment.Id, photo.Part, methodName);
+                    await SaveImageFile(file, apartment.Id, methodName);
                 }
-                return Redirect("/City/GetCities");
+                return Redirect("/CityId/GetCities");
             }
-            return View(apartmentViewModel);
+            return View(model);
         }
 
         // Post: Admin/AddAsTenant/1
@@ -138,7 +133,7 @@ namespace Logement.Controllers
             CityMemberViewModel result = new CityMemberViewModel
             {
                 TenantEmail = email,
-                City = GetCitiesFromModel(city, null)
+                CityId = cityId
             }; 
 
             ViewData["cityId"] = cityId;
@@ -169,7 +164,7 @@ namespace Logement.Controllers
                             TenantEmail = model.TenantEmail,
                             TenantPhoneNumber = user.PhoneNumber,
                             ApartmentId = model.AppartmentMember.Id,
-                            Price = model.Price,
+                            Price = model.AppartmentMember.Price,
                             BailId = contractId,
                             AmountPaidByTenant = model.AmountPaidByTenant,
                             DepositePrice = model.DepositePrice,
@@ -259,14 +254,14 @@ namespace Logement.Controllers
 
                         CityMember cityMember = new CityMember
                         {
-                            CityId = (long)model.City.Id,
+                            CityId = (long)model.CityId,
                             UserId = user.Id,
                             Role = CityMemberRoleEnum.Tenant
                         };
                         dbc.CityMembers.Add(cityMember);
                         await dbc.SaveChangesAsync();
 
-                        return Redirect("/Admin/GetAllTenants?cityId=" + model.City.Id);
+                        return Redirect("/Admin/GetAllTenants?cityId=" + model.CityId);
                     }
                     else
                         return BadRequest($"The user {model.TenantEmail} does not even exist as simple user");
@@ -278,7 +273,6 @@ namespace Logement.Controllers
                 return InternalServerError(ex);
             }
         }
-
 
         private RentPaymentDatesSchedularViewModel GetAllTenantInfos(RentPaymentDatesSchedular tenantRents)
         {
@@ -313,7 +307,6 @@ namespace Logement.Controllers
             return View(tenantRentStatus);
         }
 
-
         public PaymentHistoryViewModel GetPaymentFromModel(PaymentHistory payments)
         {
             PaymentHistoryViewModel allPayments = new PaymentHistoryViewModel()
@@ -326,7 +319,6 @@ namespace Logement.Controllers
             };
             return allPayments;
         }
-
 
         public IActionResult GetAllPaymentsHistory(string userEmail)
         {

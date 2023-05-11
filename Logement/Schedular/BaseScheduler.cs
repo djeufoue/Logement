@@ -1,9 +1,7 @@
 ﻿using Hangfire;
 using Logement.Data;
 using Logement.Models;
-using Logement.Services;
 using Microsoft.AspNetCore.Identity;
-using MimeKit;
 
 namespace Logement.Schedular
 {

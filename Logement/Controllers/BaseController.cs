@@ -3,6 +3,7 @@ using Logement.Data.Enum;
 using Logement.Models;
 using Logement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
@@ -23,41 +24,51 @@ namespace Logement.Controllers
             _configuration = configuration;
         }
 
-        protected async Task SaveImageFile(IFormFile formFile, long Id, string? photoPart, string methodName)
+        protected async Task SaveImageFile(IFormFile file, long Id, string methodName)
         {
-            if (formFile != null)
+            if (file != null)
             {
-                string? folder = _configuration.GetValue<string>("PathToApartmentsImagesAndFiles");
-                string dateTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH-mm-ss");
-                string fileName = $" ApartmentList {dateTime} {formFile.FileName}";
-
-                using (FileStream fileStream = new FileStream(Path.Combine(folder, fileName), FileMode.Create, FileAccess.Write))
-                {
-                    await formFile.CopyToAsync(fileStream);
-                }
 
                 if (methodName == "AddApartment")
                 {
-                    ApartmentPhoto apartmentPhoto = new ApartmentPhoto()
+                    using (var stream = new MemoryStream())
                     {
-                        ApartmentId = Id,
-                        ImageURL = $"/Admin/{nameof(GetFile)}?filename={fileName}",
-                        Part = photoPart
-                    };
-                    dbc.ApartmentPhotos.Add(apartmentPhoto);
-                    await dbc.SaveChangesAsync();
+                        await file.CopyToAsync(stream);
+                        var imageData = stream.ToArray();
+
+                        var image = new ApartmentPhoto
+                        {
+                            Data = imageData,
+                            ContentType = file.ContentType,
+                            FileName = file.FileName,
+                            CityOrApartement = "Apartement",
+                            ApartmentId = Id,
+                            UploadDate = DateTime.UtcNow
+                        };
+                        dbc.ApartmentPhotos.Add(image);
+                        await dbc.SaveChangesAsync();
+                    }
                 }
-                else if (methodName == "AddCity")
+                else if(methodName == "AddCity")
                 {
-                    CityPhoto cityPhoto = new CityPhoto()
+                    using (var stream = new MemoryStream())
                     {
-                        CityId = Id,
-                        Size = formFile.Length,
-                        ImageURL = $"/Admin/{nameof(GetFile)}?filename={fileName}"
-                    };
-                    dbc.CityPhotos.Add(cityPhoto);
-                    await dbc.SaveChangesAsync();
-                }
+                        await file.CopyToAsync(stream);
+                        var imageData = stream.ToArray();
+
+                        var image = new CityPhoto
+                        {
+                            Data = imageData,
+                            ContentType = file.ContentType,
+                            FileName = file.FileName,
+                            CityOrApartement = "Apartement",
+                            CityId = Id,
+                            UploadDate = DateTime.UtcNow
+                        };
+                        dbc.CityPhotos.Add(image);
+                        await dbc.SaveChangesAsync();
+                    }
+                }                 
             }
         }
 
@@ -110,7 +121,7 @@ namespace Logement.Controllers
                     LocatedAt = c.LocatedAt,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
-                    NumberOfParkingSpaces = c.NumberOfParkingSpaces,
+                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
                     DateAdded = DateTime.UtcNow
                 };
             }
@@ -123,24 +134,23 @@ namespace Logement.Controllers
                     LocatedAt = c.LocatedAt,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
-                    NumberOfParkingSpaces = c.NumberOfParkingSpaces,
+                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
                     DateAdded = c.DateAdded
                 };
             }
             return city;
         }
 
-        protected CityViewModel GetCitiesFromModel(City city, string? cityImage)
+        protected CityViewModel GetCitiesFromModel(City city)
         {
             CityViewModel cityViewModel = new CityViewModel()
             {
                 Id = city.Id,
                 Name = city.Name,
                 LocatedAt = city.LocatedAt,
-                CityPhoto = cityImage,
                 Floor = city.Floor,
                 NumbersOfApartment = city.NumbersOfApartment,
-                NumberOfParkingSpaces = city.NumberOfParkingSpaces
+                //NumberOfParkingSpaces = city.NumberOfParkingSpaces
             };
             return cityViewModel;
         }

@@ -10,11 +10,6 @@ namespace Logement.Models
     {
         public long Id { get; set; }
 
-        /// <summary>
-        /// The lessor is the only person who can make 
-        /// changes (add, delete, update information) on the apartments
-        /// </summary>
-        /// 
         public long ApartmentNumber { get; set; }
         public long LessorId { get; set; }
         public virtual ApplicationUser Lessor { get; set; }
@@ -35,21 +30,12 @@ namespace Logement.Models
 
         public int? FloorNumber { get; set; }
 
-        /// <summary>
-        /// Original price of the apartment
-        /// </summary>
         [Precision(14, 2)]
         public decimal Price { get; set; }
 
-        /// <summary>
-        /// La caution
-        /// </summary>
         [Precision(14, 2)]
         public decimal DepositePrice { get; set; }
 
-        /// <summary>
-        /// Database needs to be migrated to add these colunm
-        /// </summary>
         public ApartmentStatusEnum? Status { get; set; }
 
         public ApartmentTypeEnum Type { get; set; }

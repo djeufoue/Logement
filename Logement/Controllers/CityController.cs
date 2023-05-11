@@ -31,7 +31,7 @@ namespace Logement.Controllers
                     LocatedAt = c.LocatedAt,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
-                    NumberOfParkingSpaces = c.NumberOfParkingSpaces,
+                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
                     DateAdded = DateTime.UtcNow
                 };
             }
@@ -44,7 +44,7 @@ namespace Logement.Controllers
                     LocatedAt = c.LocatedAt,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
-                    NumberOfParkingSpaces = c.NumberOfParkingSpaces,
+                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
                     DateAdded = c.DateAdded
                 };
             }
@@ -70,10 +70,9 @@ namespace Logement.Controllers
                     {
                             var cityImage = await dbc.CityPhotos
                                   .Where(p => p.CityId == city.CityId)
-                                  .Select(p => p.ImageURL)
                                   .FirstOrDefaultAsync();
 
-                            citiesModel.Add(GetCitiesFromModel(city.City, cityImage));                     
+                            citiesModel.Add(GetCitiesFromModel(city.City));                     
                     }
                 }
                 return View(citiesModel);
@@ -93,21 +92,25 @@ namespace Logement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCity(CityViewModel cityViewModel)
+        public async Task<IActionResult> AddCity(CityViewModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    City city = AddCityFromViewModel("AddCity", cityViewModel);
+                    City city = AddCityFromViewModel("AddCity", model);
                     var fileModel = new FileModel();
 
                     city.LandLordId = GetUser().Id;
 
                     dbc.Cities.Add(city);
                     await dbc.SaveChangesAsync();
-                    await SaveImageFile(cityViewModel.CityImage, city.Id, null, "AddCity");
 
+                    foreach (var file in model.Images)
+                    {
+                        string methodName = "AddCity";
+                        await SaveImageFile(file, city.Id, methodName);
+                    }
 
                     CityMember cityMember = new CityMember
                     {
@@ -120,7 +123,7 @@ namespace Logement.Controllers
 
                     return RedirectToAction(nameof(Index));
                 }
-                return View(cityViewModel);
+                return View(model);
             }
             catch (Exception e)
             {
@@ -143,10 +146,9 @@ namespace Logement.Controllers
               
                 var cityImage = await dbc.CityPhotos
                     .Where(c => c.CityId == id)
-                    .Select(c => c.ImageURL)
                     .FirstOrDefaultAsync();
 
-                CityViewModel cityViewModel = GetCitiesFromModel(city, cityImage);
+                CityViewModel cityViewModel = GetCitiesFromModel(city);
                 return View(cityViewModel);
             }
             catch (Exception e)

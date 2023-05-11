@@ -14,11 +14,9 @@ namespace Logement.ViewModels
         public long NumbersOfApartment { get; set; }
 
         public string Floor { get; set; }
-        public IFormFile? CityImage { get; set; }
 
-        public string? CityPhoto { get; set; }
+        public List<IFormFile> Images { get; set; } = new List<IFormFile>();
+
         public DateTime DateAdded { get; set; }
-
-        public int? NumberOfParkingSpaces { get; set; }
     }
 }

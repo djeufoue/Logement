@@ -1,7 +1,8 @@
-﻿@model Logement.ViewModels.TenantRentApartmentViewModel
+﻿@model Logement.ViewModels.CityMemberViewModel
 
 @{
     ViewData["Title"] = "AddAsTenant";
+    long? cityId = (long?)ViewData["cityId"];
 }
 
 
@@ -16,7 +17,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="AddAsTenant" enctype="multipart/form-data">
+        <form asp-action="AddAsTenant" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="CityId" />
             <input type="hidden" asp-for="TenantEmail" />
 
@@ -46,116 +47,63 @@
             <h2>Assign an apartment to this tenant<b><i>(Not faculatatif)</i></b></h2>
 
             <div class="form-group">
-                <label asp-for="TenantApartment.ApartmentNunber" class="control-label"></label>
-                <input asp-for="TenantApartment.ApartmentNunber" class="form-control" onchange="CheckApartmentNumber()" />
-                <span asp-validation-for="TenantApartment.ApartmentNunber" class="text-danger"></span>
+                <label asp-for="AppartmentMember.ApartmentNunber" class="control-label"></label>
+                <input asp-for="AppartmentMember.ApartmentNunber" class="form-control" onchange="CheckApartmentNumber()" />
+                <span asp-validation-for="AppartmentMember.ApartmentNunber" class="text-danger"></span>
             </div>
                        
             <div class="form-group">
-                <label asp-for="TenantApartment.FloorNumber" class="control-label"></label>
-                <input asp-for="TenantApartment.FloorNumber" class="form-control" />
-                <span asp-validation-for="TenantApartment.FloorNumber" class="text-danger"></span>
+                <label asp-for="AppartmentMember.FloorNumber" class="control-label"></label>
+                <input asp-for="AppartmentMember.FloorNumber" class="form-control" />
+                <span asp-validation-for="AppartmentMember.FloorNumber" class="text-danger"></span>
             </div>    
             
             <div class="form-group">
-                <label asp-for="TenantApartment.Description" class="control-label"></label>
-                <textarea asp-for="TenantApartment.Description" class="form-control" rows="10"></textarea>
-                <span asp-validation-for="TenantApartment.Description" class="text-danger"></span>
+                <label asp-for="AppartmentMember.Description" class="control-label"></label>
+                <textarea asp-for="AppartmentMember.Description" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="AppartmentMember.Description" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="TenantApartment.NumberOfRooms" class="control-label"></label>
-                <input asp-for="TenantApartment.NumberOfRooms" class="form-control" />
-                <span asp-validation-for="TenantApartment.NumberOfRooms" class="text-danger"></span>
+                <label asp-for="AppartmentMember.NumberOfRooms" class="control-label"></label>
+                <input asp-for="AppartmentMember.NumberOfRooms" class="form-control" />
+                <span asp-validation-for="AppartmentMember.NumberOfRooms" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TenantApartment.NumberOfbathRooms" class="control-label"></label>
-                <input asp-for="TenantApartment.NumberOfbathRooms" class="form-control" />
-                <span asp-validation-for="TenantApartment.NumberOfbathRooms" class="text-danger"></span>
+                <label asp-for="AppartmentMember.NumberOfbathRooms" class="control-label"></label>
+                <input asp-for="AppartmentMember.NumberOfbathRooms" class="form-control" />
+                <span asp-validation-for="AppartmentMember.NumberOfbathRooms" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TenantApartment.RoomArea" class="control-label"></label>
-                <input asp-for="TenantApartment.RoomArea" class="form-control" />
-                <span asp-validation-for="TenantApartment.RoomArea" class="text-danger"></span>
+                <label asp-for="AppartmentMember.RoomArea" class="control-label"></label>
+                <input asp-for="AppartmentMember.RoomArea" class="form-control" />
+                <span asp-validation-for="AppartmentMember.RoomArea" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TenantApartment.Price" class="control-label"></label>
-                <input asp-for="TenantApartment.Price" class="form-control" />
-                <span asp-validation-for="TenantApartment.Price" class="text-danger"></span>
+                <label asp-for="AppartmentMember.Price" class="control-label"></label>
+                <input asp-for="AppartmentMember.Price" class="form-control" />
+                <span asp-validation-for="AppartmentMember.Price" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TenantApartment.DepositePrice" class="control-label"></label>
-                <input asp-for="TenantApartment.DepositePrice" class="form-control" />
-                <span asp-validation-for="TenantApartment.DepositePrice" class="text-danger"></span>
+                <label asp-for="AppartmentMember.DepositePrice" class="control-label"></label>
+                <input asp-for="AppartmentMember.DepositePrice" class="form-control" />
+                <span asp-validation-for="AppartmentMember.DepositePrice" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TenantApartment.Type" class="control-label">
+                <label asp-for="AppartmentMember.Type" class="control-label">
                     Select the apartment type
                 </label>
-                <select asp-for="TenantApartment.Type" class="form-control">
+                <select asp-for="AppartmentMember.Type" class="form-control">
                     <option value="Studio">Studio</option>
                     <option value="Room">Room</option>
                     <option value="Apartment">Apartment</option>
                 </select>
-                <span asp-validation-for="TenantApartment.Type" class="text-danger"></span>
+                <span asp-validation-for="AppartmentMember.Type" class="text-danger"></span>
             </div>
-
-            <div class="AddImageTitle">
-                <h2 class="box-title" style="color: #333; font-weight: bold;">Add apartment images</h2>
-            </div>
-            <div class="Images">
-                @if (Model.TenantApartment.PhotoSlots != null)
-                {
-                    for (var i = 0; i < Model.TenantApartment.PhotoSlots.Count; i++)
-                    {
-                        <div>
-                            <div class="row">
-                                <div>
-                                    @Html.Label("Picture")
-                                </div>
-                                <div>
-                                    <input asp-for=@Model.TenantApartment.PhotoSlots[i].ImageURL class="form-control ChosenImage" accept="image/*" required />
-                                    <span asp-validation-for="TenantApartment.ImageFile" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-2">
-                                    @Html.Label("Which part")
-                                </div>
-                                <div class="form-group">
-                                    <div>@Html.TextBoxFor(m => Model.TenantApartment.PhotoSlots[i].Part, new { @class = "form-control ItemPart", @placeholder = "What part of the apartment" })</div>
-                                </div>
-                            </div>
-                            <div style="text-align: right; margin-top: 10px;">
-                                <a class="btn btn-danger" onclick="removePicture(this, 'PhotoSlots')">Remove</a>
-                            </div>
-                        </div>
-                    }
-                }
-                <div style="margin-bottom: 10px">
-                    <div class="row">
-                        <div class="col-sm-2">
-                            @Html.Label("Choose a picture")
-                        </div>
-                        <div class="col-sm-10">
-                            <input asp-for=@Model.TenantApartment.apartmentPhotoViewModel.ImageURL class="form-control ChosenImage" accept="image/*" required />
-                            <span asp-validation-for="TenantApartment.ImageFile" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-2">
-                            @Html.Label("Which part")
-                        </div>
-                        <div class="col-sm-10">
-                            <div>@Html.TextBoxFor(m => m.TenantApartment.apartmentPhotoViewModel.Part, new { @class = "form-control ItemPart", @value ="", @placeholder = "What part of the apartment" })</div>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <a class="btn btn-default" onclick="addAnotherPicture(this, 'PhotoSlots')">Add another photo</a>
-                    </div>
-                </div>
-            </div>
-
+            <div>
+                <h2 class="box-title" style="color: #333; font-weight: bold;">Select apartment images</h2>
+                <input asp-for="AppartmentMember.Images" type="file" multiple />
+            </div>          
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -179,22 +127,22 @@
     function CheckApartmentNumber() {
         $.post("@Url.Action("CheckApartmentNumberAvailability", "Apartment")",
             {
-                ApartmentNumber: $("#TenantApartment_ApartmentNunber").val()
+                ApartmentNumber: $("#AppartmentMember_ApartmentNunber").val()
             },
 
             function (data) {
                 if (data == 1) {
-                    $("#TenantApartment_ApartmentNunber").next(".validation").remove(); // remove previous message
-                    $("#TenantApartment_ApartmentNunber").after("<div class='validation' style='color:red;'>Ce numéro d'appartement existe déjà. Veuillez entrer un autre numéro.</div>");
+                    $("#AppartmentMember_ApartmentNunber").next(".validation").remove(); // remove previous message
+                    $("#AppartmentMember_ApartmentNunber").after("<div class='validation' style='color:red;'>Ce numéro d'appartement existe déjà. Veuillez entrer un autre numéro.</div>");
 
                     //disable save button:
                     $(':input[type="submit"]').prop('disabled', true);
 
-                    $('#TenantApartment_ApartmentNunber').focus();
+                    $('#AppartmentMember_ApartmentNunber').focus();
                 }
                 else if (data == 0) {
                     $(':input[type="submit"]').prop('disabled', false);
-                    $("#TenantApartment_ApartmentNunber").next(".validation").remove(); // remove previous message
+                    $("#AppartmentMember_ApartmentNunber").next(".validation").remove(); // remove previous message
                 }
             });
     }

@@ -11,7 +11,7 @@
         public long NumbersOfApartment { get; set; }
         public string LocatedAt { get; set; }
 
-        public int? NumberOfParkingSpaces { get; set; }
+        //public int? NumberOfParkingSpaces { get; set; }
 
         public string Floor { get; set; }
 

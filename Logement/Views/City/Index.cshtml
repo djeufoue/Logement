@@ -14,7 +14,7 @@
 <section class="content-header">
     <h1>
         Cities
-        <a class="btn btn-success" href="@Url.Action("AddCity", "City")">
+        <a class="btn btn-success" href="@Url.Action("AddCity", "CityId")">
                 <span>Add City</span>
                 <i class="fa fa-plus"></i>
         </a>
@@ -37,9 +37,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Floor)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NumberOfParkingSpaces)
-            </th>
         </tr>
     </thead>
     <tbody>
@@ -59,9 +56,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Floor)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NumberOfParkingSpaces)
                 </td>
                 <td>
                     <di class="button">

@@ -54,27 +54,11 @@ namespace Logement.ViewModels
         [Precision(14, 2)]
         public decimal DepositePrice { get; set; }
 
-        [Display(Name = "Parkings")]
-        public int? NumberOfParkingSpaces { get; set; }
-        /// <summary>
-        /// Database needs to be migrated to add these colunm
-        /// </summary>
         public ApartmentStatusEnum? Status { get; set; }
 
         public ApartmentTypeEnum Type { get; set; }
 
-        [Display(Name = "Apartment Image")]
-        public IFormFile? ImageFile { get; set; }
-
-        /*[Display(Name = "Image")]
-        public string? ImageURL { get; set; }*/
-
-        [Display(Name = "Which part")]
-        public string? Part { get; set; }
-
-        public List<ApartmentPhotoViewModel> PhotoSlots { get; set; } = new List<ApartmentPhotoViewModel>();
-         
-        public ApartmentPhotoViewModel apartmentPhotoViewModel { get; set; } = new ApartmentPhotoViewModel();
+        public List<IFormFile> Images { get; set; } = new List<IFormFile>();
 
         [Display(Name = "Apartment Image")]
         public string? ImageURL { get; set; }
