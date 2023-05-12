@@ -10,7 +10,10 @@ namespace Logement.ViewModels
         public string Name { get; set; }
 
         [Required]
+        [Display(Name= "Located at")]
         public string LocatedAt { get; set; }
+
+        [Display(Name = "Numbers of apartment")]
         public long NumbersOfApartment { get; set; }
 
         public string Floor { get; set; }

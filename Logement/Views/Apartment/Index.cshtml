@@ -16,7 +16,12 @@
     <h1>
         Apartments
         <a class="btn btn-success" href="@Url.Action("GetAllUsers", "Apartment", new { cityId = cityId})">
-            <span>Get Users</span>
+            <span>Pending Users</span>
+            <i class="fa fa-plus"></i>
+        </a>
+
+        <a class="btn btn-success" href="@Url.Action("GetAllTenants", "Tenant", new { cityId = cityId})">
+            <span>My Tenants</span>
             <i class="fa fa-plus"></i>
         </a>
     </h1>
@@ -64,12 +69,12 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.FloorNumber)
                 </td>
-                <td>
+                @*<td>
                     <di class="button">
                         <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
                         <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
                     </di>
-                </td>
+                </td>*@
             </tr>
         }
     </tbody>

@@ -4,11 +4,14 @@
     ViewData["Title"] = "GetAllTenants";
 }
 
-<h3>List of all tenants</h3>
+<h3 style="margin-bottom: 10px;">List of all tenants</h3>
 
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ApartmentNumber)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.TenantFullName)
             </th>
@@ -31,6 +34,9 @@
         @foreach (var item in Model)
         {
             <tr>
+                <th>
+                    @Html.DisplayFor(modelItem => item.ApartmentNumber)
+                </th>
                 <td>
                     @Html.DisplayFor(modelItem => item.TenantFullName)
                 </td>
@@ -47,10 +53,9 @@
                     @Html.DisplayFor(modelItem => item.EndOfContract)
                 </td>
                 <td>
-                <td>
                     <di class="button">
-                        <a class="buttonRentStatus" href="/TenantApartment/AllTenantRentStatus?tenantEmail=@item.TenantEmail">Rent status</a>
-                        <a class="buttonPaymentHis" asp-area="" asp-controller="TenantApartment" asp-action="GetAllPaymentsHistory" asp-route-userEmail="@item.TenantEmail">Payments history</a>
+                        <a class="buttonRentStatus" href="/Tenant/TenantRentStatus?tenantId=@item.TenantId">Rent status</a>
+                        <a class="buttonPaymentHis" asp-area="" asp-controller="Tenant" asp-action="GetAllPaymentsHistory" asp-route-tenantId="@item.TenantId">Payments history</a>
                     </di>
                 </td>
             </tr>

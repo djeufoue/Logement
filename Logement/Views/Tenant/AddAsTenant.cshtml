@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "AddAsTenant";
-    long? cityId = (long?)ViewData["cityId"];
 }
 
 
@@ -18,8 +17,9 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="AddAsTenant" method="post" enctype="multipart/form-data">
-            <input type="hidden" asp-for="CityId" />
-            <input type="hidden" asp-for="TenantEmail" />
+            <input type="hidden" asp-for="AppartmentMember.CityId" />
+            <input type="hidden" asp-for="AppartmentMember.LocatedAt" />
+            <input type="hidden" asp-for="TenantId" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         
@@ -133,7 +133,7 @@
             function (data) {
                 if (data == 1) {
                     $("#AppartmentMember_ApartmentNunber").next(".validation").remove(); // remove previous message
-                    $("#AppartmentMember_ApartmentNunber").after("<div class='validation' style='color:red;'>Ce numéro d'appartement existe déjà. Veuillez entrer un autre numéro.</div>");
+                    $("#AppartmentMember_ApartmentNunber").after("<div class='validation' style='color:red;'>Cet appartement appartient déjà à une autre personne, veuillez en choisir une autre.</div>");
 
                     //disable save button:
                     $(':input[type="submit"]').prop('disabled', true);

@@ -14,18 +14,23 @@ namespace Logement.ViewModels
     {
         //Some requierments are going to be added on each property
         public long Id { get; set; }
+
+        [Display(Name = "Apartment nunber")]
         public long ApartmentNunber { get; set; }
         public long LessorId { get; set; }
+
+        [Display(Name = "City")]
         public string? CityName { get; set;}
 
         [Required]
         public string? Description { get; set; }
 
-        public long? CityId { get; set; } 
+        public long CityId { get; set; } 
 
-        [Display(Name = "Located At")]
+        [Display(Name = "Located at")]
         public string? LocatedAt { get; set; }
 
+        [Display(Name = "Occupied by")]
         public string? OccupiedBy { get; set; }
 
         [Required]

@@ -11,12 +11,9 @@ namespace Logement.ViewModels
     public class CityMemberViewModel
     {
         public long Id { get; set; }
-        public long CityId { get; set; }
         public ApartmentViewModel AppartmentMember { get; set; } = new ApartmentViewModel();
-        public CityMemberRoleEnum? Role { get; set; }
 
-        [DisplayName("Email")]
-        public string TenantEmail { get; set; }
+        public long? TenantId { get; set; }
 
         [Precision(14, 2)]
         [Display(Name = "Prix par mois")]

@@ -10,13 +10,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
+                @Html.DisplayNameFor(model => model.TenantFullName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.MaritalStatus)
@@ -34,15 +28,9 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.TenantFullName)
+                </th>
                 <td>
                     @Html.DisplayFor(modelItem => item.MaritalStatus)
                 </td>
@@ -54,7 +42,7 @@
                 </td>
                 <td>
                     <di class="button">
-                        <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.CityId&email=@item.Email">Choose</a>
+                        <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.CityId&tenantId=@item.TenantId">Choose</a>
                     </di>                 
                 </td>
             </tr>
