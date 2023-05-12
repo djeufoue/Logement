@@ -19,10 +19,10 @@ namespace Logement.Controllers
         private BaseScheduler baseScheduler;
         long contractId;
 
-        public TenantController(ApplicationDbContext context, IConfiguration configuration, 
+        public TenantController(ApplicationDbContext context, IConfiguration configuration,
             ILogger<T> logger, Services.EmailService emailService, UserManager<ApplicationUser> userManager,
                 Services.SMSservice smsService)
-            :base(context, configuration) 
+            : base(context, configuration)
         {
             _userManager = userManager;
             _logger = logger;
@@ -52,15 +52,16 @@ namespace Logement.Controllers
 
         private TenantInfos GetTenantFromModel(CityMember tenant)
         {
-
             TenantInfos allTenant = new TenantInfos()
             {
                 Id = tenant.Id,
-                TenantEmail = tenant.User.Email,
+                TenantId = tenant.User.Id,
+                ApartmentNumber = (int)tenant.Apartment.ApartmentNumber,
+                TenantFullName = $"{tenant.User.FirstName} {tenant.User.LastName}",
                 TenantPhoneNumber = tenant.User.PhoneNumber,
                 ApartementPrice = tenant.Apartment.Price,
                 DepositePrice = tenant.Apartment.DepositePrice,
-            };        
+            };
             return allTenant;
         }
 
@@ -78,8 +79,10 @@ namespace Logement.Controllers
 
                 var cityMembers = await dbc.CityMembers
                     .Where(cm => cm.CityId == cityId && cm.Role == CityMemberRoleEnum.Tenant)
+                    .Include(cm => cm.User)
+                    .Include(cm => cm.Apartment)
                     .ToListAsync();
-             
+
                 foreach (var tenant in cityMembers)
                 {
                     allTenants.Add(GetTenantFromModel(tenant));
@@ -98,14 +101,13 @@ namespace Logement.Controllers
             if (ModelState.IsValid)
             {
                 Apartment apartment = AddApartmenFromViewModel(model);
-                var fileModel = new FileModel();
 
-                //look for the user who is currently Login
-                ApplicationUser user = dbc.Users
-                                               .Where(u => u.UserName == GetUser().UserName)
-                                               .First();
+                var cityCreator = await GetCityCreator(model.CityId);
 
-                apartment.LessorId = user.Id;
+                if (cityCreator == null)
+                    return Forbid();
+
+                apartment.LessorId = cityCreator.User.Id;
 
                 apartment.CityId = (long)model.CityId;
 
@@ -117,14 +119,14 @@ namespace Logement.Controllers
                     string methodName = "AddApartment";
                     await SaveImageFile(file, apartment.Id, methodName);
                 }
-                return Redirect("/CityId/GetCities");
+                model.Id = apartment.Id;
+                return Redirect("/Apartment/Index?cityId=" + model.CityId);
             }
             return View(model);
         }
 
-        // Post: Admin/AddAsTenant/1
         [HttpGet]
-        public async Task<IActionResult> AddAsTenant(long cityId, string email)
+        public async Task<IActionResult> AddAsTenant(long cityId, long tenantId)
         {
             var city = await dbc.Cities.FindAsync(cityId);
             if (city == null)
@@ -132,11 +134,17 @@ namespace Logement.Controllers
 
             CityMemberViewModel result = new CityMemberViewModel
             {
-                TenantEmail = email,
-                CityId = cityId
-            }; 
+                TenantId  = tenantId,
+                AppartmentMember = new ApartmentViewModel
+                {
+                   CityId = cityId,
+                   LocatedAt = city.LocatedAt
+                }
+            };
 
             ViewData["cityId"] = cityId;
+            ViewData["locatedAt"] = city.LocatedAt;
+            ViewData["tenantId"] = tenantId;   
             return View(result);
         }
 
@@ -147,10 +155,18 @@ namespace Logement.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    var checkApartmentNumber = await dbc.Apartments
+                        .Where(ap => ap.ApartmentNumber == model.AppartmentMember.ApartmentNunber)
+                        .FirstOrDefaultAsync();
+
+
+                    if (checkApartmentNumber != null)
+                        return BadRequest();
+
                     await AddApartment(model.AppartmentMember);
 
                     //Check if the user we are trying to add even exist
-                    var user = await _userManager.FindByEmailAsync(model.TenantEmail);
+                    var user = await _userManager.FindByIdAsync(model.TenantId.ToString());
 
                     if (user != null)
                     {
@@ -161,7 +177,7 @@ namespace Logement.Controllers
 
                         tenantRentApartment = new TenantRentApartment()
                         {
-                            TenantEmail = model.TenantEmail,
+                            TenantId = (long)model.TenantId,
                             TenantPhoneNumber = user.PhoneNumber,
                             ApartmentId = model.AppartmentMember.Id,
                             Price = model.AppartmentMember.Price,
@@ -178,50 +194,46 @@ namespace Logement.Controllers
                         await dbc.SaveChangesAsync();
 
                         //For users having email
-                        string emailSubject = $"<h4>Vous avez été ajouté comme locataire par Mr {GetUser().LastName} {GetUser().FirstName}.\n</h4>";
-                        string emailBody = $"<p>Type de logement:{model.AppartmentMember.Type}</p><br>";
-                        emailBody += $"<p>Localisation:{model.AppartmentMember.LocatedAt}</p>";
-                        emailBody += $"<p>Superficie:{model.AppartmentMember.RoomArea}</p>";
-                        emailBody += $"<p>Nombre de chambres:{model.AppartmentMember.NumberOfRooms}</p>";
-                        emailBody += $"<p>Nombre de salle de bain:{model.AppartmentMember.NumberOfbathRooms}</p>";
+                        string emailSubject = $"Vous avez été ajouté comme locataire par Mr {GetUser().LastName} {GetUser().FirstName}.";
+                        string emailBody = $"<p>Type de logement: {model.AppartmentMember.Type}</p>";                        
+                        emailBody += $"<p>Situé à: {model.AppartmentMember.LocatedAt}</p>";
+                        emailBody += $"<p>Superficie: {model.AppartmentMember.RoomArea} m²</p>";
+                        emailBody += $"<p>Nombre de chambres: {model.AppartmentMember.NumberOfRooms}</p>";
+                        emailBody += $"<p>Nombre de salle de bain: {model.AppartmentMember.NumberOfbathRooms}</p><br>";
+                        emailBody += $"<p>Merci de nous faire confiance.</p>";
+                        emailBody += $"<p>Votre bailleur</p>";
+
 
                         //For users having phone number                              
-                        string smsBody = $"Vous avez été ajouté comme locataire par Mr {GetUser().LastName} {GetUser().FirstName}.";
-                        smsBody += $"Type de logement: {model.AppartmentMember.Type}";
-                        smsBody += $"Localisation:{model.AppartmentMember.LocatedAt}";
-                        smsBody += $"Superficie:{model.AppartmentMember.RoomArea}";
-                        smsBody += $"Nombre de chambres:{model.AppartmentMember.NumberOfRooms}";
-                        smsBody += $"Nombre de salle de bain:{model.AppartmentMember.NumberOfbathRooms}";
+                        string smsBody = $"Vous avez été ajouté comme locataire par Mr {GetUser().LastName} {GetUser().FirstName}.\n\n";
+                        smsBody += $"Type de logement: {model.AppartmentMember.Type}\n";
+                        smsBody += $"Situé à: {model.AppartmentMember.LocatedAt}\n";
+                        smsBody += $"Superficie: {model.AppartmentMember.RoomArea} m²\n";
+                        smsBody += $"Nombre de chambres: {model.AppartmentMember.NumberOfRooms}\n";
+                        smsBody += $"Nombre de salle de bain: {model.AppartmentMember.NumberOfbathRooms}\n";
 
-                        if (user.PhoneNumber != null && user.Email == null)
-                            baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                        //if (user.PhoneNumber != null && user.Email == null)
+                            //baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
 
-                        else if (user.Email != null && user.PhoneNumber == null)
+                        if (user.Email != null && user.PhoneNumber == null)
                             await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
 
                         else if (user.Email != null && user.PhoneNumber != null)
                         {
-                            baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                            //To Do: Need to pay for twiolio sms service per month
+                            //baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
                             await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
                         }
 
-                        //Assign Tenant role to this user
-                        await _userManager.AddToRoleAsync(user, "Tenant");
-
-                        //Request to the database to find out the price on which the tenant and the lessor have agreed 
-                        var apartmentPrice = await dbc.TenantRentApartments
-                                                    .Where(t => t.TenantEmail == user.Email)
-                                                    .Select(t => t.Price)
-                                                    .FirstOrDefaultAsync();
                         decimal nbOfMonthPaid = 0;
 
-                        nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, apartmentPrice);
+                        nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, model.AppartmentMember.Price);
 
                         //Add 30 days on the current payment date in case the amount paid is not enough
                         //Remind tenant after 30 days that he must pay his rent
                         PaymentHistory newPayment = new PaymentHistory()
                         {
-                            TenantEmail = user.Email,
+                            TenantId  = user.Id,
                             AmountPaid = model.AmountPaidByTenant,
                             NunberOfMonthPaid = nbOfMonthPaid.ToString(),
                             PaidDate = DateTime.UtcNow
@@ -229,13 +241,12 @@ namespace Logement.Controllers
                         dbc.PaymentHistories.Add(newPayment);
                         await dbc.SaveChangesAsync();
 
-
                         //Schedule the next date to pay the rent 
                         RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
                         {
-                            TenantEmail = user.Email,
+                            TenantId  = user.Id,
                             IsRentPaidForThisDate = false,
-                            AmmountSupposedToPay = apartmentPrice,
+                            AmmountSupposedToPay = model.AppartmentMember.Price,
                             NextDateToPay = DateTimeOffset.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
                         };
                         dbc.RentPaymentDatesSchedulars.Add(rentPaymentDatesSchedular);
@@ -244,7 +255,7 @@ namespace Logement.Controllers
                         //Need to remove this table
                         TenantPaymentStatu tenantPaymentStatus = new TenantPaymentStatu()
                         {
-                            TenantEmail = user.Email,
+                            TenantId = user.Id,
                             NumberOfMonthsToPay = 0,
                             AmountRemainingForRent = 0,
                             RentStatus = Data.Enum.RentStatusEnum.Paid
@@ -254,17 +265,18 @@ namespace Logement.Controllers
 
                         CityMember cityMember = new CityMember
                         {
-                            CityId = (long)model.CityId,
+                            CityId = (long)model.AppartmentMember.CityId,
+                            ApartmentId = (long)model.AppartmentMember.Id,
                             UserId = user.Id,
                             Role = CityMemberRoleEnum.Tenant
                         };
                         dbc.CityMembers.Add(cityMember);
                         await dbc.SaveChangesAsync();
 
-                        return Redirect("/Admin/GetAllTenants?cityId=" + model.CityId);
+                        return Redirect("/Tenant/GetAllTenants?cityId=" + model.AppartmentMember.CityId);
                     }
                     else
-                        return BadRequest($"The user {model.TenantEmail} does not even exist as simple user");
+                        return BadRequest($"The user does not even exist");
                 }
                 return View(model);
             }
@@ -276,31 +288,30 @@ namespace Logement.Controllers
 
         private RentPaymentDatesSchedularViewModel GetAllTenantInfos(RentPaymentDatesSchedular tenantRents)
         {
-            string IsRentPaid = !tenantRents.IsRentPaidForThisDate ? "No" : "Yes";
-            DateTime dateToPay = tenantRents.NextDateToPay.DateTime;
-
             RentPaymentDatesSchedularViewModel allTenantRentInfos = new RentPaymentDatesSchedularViewModel()
             {
                 Id = tenantRents.Id,
-                TenantEmail = tenantRents.TenantEmail,
+                TenantId = tenantRents.TenantId,
+                TenantFullName = $"{tenantRents.Tenant.FirstName} {tenantRents.Tenant.LastName}",
                 AmmountSupposedToPay = tenantRents.AmmountSupposedToPay,
-                IsRentPaidForThisDate = IsRentPaid,
-                NextDateToPay = String.Format("{0:dddd, MMMM d, yyyy}", dateToPay)
+                IsRentPaidForThisDate = !tenantRents.IsRentPaidForThisDate ? "No" : "Yes",
+                NextDateToPay = String.Format("{0:dddd, MMMM d, yyyy}", tenantRents.NextDateToPay.DateTime)
             };
             return allTenantRentInfos;
         }
 
         [HttpGet]
-        public  async Task<IActionResult> AllTenantRentStatus(string tenantEmail)
+        public async Task<IActionResult> TenantRentStatus(long tenantId)
         {
             List<RentPaymentDatesSchedularViewModel> tenantRentStatus = new List<RentPaymentDatesSchedularViewModel>();
 
 
             var tenantRentInfos = await dbc.RentPaymentDatesSchedulars
-                                           .Where(t => t.TenantEmail == tenantEmail)
+                                           .Where(t => t.TenantId == tenantId)
+                                           .Include( t => t.Tenant)
                                            .ToListAsync();
-        
-            foreach(var infos in tenantRentInfos)
+
+            foreach (var infos in tenantRentInfos)
             {
                 tenantRentStatus.Add(GetAllTenantInfos(infos));
             }
@@ -312,22 +323,25 @@ namespace Logement.Controllers
             PaymentHistoryViewModel allPayments = new PaymentHistoryViewModel()
             {
                 Id = payments.Id,
-                TenantEmail = payments.TenantEmail,
+                TenantId  = payments.Tenant.Id,
+                TenantFullName = $"{payments.Tenant.FirstName} {payments.Tenant.LastName}",
                 AmountPaid = payments.AmountPaid,
-                NunberOfMonthPaid = payments.NunberOfMonthPaid,
-                PaidDate = payments.PaidDate
+                NumberOfMonthPaid = payments.NunberOfMonthPaid,
+                PaidDate = String.Format("{0:dddd, MMMM d, yyyy}", payments.PaidDate)
             };
             return allPayments;
         }
 
-        public IActionResult GetAllPaymentsHistory(string userEmail)
-        {
+        public IActionResult GetAllPaymentsHistory(long tenantId)
+        {           
             List<PaymentHistoryViewModel> paymentHistory = new List<PaymentHistoryViewModel>();
 
             //Payments for a specific tenant
             var payments = dbc.PaymentHistories
-                                .Where(t => t.TenantEmail == userEmail)
+                                .Where(t => t.TenantId == tenantId)
+                                .Include( t => t.Tenant)
                                 .ToList();
+
             if (payments != null)
             {
                 foreach (PaymentHistory payment in payments)
@@ -338,8 +352,8 @@ namespace Logement.Controllers
             }
             else
             {
-                return NotFound("No paymentHistory for this user");
-            }            
+                return NotFound("No paymentHistory for this tenant");
+            }
         }
 
         public async Task SaveFile(IFormFile formFile, FileModel fileModel, long? tenantId)
@@ -360,7 +374,7 @@ namespace Logement.Controllers
                     };
                     await formFile.CopyToAsync(fileStream);
                 }
-                fileModel.FileURL = $"/Admin/{nameof(GetFile)}?filename={fileName}";
+                fileModel.FileURL = $"/Tenant{nameof(GetFile)}?filename={fileName}";
 
                 dbc.FileModel.Add(fileModel);
                 await dbc.SaveChangesAsync();
@@ -385,5 +399,5 @@ namespace Logement.Controllers
             }
             return StatusCode((int)HttpStatusCode.InternalServerError, message);
         }
-    }  
+    }
 }

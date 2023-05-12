@@ -36,7 +36,7 @@ namespace Logement.Controllers
                         await file.CopyToAsync(stream);
                         var imageData = stream.ToArray();
 
-                        var image = new ApartmentPhoto
+                        var image = new Fichier
                         {
                             Data = imageData,
                             ContentType = file.ContentType,
@@ -45,7 +45,7 @@ namespace Logement.Controllers
                             ApartmentId = Id,
                             UploadDate = DateTime.UtcNow
                         };
-                        dbc.ApartmentPhotos.Add(image);
+                        dbc.Fichiers.Add(image);
                         await dbc.SaveChangesAsync();
                     }
                 }
@@ -56,16 +56,16 @@ namespace Logement.Controllers
                         await file.CopyToAsync(stream);
                         var imageData = stream.ToArray();
 
-                        var image = new CityPhoto
+                        var image = new Fichier
                         {
                             Data = imageData,
                             ContentType = file.ContentType,
                             FileName = file.FileName,
-                            CityOrApartement = "Apartement",
+                            CityOrApartement = "City",
                             CityId = Id,
                             UploadDate = DateTime.UtcNow
                         };
-                        dbc.CityPhotos.Add(image);
+                        dbc.Fichiers.Add(image);
                         await dbc.SaveChangesAsync();
                     }
                 }                 
@@ -159,15 +159,19 @@ namespace Logement.Controllers
         protected async Task<CityMember?> GetCityCreator(long cityId)
         {
             return await dbc.CityMembers
-                         .Where(c => c.CityId == cityId && c.Role == CityMemberRoleEnum.Admin && c.UserId == GetUser().Id)
-                         .FirstOrDefaultAsync();      
+                .Include(c => c.User)
+                .Where(c => c.CityId == cityId && c.Role == CityMemberRoleEnum.Landord && c.UserId == GetUser().Id)
+                .FirstOrDefaultAsync();      
         }
 
+        private ApplicationUser? _user;
         protected ApplicationUser GetUser()
         {
-            return dbc.Users
+            if (_user == null && User.Identity != null)
+                _user = dbc.Users
                      .Where(u => u.UserName == User.Identity.Name)
                      .First();
+            return _user ?? new ApplicationUser();
         }
     }
 }

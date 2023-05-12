@@ -26,8 +26,6 @@ namespace Logement.Models
 
         public int RoomArea { get; set; } // Superficie
 
-        public virtual ICollection<ApartmentPhoto> PhotoSlots { get; set; }
-
         public int? FloorNumber { get; set; }
 
         [Precision(14, 2)]

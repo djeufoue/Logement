@@ -14,7 +14,6 @@ namespace Logement.Data
         public DbSet<Apartment> Apartments { get; set; }
         public DbSet<ApplicationUser> TenantsInfos { get; set; }
         public DbSet<TenantRentApartment> TenantRentApartments { get; set; }
-        public DbSet<ApartmentPhoto> ApartmentPhotos { get; set; }
 
         public DbSet<FileModel> FileModel { get; set; }
         
@@ -24,7 +23,7 @@ namespace Logement.Data
         public DbSet<RentPaymentDatesSchedular> RentPaymentDatesSchedulars { get; set; }
         public DbSet<NotificationSentForRentPayment> NotificationSentForRentPayments { get; set; }
         public DbSet<City> Cities { get; set; }
-        public DbSet<CityPhoto> CityPhotos { get; set; }
+        public DbSet<Fichier> Fichiers { get; set; }
 
         public DbSet<CityMember> CityMembers { get; set; }
     }

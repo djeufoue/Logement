@@ -44,10 +44,10 @@ namespace Logement.Schedular
                 //Cannot be null
                 ApplicationUser? LandLordinfos = await _context.Users.FindAsync(LandLord.LessorId);
 
-                var TenantInfos = await _userManager.FindByEmailAsync(tenant.TenantEmail);
+                var TenantInfos = await _userManager.FindByIdAsync(tenant.TenantId.ToString());
 
                 if (TenantInfos == null)
-                    _logger.LogError($"User account {tenant.TenantEmail} does not exist!");
+                    _logger.LogError($"User account does not exist!");
                 else
                 {
                     if (TenantInfos.Email == null && TenantInfos.PhoneNumber == null)
@@ -65,10 +65,10 @@ namespace Logement.Schedular
 
                         //Selectionner les dates dont le status est impaye pour ce locataire actif
                         List<RentPaymentDatesSchedular> RentNotPaid = await (from r in _context.RentPaymentDatesSchedulars
-                                                                             where r.IsRentPaidForThisDate != true && r.TenantEmail == tenant.TenantEmail
+                                                                             where r.IsRentPaidForThisDate != true && r.TenantId == tenant.TenantId
                                                                              select new RentPaymentDatesSchedular
                                                                              {
-                                                                                 TenantEmail = r.TenantEmail,
+                                                                                 TenantId = r.TenantId,
                                                                                  NextDateToPay = r.NextDateToPay,
                                                                                  AmmountSupposedToPay = r.AmmountSupposedToPay
                                                                              }).ToListAsync();
@@ -84,14 +84,14 @@ namespace Logement.Schedular
                             foreach (var t in RentNotPaid)
                             {
                                 var dateToPay = await _context.RentPaymentDatesSchedulars
-                                                        .Where(r => r.TenantEmail == tenant.TenantEmail)
+                                                        .Where(r => r.TenantId == tenant.TenantId)
                                                         .Select(r => r.NextDateToPay)
                                                         .FirstAsync();
 
 
                                 //Notification la plus rescente qui a été envoy pour rappeler ce locataire de payer son loyer:
                                 var lastEmailSentDate = await _context.NotificationSentForRentPayments
-                                                            .Where(t => t.TenantEmail == tenant.TenantEmail && t.ScheduledDateForRentPayment == dateToPay)
+                                                            .Where(t => t.TenantId == tenant.TenantId && t.ScheduledDateForRentPayment == dateToPay)
                                                             .OrderByDescending(d => d.NotificationSentDate)
                                                             .Select(t => t.NotificationSentDate)
                                                             .FirstOrDefaultAsync();
@@ -107,7 +107,7 @@ namespace Logement.Schedular
                                 else
                                 {
                                     //Check if the person has to pay within the next two days or if the person had to pay but was not alerted when the time came
-                                    if ((dateToPay - currentDate).Days >= 2 && (dateToPay - currentDate).Days < 2 || (dateToPay - currentDate).Days >= -4 && (dateToPay - currentDate).Days <=0)
+                                    if ((dateToPay - currentDate).Days >= 2 && (dateToPay - currentDate).Days < 2 || (dateToPay - currentDate).Days >= -4 && (dateToPay - currentDate).Days <= 0)
                                     {
                                         RentToPaySoon.Add(t);
                                     }
@@ -116,12 +116,12 @@ namespace Logement.Schedular
 
                             if (RentsThatNeedToPay.Count != 0)
                             {
-                                await ContructMessage(RentsThatNeedToPay, TenantInfos, tenant.TenantEmail);                                
+                                await ContructMessage(RentsThatNeedToPay, TenantInfos);
                             }
                             //Locataire qui doit bientôt payer le loyer
                             if (RentToPaySoon.Count != 0)
                             {
-                                await ContructMessage(RentToPaySoon, TenantInfos, tenant.TenantEmail);
+                                await ContructMessage(RentToPaySoon, TenantInfos);
                             }
                         }
                     }
@@ -129,7 +129,7 @@ namespace Logement.Schedular
             }
         }
 
-        public async Task ContructMessage(List<RentPaymentDatesSchedular> rentsThatNeedToPay, ApplicationUser tenantInfos, string? tenantEmail)
+        public async Task ContructMessage(List<RentPaymentDatesSchedular> rentsThatNeedToPay, ApplicationUser tenantInfos)
         {
             //Le nonbre de mois impayé
             int count = rentsThatNeedToPay.Count();
@@ -154,7 +154,7 @@ namespace Logement.Schedular
 
                 NotificationSentForRentPayment notificationSentForRentPayments = new NotificationSentForRentPayment
                 {
-                    TenantEmail = tenantEmail,
+                    TenantId = dt.TenantId,
                     AmmountSupposedToPay = dt.AmmountSupposedToPay,
                     ScheduledDateForRentPayment = dt.NextDateToPay.DateTime,
                     NotificationSentDate = DateTime.UtcNow
@@ -169,15 +169,15 @@ namespace Logement.Schedular
 
             string subject = "Rappel de paiement de loyer";
 
-            if (tenantInfos.PhoneNumber != null && tenantInfos.Email == null)
-                 sendSMStoTenant(tenantInfos.PhoneNumber, body);
+            //if (tenantInfos.PhoneNumber != null && tenantInfos.Email == null)
+            //sendSMStoTenant(tenantInfos.PhoneNumber, body); //Pay for Twiolio Sms Service
 
-            else if (tenantInfos.Email != null && tenantInfos.PhoneNumber == null)
+            if (tenantInfos.Email != null && tenantInfos.PhoneNumber == null)
                 await SendConfirmationEmail(tenantInfos.Email, subject, body);
 
             else if (tenantInfos.Email != null && tenantInfos.PhoneNumber != null)
             {
-                sendSMStoTenant(tenantInfos.PhoneNumber, body);
+                //sendSMStoTenant(tenantInfos.PhoneNumber, body);
                 await SendConfirmationEmail(tenantInfos.Email, subject, body);
             }
 

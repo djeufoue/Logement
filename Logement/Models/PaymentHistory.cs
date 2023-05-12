@@ -7,8 +7,8 @@ namespace Logement.Models
     {
         public long Id { get; set; }
 
-        public string TenantEmail { get; set; }
-        //String because the 
+        public long TenantId { get; set; }
+        public virtual ApplicationUser Tenant { get; set; }
         public string NunberOfMonthPaid { get; set; }
 
         public decimal AmountPaid { get; set; }

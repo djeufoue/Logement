@@ -15,9 +15,9 @@ namespace Logement.Controllers
     {
         public CityController(ApplicationDbContext context, IConfiguration configuration)
             : base(context, configuration)
-        { 
+        {
         }
-          
+
         private City AddCityFromViewModel(string method, CityViewModel c)
         {
             City city = new City();
@@ -31,7 +31,6 @@ namespace Logement.Controllers
                     LocatedAt = c.LocatedAt,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
-                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
                     DateAdded = DateTime.UtcNow
                 };
             }
@@ -44,7 +43,6 @@ namespace Logement.Controllers
                     LocatedAt = c.LocatedAt,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
-                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
                     DateAdded = c.DateAdded
                 };
             }
@@ -62,18 +60,12 @@ namespace Logement.Controllers
                 if (cities != null)
                 {
                     var creatorCities = await dbc.CityMembers
-                            .Where(c => c.UserId == GetUser().Id && c.Role == CityMemberRoleEnum.Admin)
+                            .Where(c => c.UserId == GetUser().Id && c.Role == CityMemberRoleEnum.Landord)
                             .Include(c => c.City)
                             .ToListAsync();
 
                     foreach (var city in creatorCities)
-                    {
-                            var cityImage = await dbc.CityPhotos
-                                  .Where(p => p.CityId == city.CityId)
-                                  .FirstOrDefaultAsync();
-
-                            citiesModel.Add(GetCitiesFromModel(city.City));                     
-                    }
+                        citiesModel.Add(GetCitiesFromModel(city.City));
                 }
                 return View(citiesModel);
             }
@@ -82,8 +74,7 @@ namespace Logement.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
-     
-        //Get: Admin/AddApartment
+
         [HttpGet]
         public IActionResult AddCity()
         {
@@ -116,7 +107,7 @@ namespace Logement.Controllers
                     {
                         CityId = city.Id,
                         UserId = city.LandLordId,
-                        Role = CityMemberRoleEnum.Admin
+                        Role = CityMemberRoleEnum.Landord
                     };
                     dbc.CityMembers.Add(cityMember);
                     await dbc.SaveChangesAsync();
@@ -143,10 +134,6 @@ namespace Logement.Controllers
                 var cityCreator = await GetCityCreator(id);
                 if (cityCreator == null)
                     return Forbid();
-              
-                var cityImage = await dbc.CityPhotos
-                    .Where(c => c.CityId == id)
-                    .FirstOrDefaultAsync();
 
                 CityViewModel cityViewModel = GetCitiesFromModel(city);
                 return View(cityViewModel);
@@ -193,7 +180,7 @@ namespace Logement.Controllers
             catch (Exception e)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
-            }         
+            }
         }
     }
 }

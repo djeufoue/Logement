@@ -1,8 +1,5 @@
 ﻿namespace Logement.Models
 {
-    /// <summary>
-    /// Contrat de bail
-    /// </summary>
     public class FileModel
     {
         public long Id { get; set; }

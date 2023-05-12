@@ -18,29 +18,13 @@ namespace Logement.Controllers
             _userManager = userManager;
         }
 
-        private string GetPhoto;
-   
-        public void GetApartmentPhoto(long apartmentId)
-        {
-            List<ApartmentPhoto> getapartmentPhotos = dbc.ApartmentPhotos.ToList();
-
-            foreach (ApartmentPhoto apartmentPhoto in getapartmentPhotos)
-            {
-                if (apartmentPhoto.ApartmentId == apartmentId)
-                {
-                    GetPhoto = apartmentPhoto.FileName;
-                    //GetPart = apartmentPhoto.Part;
-                    break;
-                }
-            }
-        }
-
         private ApartmentViewModel GetAllApartmentsFromModel(Apartment apartment, City city, CityMember tenant)
         {
             ApartmentViewModel apartmentViewModel = new ApartmentViewModel()
             {
                 Id = apartment.Id,
                 LessorId = apartment.LessorId,
+                ApartmentNunber = apartment.ApartmentNumber,
                 CityName = city.Name,
                 OccupiedBy = $"{tenant.User.FirstName} {tenant.User.LastName}",
                 Description = apartment.Description,
@@ -51,11 +35,8 @@ namespace Logement.Controllers
                 FloorNumber = apartment.FloorNumber,
                 Price = apartment.Price,
                 DepositePrice = apartment.DepositePrice,
-                //NumberOfParkingSpaces = city.NumberOfParkingSpaces,
                 Status = apartment.Status,
                 Type = apartment.Type,
-                ImageURL = GetPhoto,
-                //Part = GetPart
             };
             return apartmentViewModel;
         }
@@ -76,14 +57,13 @@ namespace Logement.Controllers
                 return Json(-1);  //error occurred
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Index(long cityId)
         {
             try
             {
                 var cityCreator = await dbc.CityMembers
-                    .Where(c => c.UserId == GetUser().Id && c.CityId == cityId && c.Role == CityMemberRoleEnum.Admin)
+                    .Where(c => c.UserId == GetUser().Id && c.CityId == cityId && c.Role == CityMemberRoleEnum.Landord)
                     .FirstOrDefaultAsync();
 
                 if (cityCreator != null)
@@ -104,8 +84,6 @@ namespace Logement.Controllers
 
                         if (tenantInside == null)
                             continue;
-
-                        GetApartmentPhoto(apartment.Id);
 
                         var city = await dbc.Cities
                             .Where(c => c.Id == cityId)
@@ -132,9 +110,8 @@ namespace Logement.Controllers
             {
                 Id = user.Id,
                 CityId = cityId,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
+                TenantFullName = $"{user.FirstName} {user.LastName}",
+                TenantId = user.Id,
                 MaritalStatus = user.MaritalStatus,
                 JobTitle = user.JobTitle,
                 PhoneNumber = user.PhoneNumber
@@ -156,8 +133,10 @@ namespace Logement.Controllers
 
                 foreach (ApplicationUser user in users)
                 {
+                    //We can assign different apartments to the same user within the same City
                     var cityMember = await dbc.CityMembers
-                        .Where(cm => cm.UserId == user.Id && cm.CityId == cityId && cm.Role == CityMemberRoleEnum.Admin)
+                        .Where(cm => cm.UserId == user.Id && cm.CityId == cityId 
+                         && cm.Role == CityMemberRoleEnum.Landord)
                         .FirstOrDefaultAsync();
 
                     if (cityMember == null)
