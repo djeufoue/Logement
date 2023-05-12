@@ -3,7 +3,8 @@
     public enum CityMemberRoleEnum
     {
         Inconnu,
-        Admin,
-        Tenant
+        Landord,
+        Tenant,
+        Guard
     }
 }
