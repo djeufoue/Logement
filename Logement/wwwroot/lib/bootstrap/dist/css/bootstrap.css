@@ -4010,12 +4010,6 @@ textarea.form-control-lg {
   padding-bottom: 0.5rem;
 }
 
-.navbar-collapse {
-  flex-basis: 100%;
-  flex-grow: 1;
-  align-items: center;
-}
-
 .navbar-toggler {
   padding: 0.25rem 0.75rem;
   font-size: 1.25rem;

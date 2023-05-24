@@ -97,7 +97,7 @@ namespace Logement.Controllers
                     dbc.Cities.Add(city);
                     await dbc.SaveChangesAsync();
 
-                    foreach (var file in model.Images)
+                    foreach (var file in model.Image)
                     {
                         string methodName = "AddCity";
                         await SaveImageFile(file, city.Id, methodName);

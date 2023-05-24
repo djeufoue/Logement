@@ -12,58 +12,41 @@
     <link rel="stylesheet" href="~/Logement.styles.css" asp-append-version="true" />
 </head>
 <body>   
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Logement</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>                        
-                    </ul>
-                </div>
-                <div class="info-bar">
-                    <div class="wrapper">
-                        <div class="text-left">
-
-                            @if (!string.IsNullOrEmpty(User.Identity.Name))
-                            {                                  
-                                    <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
-                                    <div id="myDropdown" class="dropdown-content">
-                                        <a asp-area="" asp-controller="City" asp-action="Index">My Cities</a>
-                                        <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                                    </div>                              
-                            }
-                            else if(string.IsNullOrEmpty(User.Identity.Name))
-                            {
-                                <strong><a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a></strong>
-                            }
+    <div id="viewContainer">
+        <section class="ViewContainer_subview-container__s2WEw">
+            <header class="header_infos">
+                        <div style="margin-left:15px;">
+                              The Logo here
                         </div>
-
-                    </div>
+                        <div class="info-bar">
+                            <div class="wrapper">
+                                <div class="text-left">
+                                    @if (!string.IsNullOrEmpty(User.Identity.Name))
+                                    {
+                                        <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
+                                        <div id="myDropdown" class="dropdown-content">
+                                            <a asp-area="" asp-controller="City" asp-action="Index">My Cities</a>
+                                            <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
+                                        </div>
+                                    }
+                                    else if (string.IsNullOrEmpty(User.Identity.Name))
+                                    {
+                                        <strong><a class="nav-link text-dark" asp-area="" style="color:white" asp-controller="Account" asp-action="Login">Login</a></strong>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+            </header>
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+            <footer class="border-top footer text-muted">
+                <div class="container">
+                    &copy; 2022 - Logement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2022 - Logement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+            </footer>
+        </section>
+    </div>       
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -75,11 +58,27 @@
 <style>
      /* Dropdown Button */
     .dropbtn {
-        background-color: white;
+        background: linear-gradient(90deg,#d2ff00,#d2ff00);
         color: black;
-        border-radius: 10px;
-        border: 2px solid #e7e7e7;
-      cursor: pointer;
+        border: none;
+        text-align: center;
+        letter-spacing: .5px;
+        border-radius: 4px;
+        transition: background-color .2s ease-in-out;
+        margin-right:15px;
+        cursor: pointer;
+        padding: 7px 20px;
+        height: 36px;
+        width: fit-content;
+    }
+
+    .header_infos{
+        height: 85px;
+        display: flex !important;
+        background: linear-gradient(110deg, rgba(38,29,29,1) 99%, rgb(26 15 15) 100%);
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-family: Averta,Helvetica Neue,Helvetica,Arial,sans-serif;
     }
 
     /* Dropdown button on hover & focus */
@@ -96,11 +95,12 @@
     /* Dropdown Content (Hidden by Default) */
     .dropdown-content {
       display: none;
+      right: 60px;
       position: absolute;
       background-color: #f1f1f1;
       min-width: 150px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 1;
+      z-index: 2;
     }
 
     /* Links inside the dropdown */

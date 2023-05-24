@@ -118,7 +118,7 @@ namespace Logement.Controllers
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"User account {loginViewModel.Email} has logged in.");
-                        return LocalRedirect("/City/Index");
+                        return LocalRedirect("/Home/Index");
                     }
                 }
                 else

@@ -11,59 +11,61 @@
     }
 </style>
 
-<section class="content-header">
-    <h1>
-        Cities
-        <a class="btn btn-success" href="@Url.Action("AddCity", "City")">
-                <span>Add City</span>
-                <i class="fa fa-plus"></i>
-        </a>
-    </h1>
+<section>
+    <div class="container">
+        <section class="content-header">
+            <h1>
+                Cities
+                <a class="btn btn-success" href="@Url.Action("AddCity", "City")">
+                        <span>Add City</span>
+                        <i class="fa fa-plus"></i>
+                </a>
+            </h1>
+        </section>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.LocatedAt)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.NumbersOfApartment)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Floor)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="CityName">
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LocatedAt)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NumbersOfApartment)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Floor)
+                        </td>
+                        <td>
+                            <di class="button">
+                                <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
+                                <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
+                            </di>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </section>
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LocatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NumbersOfApartment)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Floor)
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    <div class="CityName">
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LocatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NumbersOfApartment)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Floor)
-                </td>
-                <td>
-                    <di class="button">
-                        <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
-                        <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
-                    </di>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>

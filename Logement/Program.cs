@@ -102,7 +102,7 @@ namespace Logement
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=City}/{action=Index}");
+                pattern: "{controller=Home}/{action=Index}");
 
             BaseScheduler.Setup();
         }
