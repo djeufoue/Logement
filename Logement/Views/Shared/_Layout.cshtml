@@ -1,4 +1,84 @@
-﻿<!DOCTYPE html>
+﻿<style>
+    /* Dropdown Button */
+    .dropbtn {
+        background: linear-gradient(90deg,#d2ff00,#d2ff00);
+        color: black;
+        border: none;
+        text-align: center;
+        letter-spacing: .5px;
+        border-radius: 4px;
+        transition: background-color .2s ease-in-out;
+        margin-right: 15px;
+        cursor: pointer;
+        padding: 7px 20px;
+        height: 36px;
+        width: fit-content;
+    }
+
+    /* Dropdown button on hover & focus */
+    .dropbtn:hover, .dropbtn:focus {
+        background-color: #2980B9;
+    }
+
+    /* The container <div> - needed to position the dropdown content */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Dropdown Content (Hidden by Default) */
+    .dropdown-content {
+        display: none;
+        right: 60px;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 150px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 2;
+    }
+
+        /* Links inside the dropdown */
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+            /* Change color of dropdown links on hover */
+    .dropdown-content a:hover {
+        background-color: #ddd;
+    }
+
+    /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+    .show {
+        display: block;
+    }
+
+    .header_infos {
+        /* default styles for header background */
+        background-color: transparent;
+        backdrop-filter: blur(8px) opacity(80%);
+        transition: background-color 1s ease-in-out;
+        height: 85px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        font-family: Averta,Helvetica Neue,Helvetica,Arial,sans-serif;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 100;
+    }
+
+    .header_infos.scrolled {
+        /* styles for header background when scrolled */
+       background: linear-gradient(110deg, rgba(38,29,29,1) 99%, rgb(26 15 15) 100%);
+       backdrop-filter: blur(8px) opacity(90%);
+    }
+</style>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -12,40 +92,39 @@
     <link rel="stylesheet" href="~/Logement.styles.css" asp-append-version="true" />
 </head>
 <body>   
-    <div id="viewContainer">
-        <section class="ViewContainer_subview-container__s2WEw">
-            <header class="header_infos">
-                        <div style="margin-left:15px;">
-                              The Logo here
-                        </div>
-                        <div class="info-bar">
-                            <div class="wrapper">
-                                <div class="text-left">
-                                    @if (!string.IsNullOrEmpty(User.Identity.Name))
-                                    {
-                                        <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
-                                        <div id="myDropdown" class="dropdown-content">
-                                            <a asp-area="" asp-controller="City" asp-action="Index">My Cities</a>
-                                            <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                                        </div>
-                                    }
-                                    else if (string.IsNullOrEmpty(User.Identity.Name))
-                                    {
-                                        <strong><a class="nav-link text-dark" asp-area="" style="color:white" asp-controller="Account" asp-action="Login">Login</a></strong>
-                                    }
-                                </div>
+    <div id="viewContainer">       
+        <header class="header_infos">
+            <div style="margin-left:15px;">
+                    The Logo here
+            </div>
+            <div class="info-bar">
+                <div class="wrapper">
+                    <div class="text-left">
+                        @if (!string.IsNullOrEmpty(User.Identity.Name))
+                        {
+                            <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
+                            <div id="myDropdown" class="dropdown-content">
+                                <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                <a asp-area="" asp-controller="City" asp-action="Index">My Cities</a>                                        
+                                <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
                             </div>
-                        </div>
-            </header>
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-            <footer class="border-top footer text-muted">
-                <div class="container">
-                    &copy; 2022 - Logement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        }
+                        else if (string.IsNullOrEmpty(User.Identity.Name))
+                        {
+                            <strong><a class="nav-link text-dark" asp-area="" style="color:white" asp-controller="Account" asp-action="Login">Login</a></strong>
+                        }
+                    </div>
                 </div>
-            </footer>
-        </section>
+            </div>
+        </header>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                &copy; 2022 - Logement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
     </div>       
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -54,66 +133,15 @@
 </body>
 </html>
 
+<script>
+    var header = document.querySelector('.header_infos');
 
-<style>
-     /* Dropdown Button */
-    .dropbtn {
-        background: linear-gradient(90deg,#d2ff00,#d2ff00);
-        color: black;
-        border: none;
-        text-align: center;
-        letter-spacing: .5px;
-        border-radius: 4px;
-        transition: background-color .2s ease-in-out;
-        margin-right:15px;
-        cursor: pointer;
-        padding: 7px 20px;
-        height: 36px;
-        width: fit-content;
-    }
-
-    .header_infos{
-        height: 85px;
-        display: flex !important;
-        background: linear-gradient(110deg, rgba(38,29,29,1) 99%, rgb(26 15 15) 100%);
-        justify-content: space-between !important;
-        align-items: center !important;
-        font-family: Averta,Helvetica Neue,Helvetica,Arial,sans-serif;
-    }
-
-    /* Dropdown button on hover & focus */
-    .dropbtn:hover, .dropbtn:focus {
-      background-color: #2980B9;
-    }
-
-    /* The container <div> - needed to position the dropdown content */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    /* Dropdown Content (Hidden by Default) */
-    .dropdown-content {
-      display: none;
-      right: 60px;
-      position: absolute;
-      background-color: #f1f1f1;
-      min-width: 150px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 2;
-    }
-
-    /* Links inside the dropdown */
-    .dropdown-content a {
-      color: black;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-    }
-
-    /* Change color of dropdown links on hover */
-    .dropdown-content a:hover {background-color: #ddd;}
-
-    /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-    .show {display:block;}
-</style>
+    // When the user scrolls down, add a class to the header element
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 0) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+</script>

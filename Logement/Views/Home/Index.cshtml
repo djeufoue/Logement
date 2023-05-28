@@ -1,81 +1,142 @@
-﻿@model IEnumerable<Logement.ViewModels.CityViewModel>
+﻿@model Logement.ViewModels.CityHomePageViewModel
 
 @{
     ViewData["Title"] = "Home Page";
 }
-<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-<style>
-    .content-header {
-        margin: 0;
-        font-size: 30px;
-    }
+<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
 
-    #carrousel{
-        width:100%;
-        height:100%;
-        position:relative;
-        overflow: hidden;
-    }
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
-    #container{
-        width: 100%;
-        height: 510px;
-    }
-
-    .swiper-button-prev{
-        position: absolute;
-        width: 50px;
-        cursor: pointer;
-        top: 210px;
-    }
-
-    .swiper-button-prev{
-        position: absolute;
-        width: 50px;
-        cursor: pointer;
-        top: 210px;
-    }
-    #g{
-        left:0;
-        transform: rotate(0deg);
-    }
-    #d{
-        right: 0;
-        transform: rotate(180deg);
-    }
-
-    .swiper-slide img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-</style>
-<section class="content-header">
-    <div id="carrousel" class="swiper-container">
-        <div id="container" class="swiper-wrapper">
-            @foreach (var item in Model)
-            {
-               <div class="swiper-slide"><img src="data:@item.ContentType;base64,@Convert.ToBase64String(item.Data)" /></div>
-            }
+<link rel="stylesheet" href="~/css/homePage.css"/>
+<div class="main_container">
+    <section class="content-header">
+        <div id="carrousel" class="swiper-container">
+            <div class="slider">
+                <img src="@Model.FirstImage" id="slideImg" />
+            </div>
+            <div class="overlay">
+                <div class="content-title">
+                    <h1>COMFORT AT LOW PRICES NEAR YOU</h1>
+                    <h3>Easily create an account and start chatting with the different owners of the apartment</h3>
+                    <div>
+                        <button type="button">WATCH MORE</button>
+                        <button type="button" class="btn-2">SUBSCRIBE</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <img src="~/img/left-arrow.png" class="swiper-button-next" id="d" />
-        <img src="~/img/left-arrow.png" class="swiper-button-prev" id="g" />
-    </div>
-</section>
-<section class="content-body">
-    <p> Will content all the images of different Cities with a small description mof them</p>
-</section>
+    </section>
+    <section class="content-body">
+        <div class="PageletContainer_pagelet-container">
+            <div class="CitiesPagelet_cities-header-wrapper">
+                <div class="col-12 text-center PageletHeader_pagelet-header-container__odFXO">
+                    <h2 class="city-header-title-1">
+                        Discover your dream space
+                    </h2>
+                    <h4 class="city-header-title-2">
+                        just for you
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="tranding">
+        <div class="container">
+            <h3 class="text-center section-subheading">- The apartments with the highest demand -</h3>
+            <h1 class="text-center section-heading">Tranding apartments</h1>
+        </div>
+        <div class="container">
+            <div class="swiper tranding-slider">
+                <div class="swiper-wrapper">
+                    <!-- Slide-start -->
+                    @foreach (var i in Model.cityViewModel)
+                    {
+                        <div class="swiper-slide tranding-slide">
+                            <div class="tranding-slide-img">
+                                <img src="data:@i.ContentType;base64,@Convert.ToBase64String(i.Data)" alt="Tranding">
+                            </div>
+                            <div class="tranding-slide-content">
+                                <h1 class="apartment-price">$20</h1>
+                                <div class="tranding-slide-content-bottom">
+                                    <h2 class="apartment-location">
+                                        Japoma
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <!-- Slide-end -->
+                    <div class="tranding-slider-control">
+                        <div class="swiper-button-prev slider-arrow">
+                            <ion-icon name="arrow-back-outline"></ion-icon>
+                        </div>
+                        <div class="swiper-button-next slider-arrow">
+                            <ion-icon name="arrow-forward-outline"></ion-icon>
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+    
 
 <script>
-    var swiper = new Swiper('.swiper-container', {
-        autoplay: {
-            delay: 5000, // Delay between slide transitions in milliseconds
-            disableOnInteraction: false, // Allow autoplay to continue even if the user interacts with the slideshow
-        },
-        navigation: {
-            nextEl: '.swiper-button-next', // Add a button to navigate to the next slide
-            prevEl: '.swiper-button-prev', // Add a button to navigate to the previous slide
-        },
-    });
+    var slideImg = document.getElementById("slideImg");
+    var images = [];
+
+    fetch('/Home/GetImages')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            data.forEach(item => {
+                images.push(`data:${item.contentType};base64,${item.data}`);
+            });
+
+            var len = images.length;
+            var i = 0;
+
+            function slider() {
+                if (i > len - 1) {
+                    i = 0;
+                }
+                slideImg.src = images[i];
+                i++;
+                setTimeout(() => slider(), 5000);
+            }
+            slider();
+        })
+        .catch(error => {
+            console.error('Error fetching images:', error);
+            alert('An error occurred while fetching images. Please try again later.');
+        });
+
+       var TrandingSlider = new Swiper('tranding-slider', {
+           effect: 'coverflow',
+           grabCursor: true,
+           centeredSlides: true,
+           loop: true,
+           slidesPerView: 'auto',
+           coverflowEffect:{
+               rotate: 0,
+               stretch:0,
+               depth: 100,
+               modifier: 2.5,
+           },
+           pagination:{
+            el: '.swiper-pagination',
+            clickable: true,
+           },
+           navigation:{
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+           }
+       });
 </script>

@@ -27,27 +27,56 @@ namespace Logement.Controllers
         {
             try
             {
-                List<CityViewModel> citiesModel = new List<CityViewModel>();
+                CityHomePageViewModel citiesModel = new CityHomePageViewModel();
 
                 var cityImagesInfos = await dbc.Fichiers
                     .Include(img => img.City)
                     .Where( img => img.CityOrApartement == "City")
                     .ToListAsync();
-                
+
+                string? firsCityImage = cityImagesInfos.Select(i => $"data:{i.ContentType};base64,{Convert.ToBase64String(i.Data)}").FirstOrDefault(); 
+
                 foreach (var cityImage in cityImagesInfos)
                 {
-                    citiesModel.Add(new CityViewModel
+                    citiesModel.cityViewModel.Add(new CityViewModel
                     {
                         Id = cityImage.City.Id,
                         Name = cityImage.City.Name,
                         LocatedAt = cityImage.City.LocatedAt,
+                        Town = cityImage.City.Town,
                         NumbersOfApartment = cityImage.City.NumbersOfApartment,
                         Floor = cityImage.City.Floor,
                         Data = cityImage.Data,
+                        ContentType = cityImage.ContentType,
                         FileName = cityImage.FileName
                     });
                 }
+                citiesModel.FirstImage = firsCityImage;
                 return View(citiesModel);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetImages()
+        {
+            try
+            {
+                var cityImages = await dbc.Fichiers
+                   .Include(f => f.City)
+                   .Where(f => f.CityOrApartement == "City")
+                   .Select(f => new
+                   {
+                       ContentType = f.ContentType,
+                       Data = Convert.ToBase64String(f.Data),
+                       FileName = f.FileName
+                   }).ToListAsync();
+
+                return Ok(cityImages);
             }
             catch (Exception e)
             {
@@ -65,6 +94,6 @@ namespace Logement.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-    }
+        }   
+    }  
 }

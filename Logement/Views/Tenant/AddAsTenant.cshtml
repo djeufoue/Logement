@@ -9,111 +9,118 @@
     .form-group {
         margin-bottom: 1rem;
     }
+
+    .body {
+        margin-top: 100px;
+        margin-right: 50px;
+        margin-left: 50px;
+    }
 </style>
 
-<h3>Add as tenant</h3>
+<section class="body">
+    <h3>Add as tenant</h3>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="AddAsTenant" method="post" enctype="multipart/form-data">
-            <input type="hidden" asp-for="AppartmentMember.CityId" />
-            <input type="hidden" asp-for="AppartmentMember.LocatedAt" />
-            <input type="hidden" asp-for="TenantId" />
+    <div class="row" manifest="margin-right: 50px;">
+        <div class="col-md-4">
+            <form asp-action="AddAsTenant" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="AppartmentMember.CityId" />
+                <input type="hidden" asp-for="AppartmentMember.LocatedAt" />
+                <input type="hidden" asp-for="TenantId" />
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        
-            <div class="form-group">
-                <label asp-for="AmountPaidByTenant" class="control-label"></label>
-                <input asp-for="AmountPaidByTenant" class="form-control" />
-                <span asp-validation-for="AmountPaidByTenant" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StartOfContract" class="control-label"></label>
-                <input asp-for="StartOfContract" class="form-control"/>
-                <span asp-validation-for="StartOfContract" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndOfContract" class="control-label"></label>
-                <input asp-for="EndOfContract" class="form-control"/>
-                <span asp-validation-for="EndOfContract" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ContractFile" class="control-label"></label>
-                <input asp-for="ContractFile" class="form-control-file" accept="file/*" required />
-                <span asp-validation-for="ContractFile" class="text-danger"></span>
-            </div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <h2>Assign an apartment to this tenant<b><i>(Not faculatatif)</i></b></h2>
+                <div class="form-group">
+                    <label asp-for="AmountPaidByTenant" class="control-label"></label>
+                    <input asp-for="AmountPaidByTenant" class="form-control" />
+                    <span asp-validation-for="AmountPaidByTenant" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StartOfContract" class="control-label"></label>
+                    <input asp-for="StartOfContract" class="form-control" />
+                    <span asp-validation-for="StartOfContract" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EndOfContract" class="control-label"></label>
+                    <input asp-for="EndOfContract" class="form-control" />
+                    <span asp-validation-for="EndOfContract" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ContractFile" class="control-label"></label>
+                    <input asp-for="ContractFile" class="form-control-file" accept="file/*" required />
+                    <span asp-validation-for="ContractFile" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="AppartmentMember.ApartmentNunber" class="control-label"></label>
-                <input asp-for="AppartmentMember.ApartmentNunber" class="form-control" onchange="CheckApartmentNumber()" />
-                <span asp-validation-for="AppartmentMember.ApartmentNunber" class="text-danger"></span>
-            </div>
-                       
-            <div class="form-group">
-                <label asp-for="AppartmentMember.FloorNumber" class="control-label"></label>
-                <input asp-for="AppartmentMember.FloorNumber" class="form-control" />
-                <span asp-validation-for="AppartmentMember.FloorNumber" class="text-danger"></span>
-            </div>    
-            
-            <div class="form-group">
-                <label asp-for="AppartmentMember.Description" class="control-label"></label>
-                <textarea asp-for="AppartmentMember.Description" class="form-control" rows="10"></textarea>
-                <span asp-validation-for="AppartmentMember.Description" class="text-danger"></span>
-            </div>
+                <h2>Assign an apartment to this tenant<b><i>(Not faculatatif)</i></b></h2>
 
-            <div class="form-group">
-                <label asp-for="AppartmentMember.NumberOfRooms" class="control-label"></label>
-                <input asp-for="AppartmentMember.NumberOfRooms" class="form-control" />
-                <span asp-validation-for="AppartmentMember.NumberOfRooms" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AppartmentMember.NumberOfbathRooms" class="control-label"></label>
-                <input asp-for="AppartmentMember.NumberOfbathRooms" class="form-control" />
-                <span asp-validation-for="AppartmentMember.NumberOfbathRooms" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AppartmentMember.RoomArea" class="control-label"></label>
-                <input asp-for="AppartmentMember.RoomArea" class="form-control" />
-                <span asp-validation-for="AppartmentMember.RoomArea" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AppartmentMember.Price" class="control-label"></label>
-                <input asp-for="AppartmentMember.Price" class="form-control" />
-                <span asp-validation-for="AppartmentMember.Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AppartmentMember.DepositePrice" class="control-label"></label>
-                <input asp-for="AppartmentMember.DepositePrice" class="form-control" />
-                <span asp-validation-for="AppartmentMember.DepositePrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AppartmentMember.Type" class="control-label">
-                    Select the apartment type
-                </label>
-                <select asp-for="AppartmentMember.Type" class="form-control">
-                    <option value="Studio">Studio</option>
-                    <option value="Room">Room</option>
-                    <option value="Apartment">Apartment</option>
-                </select>
-                <span asp-validation-for="AppartmentMember.Type" class="text-danger"></span>
-            </div>
-            <div>
-                <h2 class="box-title" style="color: #333; font-weight: bold;">Select apartment images</h2>
-                <input asp-for="AppartmentMember.Images" type="file" multiple />
-            </div>          
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.ApartmentNunber" class="control-label"></label>
+                    <input asp-for="AppartmentMember.ApartmentNunber" class="form-control" onchange="CheckApartmentNumber()" />
+                    <span asp-validation-for="AppartmentMember.ApartmentNunber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.FloorNumber" class="control-label"></label>
+                    <input asp-for="AppartmentMember.FloorNumber" class="form-control" />
+                    <span asp-validation-for="AppartmentMember.FloorNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.Description" class="control-label"></label>
+                    <textarea asp-for="AppartmentMember.Description" class="form-control" rows="10"></textarea>
+                    <span asp-validation-for="AppartmentMember.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.NumberOfRooms" class="control-label"></label>
+                    <input asp-for="AppartmentMember.NumberOfRooms" class="form-control" />
+                    <span asp-validation-for="AppartmentMember.NumberOfRooms" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.NumberOfbathRooms" class="control-label"></label>
+                    <input asp-for="AppartmentMember.NumberOfbathRooms" class="form-control" />
+                    <span asp-validation-for="AppartmentMember.NumberOfbathRooms" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.RoomArea" class="control-label"></label>
+                    <input asp-for="AppartmentMember.RoomArea" class="form-control" />
+                    <span asp-validation-for="AppartmentMember.RoomArea" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.Price" class="control-label"></label>
+                    <input asp-for="AppartmentMember.Price" class="form-control" />
+                    <span asp-validation-for="AppartmentMember.Price" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.DepositePrice" class="control-label"></label>
+                    <input asp-for="AppartmentMember.DepositePrice" class="form-control" />
+                    <span asp-validation-for="AppartmentMember.DepositePrice" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AppartmentMember.Type" class="control-label">
+                        Select the apartment type
+                    </label>
+                    <select asp-for="AppartmentMember.Type" class="form-control">
+                        <option value="Studio">Studio</option>
+                        <option value="Room">Room</option>
+                        <option value="Apartment">Apartment</option>
+                    </select>
+                    <span asp-validation-for="AppartmentMember.Type" class="text-danger"></span>
+                </div>
+                <div>
+                    <h2 class="box-title" style="color: #333; font-weight: bold;">Select apartment images</h2>
+                    <input asp-for="AppartmentMember.Images" type="file" multiple />
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

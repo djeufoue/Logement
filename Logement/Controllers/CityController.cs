@@ -29,6 +29,7 @@ namespace Logement.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     LocatedAt = c.LocatedAt,
+                    Town = c.Town,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
                     DateAdded = DateTime.UtcNow
@@ -41,6 +42,7 @@ namespace Logement.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     LocatedAt = c.LocatedAt,
+                    Town = c.Town,
                     NumbersOfApartment = c.NumbersOfApartment,
                     Floor = c.Floor,
                     DateAdded = c.DateAdded

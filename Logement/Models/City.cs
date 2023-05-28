@@ -9,6 +9,8 @@
 
         public string Name { get; set; }
         public long NumbersOfApartment { get; set; }
+
+        public string Town { get; set; }
         public string LocatedAt { get; set; }
 
         //public int? NumberOfParkingSpaces { get; set; }

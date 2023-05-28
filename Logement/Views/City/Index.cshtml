@@ -9,10 +9,20 @@
         margin: 0;
         font-size: 30px;
     }
+
+    .body {
+        margin-top: 100px;
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+
+    .table {
+        margin-top: 50px;
+    }
 </style>
 
-<section>
-    <div class="container">
+<section class="body">
+    <div>
         <section class="content-header">
             <h1>
                 Cities
@@ -27,6 +37,9 @@
                 <tr>
                     <th>
                         @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Town)
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.LocatedAt)
@@ -47,6 +60,9 @@
                             <div class="CityName">
                                 @Html.DisplayFor(modelItem => item.Name)
                             </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Town)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.LocatedAt)

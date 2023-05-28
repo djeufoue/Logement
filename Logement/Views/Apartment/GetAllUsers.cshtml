@@ -4,51 +4,54 @@
     ViewData["Title"] = "GetAllUsers";
 }
 
-<h3>List of all users who have created an account</h3>
+<section class="body">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenantFullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaritalStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.JobTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <h3>List of all users who have created an account</h3>
+
+    <table class="table">
+        <thead>
             <tr>
                 <th>
-                    @Html.DisplayFor(modelItem => item.TenantFullName)
+                    @Html.DisplayNameFor(model => model.TenantFullName)
                 </th>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MaritalStatus)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.JobTitle)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    <di class="button">
-                        <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.CityId&tenantId=@item.TenantId">Choose</a>
-                    </di>                 
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.MaritalStatus)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.JobTitle)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PhoneNumber)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th>
+                        @Html.DisplayFor(modelItem => item.TenantFullName)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.MaritalStatus)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.JobTitle)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    </td>
+                    <td>
+                        <di class="button">
+                            <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.CityId&tenantId=@item.TenantId">Choose</a>
+                        </di>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
 
 <style>
 
@@ -94,5 +97,15 @@
     .buttonDelete:hover {
         background-color: #002ead;
         transition: 0.7s;
+    }
+    
+    .body{
+        margin-top: 100px;
+        margin-right: 50px;
+        margin-left: 50px;
+    }
+
+    .table {
+        margin-top: 50px;
     }
 </style>

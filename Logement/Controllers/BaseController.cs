@@ -107,40 +107,7 @@ namespace Logement.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
-
-        private City AddCityFromViewModel(string method, CityViewModel c)
-        {
-            City city = new City();
-
-            if (method == "AddCity")
-            {
-                city = new City()
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    LocatedAt = c.LocatedAt,
-                    NumbersOfApartment = c.NumbersOfApartment,
-                    Floor = c.Floor,
-                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
-                    DateAdded = DateTime.UtcNow
-                };
-            }
-            else if (method == "EditCity")
-            {
-                city = new City()
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    LocatedAt = c.LocatedAt,
-                    NumbersOfApartment = c.NumbersOfApartment,
-                    Floor = c.Floor,
-                    //NumberOfParkingSpaces = c.NumberOfParkingSpaces,
-                    DateAdded = c.DateAdded
-                };
-            }
-            return city;
-        }
-
+     
         protected CityViewModel GetCitiesFromModel(City city)
         {
             CityViewModel cityViewModel = new CityViewModel()
@@ -148,6 +115,7 @@ namespace Logement.Controllers
                 Id = city.Id,
                 Name = city.Name,
                 LocatedAt = city.LocatedAt,
+                Town = city.Town,
                 Floor = city.Floor,
                 NumbersOfApartment = city.NumbersOfApartment,
                 //NumberOfParkingSpaces = city.NumberOfParkingSpaces

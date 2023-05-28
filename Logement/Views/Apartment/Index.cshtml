@@ -7,77 +7,90 @@
 
 <style>
     .content-header {
-        margin: 0;
         font-size: 30px;
+        margin-top: 100px;
+    }
+
+    .body {
+        margin-top: 100px;
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+    
+    .table{
+        margin-top: 50px;
     }
 </style>
 
-<section class="content-header">
-    <h1>
-        Apartments
-        <a class="btn btn-success" href="@Url.Action("GetAllUsers", "Apartment", new { cityId = cityId})">
-            <span>Pending Users</span>
-            <i class="fa fa-plus"></i>
-        </a>
+<section class="body">
+    <section class="content-header">
+        <h1>
+            Apartments
+            <a class="btn btn-success" href="@Url.Action("GetAllUsers", "Apartment", new { cityId = cityId})">
+                <span>Pending Users</span>
+                <i class="fa fa-plus"></i>
+            </a>
 
-        <a class="btn btn-success" href="@Url.Action("GetAllTenants", "Tenant", new { cityId = cityId})">
-            <span>My Tenants</span>
-            <i class="fa fa-plus"></i>
-        </a>
-    </h1>
+            <a class="btn btn-success" href="@Url.Action("GetAllTenants", "Tenant", new { cityId = cityId})">
+                <span>My Tenants</span>
+                <i class="fa fa-plus"></i>
+            </a>
+        </h1>
+    </section>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CityName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApartmentNunber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LocatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OccupiedBy)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FloorNumber)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="CityName">
+                            @Html.DisplayFor(modelItem => item.CityName)
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ApartmentNunber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LocatedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OccupiedBy)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FloorNumber)
+                    </td>
+                    @*<td>
+                    <di class="button">
+                    <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
+                    <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
+                    </di>
+                    </td>*@
+                </tr>
+            }
+        </tbody>
+    </table>
 </section>
 
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CityName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApartmentNunber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LocatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OccupiedBy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FloorNumber)
-            </th>           
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    <div class="CityName">
-                        @Html.DisplayFor(modelItem => item.CityName)
-                    </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ApartmentNunber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LocatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.OccupiedBy)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FloorNumber)
-                </td>
-                @*<td>
-                    <di class="button">
-                        <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
-                        <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
-                    </di>
-                </td>*@
-            </tr>
-        }
-    </tbody>
-</table>
 
 

@@ -4,64 +4,66 @@
     ViewData["Title"] = "GetAllTenants";
 }
 
-<h3 style="margin-bottom: 10px;">List of all tenants</h3>
+<section class="body">
+    <h3 style="margin-bottom: 10px;">List of all tenants</h3>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ApartmentNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TenantFullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TenantPhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApartementPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DepositePrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndOfContract)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <table class="table">
+        <thead>
             <tr>
                 <th>
-                    @Html.DisplayFor(modelItem => item.ApartmentNumber)
+                    @Html.DisplayNameFor(model => model.ApartmentNumber)
                 </th>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TenantFullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TenantPhoneNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ApartementPrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DepositePrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndOfContract)
-                </td>
-                <td>
-                    <di class="button">
-                        <a class="buttonRentStatus" href="/Tenant/TenantRentStatus?tenantId=@item.TenantId">Rent status</a>
-                        <a class="buttonPaymentHis" asp-area="" asp-controller="Tenant" asp-action="GetAllPaymentsHistory" asp-route-tenantId="@item.TenantId">Payments history</a>
-                    </di>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.TenantFullName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TenantPhoneNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApartementPrice)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DepositePrice)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndOfContract)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th>
+                        @Html.DisplayFor(modelItem => item.ApartmentNumber)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TenantFullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TenantPhoneNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ApartementPrice)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DepositePrice)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndOfContract)
+                    </td>
+                    <td>
+                        <di class="button">
+                            <a class="buttonRentStatus" href="/Tenant/TenantRentStatus?tenantId=@item.TenantId">Rent status</a>
+                            <a class="buttonPaymentHis" asp-area="" asp-controller="Tenant" asp-action="GetAllPaymentsHistory" asp-route-tenantId="@item.TenantId">Payments history</a>
+                        </di>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
 
 <style>
 
@@ -105,5 +107,15 @@
         font-weight: normal;
         line-height: 35px;
         margin: 0;
+    }
+
+    .body {
+        margin-top: 100px;
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+
+    .table {
+        margin-top: 50px;
     }
 </style>

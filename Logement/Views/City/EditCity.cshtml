@@ -21,6 +21,11 @@
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                       <label asp-for="Town" class="control-label"></label>
+                       <input asp-for="Town" class="form-control" />
+                       <span asp-validation-for="Town" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
                         <label asp-for="LocatedAt" class=" control-label"></label>
                         <input asp-for="LocatedAt" class="form-control" />
                         <span asp-validation-for="LocatedAt" class="text-danger"></span>
@@ -86,5 +91,9 @@
         text-decoration: none;
         border-radius: 10px;
         place-items: center;
+    }
+
+    .container{
+        margin-top: 100px;
     }
 </style>
