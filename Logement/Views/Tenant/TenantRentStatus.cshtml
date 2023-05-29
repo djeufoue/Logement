@@ -4,46 +4,61 @@
     ViewData["Title"] = "AllTenantRentStatus";
 }
 
-<h3>Payment history</h3>
+<style>
+    .body {
+        margin-top: 100px;
+        margin-left: 50px;
+        margin-right: 50px;
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenantFullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AmmountSupposedToPay)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsRentPaidForThisDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NextDateToPay)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    .table {
+        margin-top: 50px;
+    }
+</style>
+
+<section class="body">
+    <h3 style="margin-top:10px;">Payment history</h3>
+
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TenantFullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AmmountSupposedToPay)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsRentPaidForThisDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NextDateToPay)
-                </td>
-                <td>
-                    <a asp-action="PayRent" asp-route-id="@item.Id">Pay</a>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.TenantFullName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AmmountSupposedToPay)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.IsRentPaidForThisDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NextDateToPay)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TenantFullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AmmountSupposedToPay)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsRentPaidForThisDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NextDateToPay)
+                    </td>
+                    <td>
+                        <a asp-action="PayRent" asp-route-id="@item.Id">Pay</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+

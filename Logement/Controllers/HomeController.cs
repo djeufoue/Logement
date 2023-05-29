@@ -38,7 +38,7 @@ namespace Logement.Controllers
 
                 foreach (var cityImage in cityImagesInfos)
                 {
-                    citiesModel.cityViewModel.Add(new CityViewModel
+                    citiesModel.CityViewModel.Add(new CityViewModel
                     {
                         Id = cityImage.City.Id,
                         Name = cityImage.City.Name,
@@ -52,6 +52,14 @@ namespace Logement.Controllers
                     });
                 }
                 citiesModel.FirstImage = firsCityImage;
+
+
+                var apartementsInfos = await dbc.Apartments.ToListAsync();
+                ///To do: get one image in each apartment and print image with the apartment's informations on the page
+                ///Show more informations about the aparment and the rest of the images the apartment have whenever the user 
+                ///click on the apartment image on the main page.
+
+
                 return View(citiesModel);
             }
             catch (Exception e)
