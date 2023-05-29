@@ -3,13 +3,10 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
-
-<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
 <link rel="stylesheet" href="~/css/homePage.css"/>
+<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+
 <div class="main_container">
     <section class="content-header">
         <div id="carrousel" class="swiper-container">
@@ -45,20 +42,20 @@
     <section id="tranding">
         <div class="container">
             <h3 class="text-center section-subheading">- The apartments with the highest demand -</h3>
-            <h1 class="text-center section-heading">Tranding apartments</h1>
+            <h1 class="text-center section-heading">Trending apartments</h1>
         </div>
         <div class="container">
             <div class="swiper tranding-slider">
                 <div class="swiper-wrapper">
-                    <!-- Slide-start -->
-                    @foreach (var i in Model.cityViewModel)
+                    <!-- Slides-start -->
+                    @foreach (var item in Model.cityViewModel)
                     {
                         <div class="swiper-slide tranding-slide">
                             <div class="tranding-slide-img">
-                                <img src="data:@i.ContentType;base64,@Convert.ToBase64String(i.Data)" alt="Tranding">
+                                <img src="data:@item.ContentType;base64,@Convert.ToBase64String(item.Data)" alt="Trending">
                             </div>
                             <div class="tranding-slide-content">
-                                <h1 class="apartment-price">$20</h1>
+                                <h1 class="apartment-price">$20</h1>                   
                                 <div class="tranding-slide-content-bottom">
                                     <h2 class="apartment-location">
                                         Japoma
@@ -67,22 +64,25 @@
                             </div>
                         </div>
                     }
-                    <!-- Slide-end -->
-                    <div class="tranding-slider-control">
-                        <div class="swiper-button-prev slider-arrow">
-                            <ion-icon name="arrow-back-outline"></ion-icon>
-                        </div>
-                        <div class="swiper-button-next slider-arrow">
-                            <ion-icon name="arrow-forward-outline"></ion-icon>
-                        </div>
-                        <div class="swiper-pagination"></div>
-                    </div>
+                    <!-- End of slides -->
                 </div>
+                <div class="tranding-slider-control">
+                    <div class="swiper-button-prev slider-arrow">
+                        <ion-icon name="arrow-back-outline"></ion-icon>
+                    </div>
+                    <div class="swiper-button-next slider-arrow">
+                        <ion-icon name="arrow-forward-outline"></ion-icon>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>       
             </div>
         </div>
     </section>
 </div>
-    
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule  src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
 <script>
     var slideImg = document.getElementById("slideImg");
@@ -118,25 +118,26 @@
             alert('An error occurred while fetching images. Please try again later.');
         });
 
-       var TrandingSlider = new Swiper('tranding-slider', {
-           effect: 'coverflow',
-           grabCursor: true,
-           centeredSlides: true,
-           loop: true,
-           slidesPerView: 'auto',
-           coverflowEffect:{
-               rotate: 0,
-               stretch:0,
-               depth: 100,
-               modifier: 2.5,
-           },
-           pagination:{
-            el: '.swiper-pagination',
-            clickable: true,
-           },
-           navigation:{
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-           }
-       });
+        var TrandingSlider = new Swiper('.tranding-slider', {
+            effect: 'coverflow',
+            grabCursor: true,
+            centeredSlides: true,
+            slidesPerView: 'auto',
+            spaceBetween: 30,
+            loop: true,
+            coverflowEffect: {
+                rotate: 0,
+                stretch: 0,
+                depth: 100,
+                modifier: 2.5,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            }
+        });
 </script>

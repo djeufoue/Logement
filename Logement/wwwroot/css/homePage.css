@@ -152,44 +152,78 @@ button:hover {
     background: #fe7250;
 }
 
-/*==========================================*/
 
+/*==============================================================*/
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
-#tranding {
-    margin: 0;
-    padding: 4rem 0;
-    box-sizing: border-box;
-    list-style-type: none;
-    text-decoration: none;
-    font-size: 62.5%;
-    font-family: "Montserrat", sans-serif;
-    scroll-behavior: smooth;
+.container {
+    max-width: 124rem;
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+
+swiper {
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    list-style: none;
+    padding: 0;
+    z-index: 1;
+}
+    .swiper-wrapper {
+    width: 100%;
+    display: table-cell;
+    height: 100%;
+    z-index: 1;
+    transition-property: transform;
+    box-sizing: content-box;
+}
+
+.text-center{
+    align-content:center;
+}
+
+.section-heading {
+    font-size: 3rem;
+    color: #bf8925;
+    padding: 2rem 0;
+}
+
+#tranding{
+    padding: 4rem, 0;
+}
+
+@media(max-width:1440px){
+    #tranding{
+        padding: 7rem 0;
+    }
 }
 
 #tranding .tranding-slider{
- height: 52rem;
- padding: 2rem 0;
- position: relative;
+    height: 38rem;
+    padding: 2rem 0;
+    position: relative;
 }
 
-@media(max-width: 500px) {
+@media(max-width:500px) {
     #tranding .tranding-slider {
-        height: 45rem;
+        padding: 45rem;
     }
 }
+
 .tranding-slider{
     width: 37rem;
     height: 42rem;
     position: relative;
+    overflow:hidden;
 }
 
-@media(max-width: 500px) {
-    .tranding-slider{
+@media(max-width:500px) {
+    .tranding-slider {
         width: 28rem !important;
         height: 36rem !important;
     }
-    .tranding-slider .tranding-slide-img img{
+    .tranding-slider .tranding-slide-img img {
         width: 28rem !important;
         height: 36rem !important;
     }
@@ -197,30 +231,31 @@ button:hover {
 
 .tranding-slider .tranding-slide-img img {
     width: 37rem;
-    height: 42rem;
+    height: 30rem;
     border-radius: 2rem;
     object-fit: cover;
 }
 
-.tranding-slider .tranding-slide-content {
+.tranding-slider .tranding-slide-content{
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
-    bottom: 0;
+    bottom:0;
 }
 
-.tranding-slide-content .apartment-price {
+.tranding-slide-content .apartment-price{
     position: absolute;
     top: 2rem;
     right: 2rem;
-    color: white
+    color: white;
 }
 
 .tranding-slide-content .tranding-slide-content-bottom .apartment-location {
-    position: relative;
+    position: absolute;
     bottom: 2rem;
     left: 2rem;
+    top: 26rem;
     color: white;
 }
 
@@ -237,127 +272,95 @@ button:hover {
     justify-content: center;
 }
 
-.tranding-slider-control .swiper-button-next{
+.tranding-slider-control .swiper-button-next {
     left: 58% !important;
     transform: translateX(-58%) !important;
 }
 
-@media(max-width:990px){
-  .tranding-slider-control .swiper-button-next{
-      left: 70% !important;
-      transform: translateX(-70%) !important;
-  }
+@media (max-width:990px){
+    .tranding-slider-control .swiper-button-next {
+        left: 70% !important;
+        transform: translateX(-70%) !important;
+    }
 }
 
-@media(max-width:450px) {
+@media (max-width:450px) {
     .tranding-slider-control .swiper-button-next {
         left: 80% !important;
         transform: translateX(-80%) !important;
     }
 }
 
-@media(max-width:990px) {
+@media (max-width:990px) {
     .tranding-slider-control .swiper-button-prev {
         left: 30% !important;
         transform: translateX(-30%) !important;
     }
 }
 
-@media(max-width:450px) {
+@media (max-width:450px) {
     .tranding-slider-control .swiper-button-prev {
         left: 20% !important;
         transform: translateX(-20%) !important;
     }
 }
 
-@media(max-width: 1440px) {
-    #tranding {
-        padding: 7rem 0;
-    }
-}
-
 .tranding-slider-control .slider-arrow{
-    background: white;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    left: 42%;
-    transform: translateX(-42%);
-    filter: drop-shadow(0px 8px 24px rgba(18, 28, 53, 0.1 ));
+  background: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  left: 42%;
+  transform: translateX(-42%);
+  filter: drop-shadow(0px 8px 24px rgba(18, 28, 58, 0.1))
 }
 
-
-.tranding-slider-control .slider-arro ion-icon{
-    font-size: 2rem;
+.tranding-slider-control .slider-arrow ion-icon {
+    font-size: 1rem;
     color: #222224;
 }
 
-.tranding-slider-control .slider-arro ion-icon::after{
-    content: '';
+.tranding-slider-control .slider-arrow::after{
+    content:'';
 }
 
-.tranding-slider-control .swiper-pagination {
+.tranding-slider-control .swiper-pagination{
     position: relative;
     width: 15rem;
     bottom: 1rem;
 }
 
 .tranding-slider-control .swiper-pagination .swiper-pagination-bullet {
-    filter: drop-shadow(0px 8px 24px rgba(18, 28, 53, 0.1 ));
+    filter: drop-shadow(0px 8px 24px rgba(18, 28, 58, 0.1))
 }
 
-.tranding-slider-control .swiper-pagination .swiper-pagination-active {
-    background: var(--primary)
-}   
-
-    @media (min-width: 1440px) {
-        #tranding {
-            zoom: 1.5;
-        }
+    .tranding-slider-control .swiper-pagination .swiper-pagination-bullet-active {
+        background: var(--primary);
     }
 
-    @media (min-width: 2560px) {
-        #tranding {
-            zoom: 1.7;
-        }
-    }
+.apartment-price {
+    font-size: 24px;
+    font-weight: bold;
+}
 
-    @media (min-width: 3860px) {
-        #tranding {
-            zoom: 2.5;
-        }
-    }
+.apartment-location {
+    font-size: 18px;
+}
 
-    ::-webkit-scrollbar {
-        width: 1.3rem;
-    }
+::-webkit-scrollbar {
+    width: 1.3rem;
+}
 
-    ::-webkit-scrollbar-thumb {
-        border-radius: 1rem;
-        background: #797979;
-        transition: all 0.5s ease-in-out;
-    }
+::-webkit-scrollbar-thumb {
+    border-radius: 1rem;
+    background: #797979;
+    transition: all 0.5s ease-in-out;
+}
 
-    ::-webkit-scrollbar-thumb:hover {
-        background: #222224;
-    }
+::-webkit-scrollbar-thumb:hover {
+    background: #222224;
+}
 
-    ::-webkit-scrollbar-track {
-        background: #f9f9f9;
-    }
-
-    .container {
-        max-width: 124rem;
-        padding: 0 1rem;
-        margin: 0 auto;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-
-    .section-heading {
-        font-size: 3rem;
-        color: var(--primary);
-        padding: 2rem 0;
-    }
+::-webkit-scrollbar-track {
+    background: #f9f9f9;
+}
