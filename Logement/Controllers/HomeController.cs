@@ -47,19 +47,42 @@ namespace Logement.Controllers
                         NumbersOfApartment = cityImage.City.NumbersOfApartment,
                         Floor = cityImage.City.Floor,
                         Data = cityImage.Data,
-                        ContentType = cityImage.ContentType,
-                        FileName = cityImage.FileName
+                        ContentType = cityImage.ContentType
                     });
                 }
                 citiesModel.FirstImage = firsCityImage;
 
+                var apartmentsInfos = await dbc.Apartments
+                    .Include(a => a.City)
+                    .Select(a => new
+                    {
+                      Id = a.Id,
+                      Price = a.Price,
+                      LocatedAt = a.City.LocatedAt
+                    }).ToListAsync();
 
-                var apartementsInfos = await dbc.Apartments.ToListAsync();
-                ///To do: get one image in each apartment and print image with the apartment's informations on the page
-                ///Show more informations about the aparment and the rest of the images the apartment have whenever the user 
-                ///click on the apartment image on the main page.
+                foreach(var apartment in apartmentsInfos)
+                {
+                    //Select the first apartment image we found for this apartment
+                    var apartmentImage = await dbc.Fichiers
+                        .Where(a => a.ApartmentId == apartment.Id && a.CityOrApartement == "Apartement")
+                        .FirstOrDefaultAsync();
 
-
+                    if(apartmentImage == null)
+                    {
+                        _logger.LogError($"The apartment with the id {apartment.Id} does not have any images");
+                        continue;
+                    }
+                        
+                    citiesModel.Apartment.Add(new ApartmentInfos
+                    {
+                        Id = apartment.Id,
+                        Price = (Int32)apartment.Price,
+                        LocatedAt = apartment.LocatedAt,
+                        Data = apartmentImage.Data,
+                        ContentType = apartmentImage.ContentType
+                    });
+                }
                 return View(citiesModel);
             }
             catch (Exception e)
@@ -91,6 +114,78 @@ namespace Logement.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllApartmentImages(long apartmentId)
+        {          
+            try
+            {
+                var apartmemt = await dbc.Apartments
+               .Where(a => a.Id == apartmentId)
+               .FirstOrDefaultAsync();
+
+                if (apartmemt == null)
+                    return NotFound();
+
+                var apartmentsInfos = await dbc.Apartments
+                        .Include(a => a.City)
+                        .Include(a => a.Lessor)
+                        .Select(a => new
+                        {
+                            Id = a.Id,
+                            LessorId = a.LessorId,
+                            PhoneNumber = a.Lessor.PhoneNumber,
+                            Email = a.Lessor.Email,
+                            Price = a.Price,
+                            NumberOfRooms = a.NumberOfRooms,
+                            RoomArea = a.RoomArea,
+                            FloorNumber = a.FloorNumber,
+                            Type = a.Type,
+                            Description = a.Description,
+                            LocatedAt = a.City.LocatedAt
+                        }).FirstOrDefaultAsync();
+
+                ApartmentBaseInfos apartmentBaseInfos = new ApartmentBaseInfos();
+
+                apartmentBaseInfos.apartmentInfos = new ApartmentDescriptions
+                {
+                    Id = apartmentsInfos.Id,
+                    Price = (Int32)apartmentsInfos.Price,
+                    NumberOfRooms = apartmentsInfos.NumberOfRooms,
+                    RoomArea = apartmentsInfos.RoomArea,
+                    FloorNumber = (Int32)apartmentsInfos.FloorNumber,
+                    ApartmentType = apartmentsInfos.Type,
+                    Description = apartmentsInfos.Description,
+                    LocatedAt = apartmentsInfos.LocatedAt,
+                    LandlordId = apartmentsInfos.LessorId,
+                    LandlordPhoneNumber = apartmentsInfos.PhoneNumber,
+                    LandlordEmail = apartmentsInfos.Email,
+                };
+
+                var apartmentImages = await dbc.Fichiers
+                    .Where(a => a.CityOrApartement == "Apartement" && a.ApartmentId == apartmentId)
+                    .ToListAsync();
+
+                if (apartmentImages.Count == 0)
+                    return NotFound("There is no image for this apartment, please contact the system administrator");
+
+                foreach (var image in apartmentImages)
+                {
+                    apartmentBaseInfos.apartmentImages.Add(new ApartmentImagesInfos
+                    {
+                        Data = image.Data,
+                        ContentType = image.ContentType
+                    });
+                }
+                return Ok(apartmentBaseInfos);
+            }
+            catch(Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
 
         [AllowAnonymous]
         public IActionResult Privacy()

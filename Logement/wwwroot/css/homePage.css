@@ -162,17 +162,24 @@ button:hover {
     margin: 0 auto;
 }
 
-swiper {
-    margin-left: auto;
-    margin-right: auto;
+.swiper {
+    margin: 0 auto;
     position: relative;
     list-style: none;
     padding: 0;
     z-index: 1;
+    overflow: hidden; /* Add this line */
 }
-    .swiper-wrapper {
+
+.swiper-slide {
+    flex-shrink: 0; /* Add flex-shrink property */
+}
+
+.swiper-wrapper {
     width: 100%;
-    display: table-cell;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
     z-index: 1;
     transition-property: transform;
@@ -257,6 +264,21 @@ swiper {
     left: 2rem;
     top: 26rem;
     color: white;
+    display: flex;
+    justify-content: space-between;
+}
+
+.tranding-slide-content .tranding-slide-content-bottom .see-more-button {
+    position: absolute;
+    top: 26rem;
+    justify-content: space-between;
+    right: 25px;
+    padding: 8px 16px;
+    background-color: rgba(76, 175, 80, 0.7);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
 .swiper-slide-shadow-left,
@@ -334,7 +356,7 @@ swiper {
     filter: drop-shadow(0px 8px 24px rgba(18, 28, 58, 0.1))
 }
 
-    .tranding-slider-control .swiper-pagination .swiper-pagination-bullet-active {
+    .tranding-slider-control .swiper-pagination .swiper-pagination-active {
         background: var(--primary);
     }
 
@@ -345,6 +367,11 @@ swiper {
 
 .apartment-location {
     font-size: 18px;
+}
+
+
+.tranding-slide-content .tranding-slide-content-bottom .see-more-button:hover {
+    background-color: rgba(76, 175, 80, 0.9);
 }
 
 ::-webkit-scrollbar {

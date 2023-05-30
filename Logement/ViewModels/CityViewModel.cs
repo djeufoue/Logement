@@ -22,7 +22,6 @@ namespace Logement.ViewModels
         public string Floor { get; set; }
 
         public List<IFormFile> Image { get; set; } = new List<IFormFile>();
-        public string? FileName { get; set; }
         public byte[]? Data { get; set; }
         public string? ContentType { get; set; }
         public DateTime DateAdded { get; set; }

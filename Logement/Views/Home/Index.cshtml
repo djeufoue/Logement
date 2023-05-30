@@ -48,18 +48,19 @@
             <div class="swiper tranding-slider">
                 <div class="swiper-wrapper">
                     <!-- Slides-start -->
-                    @foreach (var item in Model.CityViewModel)
+                    @foreach (var item in Model.Apartment)
                     {
                         <div class="swiper-slide tranding-slide">
                             <div class="tranding-slide-img">
                                 <img src="data:@item.ContentType;base64,@Convert.ToBase64String(item.Data)" alt="Trending">
                             </div>
                             <div class="tranding-slide-content">
-                                <h1 class="apartment-price">$20</h1>                   
+                                <h1 class="apartment-price">@item.Price FCFA</h1>                   
                                 <div class="tranding-slide-content-bottom">
                                     <h2 class="apartment-location">
-                                        Japoma
+                                        @item.LocatedAt
                                     </h2>
+                                    <a href="/Home/GetAllApartmentImages?apartmentId=@item.Id" class="see-more-button">See More</a>
                                 </div>
                             </div>
                         </div>

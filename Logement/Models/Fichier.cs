@@ -1,5 +1,8 @@
-﻿namespace Logement.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Logement.Models
 {
+    [Index(nameof(CityOrApartement))]
     public class Fichier
     {
         public long Id { get; set; }

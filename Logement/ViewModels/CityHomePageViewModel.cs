@@ -3,7 +3,7 @@
     public class CityHomePageViewModel
     {
         public List<CityViewModel> CityViewModel { get; set; } = new List<CityViewModel>();
-        public List<ApartmentViewModel> ApartmentViewModel { get; set; } = new List<ApartmentViewModel>();
+        public List<ApartmentInfos> Apartment { get; set; } = new List<ApartmentInfos>();
         public string? FirstImage { get; set; }
     }
 }
