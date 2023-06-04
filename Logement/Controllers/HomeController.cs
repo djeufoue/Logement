@@ -1,24 +1,29 @@
 ﻿using Logement.Data;
-using Logement.Data.Enum;
 using Logement.Models;
+using Logement.Schedular;
 using Logement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NPOI.OpenXmlFormats.Wordprocessing;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace Logement.Controllers
 {
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
+        private BaseScheduler baseScheduler;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger,
+            Services.EmailService emailService,
+            Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager, ApplicationDbContext context,
+            IConfiguration configuration, Services.SMSservice smsService)
            : base(context, configuration)
         {
             _logger = logger;
+            baseScheduler = new BaseScheduler(context, logger, emailService, userManager, smsService);
         }
 
         [HttpGet]
@@ -140,6 +145,7 @@ namespace Logement.Controllers
                             Price = a.Price,
                             NumberOfRooms = a.NumberOfRooms,
                             RoomArea = a.RoomArea,
+                            NumberOfbathRooms = a.NumberOfbathRooms,
                             FloorNumber = a.FloorNumber,
                             Type = a.Type,
                             Description = a.Description,
@@ -148,11 +154,12 @@ namespace Logement.Controllers
 
                 ApartmentBaseInfos apartmentBaseInfos = new ApartmentBaseInfos();
 
-                apartmentBaseInfos.apartmentInfos = new ApartmentDescriptions
+                apartmentBaseInfos.ApartmentInfos = new ApartmentDescriptions
                 {
                     Id = apartmentsInfos.Id,
                     Price = (Int32)apartmentsInfos.Price,
                     NumberOfRooms = apartmentsInfos.NumberOfRooms,
+                    NumberOfbathRooms = apartmentsInfos.NumberOfbathRooms,
                     RoomArea = apartmentsInfos.RoomArea,
                     FloorNumber = (Int32)apartmentsInfos.FloorNumber,
                     ApartmentType = apartmentsInfos.Type,
@@ -172,13 +179,13 @@ namespace Logement.Controllers
 
                 foreach (var image in apartmentImages)
                 {
-                    apartmentBaseInfos.apartmentImages.Add(new ApartmentImagesInfos
+                    apartmentBaseInfos.ApartmentImages.Add(new ApartmentImagesInfos
                     {
                         Data = image.Data,
                         ContentType = image.ContentType
                     });
                 }
-                return Ok(apartmentBaseInfos);
+                return View(apartmentBaseInfos);
             }
             catch(Exception e)
             {
@@ -186,6 +193,16 @@ namespace Logement.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> SendMessage(long apartmentId, string name, string email, string message, string landlordEmail)
+        {
+            string emailSubject = "New Message from Apartment Contact Form";
+            string emailBody = $"<p>Name: {name}\n</p> <p>Email: {email}\n</p> <p>Message:\n{message}</p>";
+
+            await baseScheduler.SendConfirmationEmail(landlordEmail, emailSubject, emailBody);
+            return RedirectToAction("GetAllApartmentImages", new { apartmentId = apartmentId });
+        }
 
         [AllowAnonymous]
         public IActionResult Privacy()

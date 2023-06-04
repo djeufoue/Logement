@@ -12,6 +12,7 @@ namespace Logement.ViewModels
         public string? LandlordEmail { get; set; }
         public int Price { get; set; }
         public int NumberOfRooms { get; set; }
+        public int NumberOfbathRooms { get; set; }
         public int RoomArea { get; set; }
         public int FloorNumber { get; set; }
         public ApartmentTypeEnum ApartmentType { get; set; }

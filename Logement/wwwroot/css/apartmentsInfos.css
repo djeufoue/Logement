@@ -1,0 +1,324 @@
+﻿.apartment-gallery {
+    display: flex;
+    flex: 4;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.apartment-image {
+    position: relative;
+    height: 200px;
+    margin: 10px;
+    width: 250px;
+}
+
+.rounded-image {
+    border-radius: 10px;
+    width: 260px;
+    height: 200px;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.apartment-image:hover .overlay {
+    opacity: 1;
+}
+
+.image-link {
+    color: #fff;
+    font-size: 24px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+}
+
+.modal-image img {
+    max-width: 100%;
+    max-height: 80vh; /* Adjust the height as needed */
+}
+
+.modal-content {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: red;
+    font-size: 24px;
+}
+
+.modal-image {
+    text-align: center;
+}
+
+.prev-button,
+.next-button {
+    position: absolute;
+    top: 50%;
+    color: #585b90;
+    font-size: 36px;
+    transform: translateY(-50%);
+}
+
+.prev-button {
+    left: 10px;
+}
+
+.next-button {
+    right: 10px;
+}
+
+.apartment-details {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.apartment-information {
+    margin-top: 20px;
+}
+
+.floor-number,
+.room-area,
+.number-of-rooms,
+.apartment-type,
+.description,
+.price,
+.location {
+    margin-bottom: 5px;
+}
+
+.contact-section {
+    /*display: inline-block;*/
+    flex: 1;
+    vertical-align: top;
+    margin-left: 20px;
+}
+
+.contact-info {
+    margin-top: 10px;
+}
+
+.phone-number,
+.email {
+    margin-bottom: 5px;
+}
+
+.email-link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.u-freetext-fix {
+    white-space: pre-line;
+    word-break: break-word;
+    word-wrap: break-word;
+}
+
+.four-pack {
+    border-bottom: 1px solid #ddddde;
+    margin-bottom: 32px;
+    padding-bottom: 8px;
+}
+
+.four-pack__block {
+    margin-bottom: 24px !important;
+}
+
+@media (min-width: 768px) {
+    .four-pack__block {
+        border-right: 1px solid #ddddde;
+        display: inline-block;
+        margin-right: 16px;
+        min-height: 50px;
+        padding-right: 16px;
+        vertical-align: top
+    }
+
+    .four-pack__block:last-of-type {
+        border: none;
+        margin-right: 0;
+        padding-right: 0
+    }
+}
+
+.margin-bottom-0x {
+    margin-bottom: 0;
+}
+
+.h3, .h4, h3, h4, h5, h6 {
+    font-size: 1.125rem;
+    margin-bottom: 16px;
+    line-height: 1.625rem;
+    color: olivedrab;
+}
+
+.list-inline {
+    margin-left: -8px;
+}
+
+li:last-child, p:last-child {
+    margin-bottom: 0;
+}
+
+.list-inline > li {
+    display: inline-block;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.four-pack__detail-item {
+    margin-right: -8px;
+}
+
+.text-muted {
+    color: #717171;
+}
+
+ol, ul {
+    margin: 0 0 16px 16px;
+    padding: 0;
+}
+
+.margin-bottom-4x {
+    margin-bottom: 32px;
+}
+
+.MoreOrLess--block {
+    padding-bottom: 48px;
+}
+
+.MoreOrLess {
+    position: relative;
+}
+
+element.style {
+    max-height: 192px;
+}
+
+.CollapseBase {
+    position: relative;
+    overflow: hidden;
+    transition: max-height .5s ease;
+}
+
+p {
+    margin: 0 0 16px;
+    line-height: 1.5rem;
+}
+
+.listing-page--desktop .MoreOrLess__toggle--block {
+    padding-bottom: 0;
+}
+
+.MoreOrLess__toggle--block {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(180deg,hsla(0,0%,100%,0) 0,hsla(0,0%,100%,.9) 50%);
+    padding: 85px 0 16px;
+    text-align: left;
+    transition: padding .5s ease;
+}
+
+.MoreOrLess__toggle {
+    background-color: transparent;
+    border: 0;
+    font-weight: 700;
+    padding: 0;
+}
+
+.text-link {
+    color: #2474de;
+}
+
+button, html input[type=button], input[type=reset], input[type=submit] {
+    -webkit-appearance: button;
+    cursor: pointer;
+}
+
+.images_owner_contact {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px; /* Adjust the margin as needed */
+}
+
+.contact-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.contact-form .form-group {
+    margin-bottom: 20px;
+}
+
+.contact-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.contact-form textarea {
+    height: 120px;
+}
+
+.contact-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.contact-form button:hover {
+    background-color: #0069d9;
+}
+
+.contact-form .error {
+    color: red;
+}
+
+.contact-form .success {
+    color: green;
+}

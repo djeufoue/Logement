@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PayPal.Api;
 using System.Net;
 
 namespace Logement.Controllers
@@ -13,9 +14,14 @@ namespace Logement.Controllers
     [Authorize]
     public class CityController : BaseController
     {
-        public CityController(ApplicationDbContext context, IConfiguration configuration)
+        private readonly ILogger<CityController> _logger;   
+        private IHttpContextAccessor _httpContextAccessor; 
+        
+        public CityController(ApplicationDbContext context,ILogger<CityController> logger, IHttpContextAccessor ihcontext, IConfiguration configuration)
             : base(context, configuration)
         {
+            _logger = logger;
+            _httpContextAccessor = ihcontext;
         }
 
         private City AddCityFromViewModel(string method, CityViewModel c)
@@ -183,6 +189,14 @@ namespace Logement.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
+        }
+
+        public ActionResult PaymentWithPaypal(string Cancel = null string blogId = "", string PayerID = "", string guid = "")
+        {
+            var ClientID = _configuration.GetValue<string>("PayPal:Key");
+            var ClientSecret = _configuration.GetValue<string>("PayPal:Secret");
+            var mode = _configuration.GetValue<string>("PayPal:mode");
+            APIContext apiContext = PaypalConfiguration
         }
     }
 }

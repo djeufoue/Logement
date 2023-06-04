@@ -4,6 +4,8 @@
     ViewData["Title"] = "Apartment infos";
 }
 
+<link rel="stylesheet" href="~/css/apartmentsInfos.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <style>
     .content-header {
@@ -28,6 +30,181 @@
             <h1>
                 Apartment
             </h1>
-        </section>       
+        </section>    
+        <section>
+            <div class="images_owner_contact">
+                <div class="apartment-gallery">
+                    @foreach (var image in Model.ApartmentImages)
+                    {
+                        <div class="apartment-image">
+                            <img src="data:@image.ContentType;base64,@Convert.ToBase64String(image.Data)" alt="Apartment Image" class="rounded-image">
+                            <div class="overlay">
+                                <a href="#modal" class="image-link"><i class="fas fa-expand"></i></a>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="contact-section">
+                    <h3>Contact the Owner</h3>
+                    <div class="contact-info">
+                        <div class="phone-number">Phone: @Model.ApartmentInfos.LandlordPhoneNumber</div>
+                       @* <div class="email">Email: <a href="mailto:@Model.ApartmentInfos.LandlordEmail" class="email-link">@Model.ApartmentInfos.LandlordEmail</a></div>*@
+                        <form action="/Home/SendMessage" method="post">
+                            <div class="form-group">
+                                <label for="name">Your Name:</label>
+                                <input type="text" id="name" name="name" required class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Your Email:</label>
+                                <input type="email" id="email" name="email" required class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message:</label>
+                                <textarea id="message" name="message" required class="form-control"></textarea>
+                            </div>
+                            <input type="hidden" name="apartmentId" value="@Model.ApartmentInfos.Id" />
+                            <input type="hidden" name="landlordEmail" value="@Model.ApartmentInfos.LandlordEmail" />
+                            <button type="submit" class="btn btn-primary" style="margin-top:10px">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="apartment-information" style="margin-top:40px;">
+                <h2 class="about-the-property u-freetext-fix" style="margin-bottom:20px;">About this rental</h2>
+                <ul class="four-pack list-unstyled">
+                    <li class="four-pack__block">
+                        <div class="apartment-type four-pack__block-title h3 margin-bottom-0x">@Model.ApartmentInfos.ApartmentType</div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.RoomArea m²
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="four-pack__block">
+                        <div class="four-pack__block-title h3 margin-bottom-0x">
+                            Bedrooms
+                        </div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.NumberOfRooms
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="four-pack__block">
+                        <div class="four-pack__block-title h3 margin-bottom-0x">
+                            Bathroom
+                        </div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.NumberOfbathRooms
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="four-pack__block">
+                       <div class="four-pack__block-title h3 margin-bottom-0x">
+                            Located at
+                        </div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.LocatedAt
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="four-pack__block">
+                       <div class="four-pack__block-title h3 margin-bottom-0x">
+                            Located at
+                         </div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.LocatedAt
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="four-pack__block">
+                        <div class="four-pack__block-title h3 margin-bottom-0x">
+                            Floor
+                        </div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.FloorNumber Fl
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="four-pack__block">
+                        <div class="four-pack__block-title h3 margin-bottom-0x">
+                            Price per month
+                        </div>
+                        <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
+                            <li four-pack__detail-item>
+                                @Model.ApartmentInfos.Price FCFA
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="property-description u-freetext-fix margin-bottom-4x">
+                    <div class="collapsible-content">
+                        <div id="property-description">
+                            <div class="CollapseBase" style="max-height: 192px;">
+                                <div class="CollapseBase__content">
+                                    <div class="collapsible-content__body-text u-freetext-fix">
+                                        <p style="margin-top: 10px;">@Model.ApartmentInfos.Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button aria-expanded="false" aria-controls="property-description" class="text-link MoreOrLess__toggle MoreOrLess__toggle--block">
+                                <span class="MoreOrLess__toggle-text">See more</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <!-- Modal -->
+            <div id="modal" class="modal">
+                <div class="modal-content">
+                    <a href="#close" class="close-button"><i class="fas fa-times"></i></a>
+                    <div class="modal-image">
+                        <img src="" alt="Modal Image" id="modal-image">
+                    </div>
+                    <a href="#prev" class="prev-button"><i class="fas fa-chevron-left"></i></a>
+                    <a href="#next" class="next-button"><i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+        </section>
     </div>
 </section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var images = $(".apartment-image");
+        var currentImageIndex = 0;
+
+        $(".image-link").click(function (e) {
+            e.preventDefault();
+            var imageUrl = $(this).closest(".apartment-image").find("img").attr("src");
+            $("#modal-image").attr("src", imageUrl);
+            $("#modal").fadeIn();
+        });
+
+        $(".close-button").click(function (e) {
+            e.preventDefault();
+            $("#modal").fadeOut();
+        });
+
+        $(".prev-button").click(function (e) {
+            e.preventDefault();
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            var imageUrl = images.eq(currentImageIndex).find("img").attr("src");
+            $("#modal-image").attr("src", imageUrl);
+        });
+
+        $(".next-button").click(function (e) {
+            e.preventDefault();
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            var imageUrl = images.eq(currentImageIndex).find("img").attr("src");
+            $("#modal-image").attr("src", imageUrl);
+        });
+    });
+</script>

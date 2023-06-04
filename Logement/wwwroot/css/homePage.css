@@ -178,8 +178,6 @@ button:hover {
 .swiper-wrapper {
     width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100%;
     z-index: 1;
     transition-property: transform;
@@ -193,7 +191,6 @@ button:hover {
 .section-heading {
     font-size: 3rem;
     color: #bf8925;
-    padding: 2rem 0;
 }
 
 #tranding{
