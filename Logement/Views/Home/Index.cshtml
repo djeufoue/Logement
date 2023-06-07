@@ -4,42 +4,38 @@
     ViewData["Title"] = "Home Page";
 }
 
-<link rel="stylesheet" href="~/css/homePage.css"/>
+<link rel="stylesheet" href="~/css/homePage.css" />
 <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
 
-<div class="main_container">
-    <section class="content-header">
-        <div id="carrousel" class="swiper-container">
-            <div class="slider">
-                <img src="@Model.FirstImage" id="slideImg" />
-            </div>
-            <div class="overlay">
-                <div class="content-title">
-                    <h1>COMFORT AT LOW PRICES NEAR YOU</h1>
-                    <h3>Easily create an account and start chatting with the different owners of the apartment</h3>
-                    <div>
-                        <button type="button">WATCH MORE</button>
-                        <button type="button" class="btn-2">SUBSCRIBE</button>
-                    </div>
-                </div>
+<div id="carrousel" class="swiper-container">
+    <div class="slider">
+        <img src="@Model.FirstImage" id="slideImg" />
+    </div>
+    <div class="overlay">
+        <div class="content-title">
+            <h1>COMFORT AT LOW PRICES NEAR YOU</h1>
+            <h3>Easily create an account and start chatting with the different owners of the apartment</h3>
+            <div>
+                <button type="button">WATCH MORE</button>
+                <button type="button" class="btn-2">SUBSCRIBE</button>
             </div>
         </div>
-    </section>
-    <section class="content-body">
-        <div class="PageletContainer_pagelet-container">
-            <div class="CitiesPagelet_cities-header-wrapper">
-                <div class="col-12 text-center PageletHeader_pagelet-header-container__odFXO">
-                    <h2 class="city-header-title-1">
-                        Discover your dream space
-                    </h2>
-                    <h4 class="city-header-title-2">
-                        just for you
-                    </h4>
-                </div>
-            </div>
+    </div>
+</div>
+<div class="PageletContainer_pagelet-container content-body">
+    <div class="CitiesPagelet_cities-header-wrapper">
+        <div class="col-12 text-center PageletHeader_pagelet-header-container__odFXO">
+            <h2 class="city-header-title-1">
+                Discover your dream space
+            </h2>
+            <h4 class="city-header-title-2">
+                just for you
+            </h4>
         </div>
-    </section>
-    <section id="tranding">
+    </div>
+</div>
+<div class="trending-section">
+    <div id="tranding">
         <div class="container">
             <h3 class="text-center section-subheading">- The apartments with the highest demand -</h3>
             <h1 class="text-center section-heading">Trending apartments</h1>
@@ -55,7 +51,7 @@
                                 <img src="data:@item.ContentType;base64,@Convert.ToBase64String(item.Data)" alt="Trending">
                             </div>
                             <div class="tranding-slide-content">
-                                <h1 class="apartment-price">@item.Price FCFA</h1>                   
+                                <h1 class="apartment-price">@item.Price FCFA</h1>
                                 <div class="tranding-slide-content-bottom">
                                     <h2 class="apartment-location">
                                         @item.LocatedAt
@@ -75,14 +71,14 @@
                         <ion-icon name="arrow-forward-outline"></ion-icon>
                     </div>
                     <div class="swiper-pagination"></div>
-                </div>       
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 </div>
 
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule  src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
 <script>
@@ -119,26 +115,26 @@
             alert('An error occurred while fetching images. Please try again later.');
         });
 
-        var TrandingSlider = new Swiper('.tranding-slider', {
-            effect: 'coverflow',
-            grabCursor: true,
-            centeredSlides: true,
-            slidesPerView: 'auto',
-            spaceBetween: 30,
-            loop: true,
-            coverflowEffect: {
-                rotate: 0,
-                stretch: 0,
-                depth: 100,
-                modifier: 2.5,
-            },
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            }
-        });
+    var TrandingSlider = new Swiper('.tranding-slider', {
+        effect: 'coverflow',
+        grabCursor: true,
+        centeredSlides: true,
+        slidesPerView: 'auto',
+        spaceBetween: 30,
+        loop: true,
+        coverflowEffect: {
+            rotate: 0,
+            stretch: 0,
+            depth: 100,
+            modifier: 2.5,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        }
+    });
 </script>

@@ -3,23 +3,10 @@
 @{
     ViewData["Title"] = "Apartment list";
 }
+<link rel="stylesheet" href="~/css/style.css">
 
 <style>
-    .content-header {
-        margin: 0;
-        font-size: 30px;
-    }
-
-    .body {
-        margin-top: 100px;
-        margin-left: 50px;
-        margin-right: 50px;
-    }
-
-    .table {
-        margin-top: 50px;
-    }
-
+    
     .button {
         display: flex;
         justify-content: space-between;
@@ -30,6 +17,20 @@
         height: 35px;
         width: 80px;
         background-color: #445744;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        margin-right: 2px;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonPay {
+        display: grid;
+        height: 35px;
+        width: 100px;
+        background-color: seagreen;
         font-family: "Poppins", sans-serif;
         color: #ffffff;
         font-weight: 500;
@@ -52,80 +53,83 @@
         border-radius: 10px;
         place-items: center;
     }
-
-    .buttonChoose:hover {
-        background-color: #002ead;
-        transition: 0.7s;
-    }
-
 </style>
 
-<section class="body">
-    <div>
-        <section class="content-header">
-            <h1>
-                Cities
+
+<div class="body">
+    <div class="table">
+        <section class="table_header">
+            <h1 style="font-size: 1.5rem; font-family:Arial;"><strong>Cities</strong></h1>
+            <span>
                 <a class="btn btn-success" href="@Url.Action("AddCity", "City")">
-                        <span>Add City</span>
-                        <i class="fa fa-plus"></i>
+                    <span>Add City</span>
+                    <i class="fa fa-plus"></i>
                 </a>
-            </h1>
+            </span>
+            <div class="input-group">
+                <input type="search" placeholder="Search Data...">
+                <img src="~/img/search.png" alt="">
+            </div>
         </section>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Town)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.LocatedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.NumbersOfApartment)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Floor)
-                    </th>
-                    <th>Apartments</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+        <section class="table_body">
+            <table>
+                <thead>
                     <tr>
-                        <td>
-                            <a class="city-name" asp-controller="City" asp-action="EditCity" asp-route-id="@item.Id">@item.Name</a>
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Town)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LocatedAt)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.NumbersOfApartment)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Floor)
-                        </td>
-                        <td>
-                            <di class="button">
-                                @if(item.NextPaymentDate <= DateTime.UtcNow)
-                                {
-                                    <a href="/City/PaymentWithPaypal?cityId=@item.Id" class="buttonPay">Pay Now</a>
-                                }
-                                else
-                                {
-                                    <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
-                                }
-                            </di>
-                        </td>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Town)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LocatedAt)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.NumbersOfApartment)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Floor)
+                        </th>
+                        <th>Apartments</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a class="city-name" asp-controller="City" asp-action="EditCity" asp-route-id="@item.Id">@item.Name</a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Town)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LocatedAt)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.NumbersOfApartment)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Floor)
+                            </td>
+                            <td>
+                                <di class="button">
+                                    @if (item.NextPaymentDate <= DateTime.UtcNow)
+                                    {
+                                        <a href="/City/PaymentWithPaypal?cityId=@item.Id" class="buttonPay">Pay Now</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
+                                    }
+                                </di>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
     </div>
-</section>
+</div>
+
+<script src="~/js/site.js"></script>

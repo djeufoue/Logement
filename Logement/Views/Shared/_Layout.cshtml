@@ -91,42 +91,44 @@
     <link rel="stylesheet" href="~/css/demo.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/js/site.js" asp-append-version="true" />
     <link rel="stylesheet" href="~/Logement.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 </head>
 <body>   
-    <div id="viewContainer">       
-        <header class="header_infos">
-            <div style="margin-left:15px;">
-                    The Logo here
-            </div>
-            <div class="info-bar">
-                <div class="wrapper">
-                    <div class="text-left">
-                        @if (!string.IsNullOrEmpty(User.Identity.Name))
-                        {
-                            <Button onclick="myFunction()" class="dropbtn">@User.Identity.Name</Button>
-                            <div id="myDropdown" class="dropdown-content">
-                                <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                                <a asp-area="" asp-controller="City" asp-action="Index">My Cities</a>                                        
-                                <a asp-area="" asp-controller="Account" asp-action="Logout">Log Out</a>
-                            </div>
-                        }
-                        else if (string.IsNullOrEmpty(User.Identity.Name))
-                        {
-                            <strong><a class="nav-link text-dark" asp-area="" style="color:white" asp-controller="Account" asp-action="Login">Login</a></strong>
-                        }
-                    </div>
-                </div>
-            </div>
-        </header>
+    <section id="menu">
+        <div class="logo">
+            <img src="~/img/Dje_residence_logo.png" alt="">
+        </div>
+        <div class="items">
+            <ol>
+                <li><i class="fa fa-pie-chart" aria-hidden="true"></i><a href="/Home/Index">Dashbord</a></li>
+                <li><i class="fa fa-pie-chart" aria-hidden="true"></i><a href="#">Home</a></li>
+                <li><i class="fa fa-pie-chart" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>
+            </ol>
+        </div>
+    </section>
+    <section id="interface">
+        <div class="navigation">          
+            <div class="profile">
+                @if (!string.IsNullOrEmpty(User.Identity.Name))
+                {
+                    <Button class="dropbtn">@User.Identity.Name</Button>                   
+                }
+                else if (string.IsNullOrEmpty(User.Identity.Name))
+                {
+                    <strong><a class="nav-link text-dark" asp-area="" style="color:white" asp-controller="Account" asp-action="Login">Login</a></strong>
+                }
+            </div> 
+        </div>     
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
-        <footer class="border-top footer text-muted">
+        @*<footer class="border-top footer text-muted">
             <div class="container">
                 &copy; 2022 - Logement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
-        </footer>
-    </div>       
+        </footer>*@
+    </section>      
+       
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -134,15 +136,3 @@
 </body>
 </html>
 
-@*<script>
-    var header = document.querySelector('.header_infos');
-
-    // When the user scrolls down, add a class to the header element
-    window.addEventListener('scroll', function() {
-      if (window.scrollY > 0) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-    });
-</script>*@

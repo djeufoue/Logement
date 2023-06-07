@@ -17,6 +17,7 @@ namespace Logement.ViewModels
         public MaritalStatusEnum? MaritalStatus { get; set; }
         public string JobTitle { get; set; }
 
+        [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
     }
 }
