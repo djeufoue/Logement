@@ -55,6 +55,13 @@ namespace Logement
             });
             services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
             services.AddHangfireServer();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
+
+            services.AddDistributedMemoryCache();
         }
 
         private static void ConfigureIdentity(IServiceCollection services)
@@ -99,6 +106,7 @@ namespace Logement
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseHangfireDashboard();
+            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

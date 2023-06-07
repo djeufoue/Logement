@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230605142414_AddsubscriptionPaymentTable")]
+    partial class AddsubscriptionPaymentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,6 +231,9 @@ namespace Logement.Migrations
                     b.Property<long>("NumbersOfApartment")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("SubscriptionPaymentId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Town")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -236,6 +241,8 @@ namespace Logement.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("LandLordId");
+
+                    b.HasIndex("SubscriptionPaymentId");
 
                     b.ToTable("Cities");
                 });
@@ -371,30 +378,6 @@ namespace Logement.Migrations
                     b.ToTable("NotificationSentForRentPayments");
                 });
 
-            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<decimal>("AmmountSupposedToPay")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long>("LandlordId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("NotificationSentDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LandlordId");
-
-                    b.ToTable("NotificationSentForSubscriptions");
-                });
-
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
                 {
                     b.Property<long>("Id")
@@ -461,9 +444,6 @@ namespace Logement.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long>("CityId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
@@ -481,8 +461,6 @@ namespace Logement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityId");
 
                     b.ToTable("SubscriptionPayments");
                 });
@@ -700,7 +678,15 @@ namespace Logement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Logement.Models.SubscriptionPayment", "SubscriptionPayment")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("LandLord");
+
+                    b.Navigation("SubscriptionPayment");
                 });
 
             modelBuilder.Entity("Logement.Models.CityMember", b =>
@@ -763,17 +749,6 @@ namespace Logement.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
-                {
-                    b.HasOne("Logement.Models.ApplicationUser", "Landlord")
-                        .WithMany()
-                        .HasForeignKey("LandlordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Landlord");
-                });
-
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
                 {
                     b.HasOne("Logement.Models.ApplicationUser", "Tenant")
@@ -794,17 +769,6 @@ namespace Logement.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("Logement.Models.SubscriptionPayment", b =>
-                {
-                    b.HasOne("Logement.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantPaymentStatu", b =>

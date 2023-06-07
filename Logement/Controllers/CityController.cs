@@ -1,11 +1,15 @@
 ﻿using Logement.Data;
 using Logement.Data.Enum;
 using Logement.Models;
+using Logement.Services;
 using Logement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NPOI.XSSF.UserModel;
 using PayPal.Api;
 using System.Net;
 
@@ -15,13 +19,13 @@ namespace Logement.Controllers
     public class CityController : BaseController
     {
         private readonly ILogger<CityController> _logger;   
-        private IHttpContextAccessor _httpContextAccessor; 
+        private IHttpContextAccessor httpContextAccessor;
         
         public CityController(ApplicationDbContext context,ILogger<CityController> logger, IHttpContextAccessor ihcontext, IConfiguration configuration)
             : base(context, configuration)
         {
             _logger = logger;
-            _httpContextAccessor = ihcontext;
+            httpContextAccessor = ihcontext;
         }
 
         private City AddCityFromViewModel(string method, CityViewModel c)
@@ -191,12 +195,165 @@ namespace Logement.Controllers
             }
         }
 
-        public ActionResult PaymentWithPaypal(string Cancel = null string blogId = "", string PayerID = "", string guid = "")
+        public async Task<ActionResult> PaymentWithPaypal(long cityId, string Cancel = null, string blogId = "", string PayerID = "", string guid = "")
         {
             var ClientID = _configuration.GetValue<string>("PayPal:Key");
             var ClientSecret = _configuration.GetValue<string>("PayPal:Secret");
             var mode = _configuration.GetValue<string>("PayPal:mode");
-            APIContext apiContext = PaypalConfiguration
+            APIContext apiContext = PaypalConfiguration.GetAPIContext(ClientID, ClientSecret, mode);
+
+            try
+            {
+                string payerId = PayerID;
+                if (string.IsNullOrEmpty(payerId))
+                {
+                    string baseURI = this.Request.Scheme + "://" + this.Request.Host + $"/City/PaymentWithPaypal?";
+                    var guidd = Convert.ToString((new Random()).Next(10000));
+                    guid = guidd;
+
+                    var createPayment = this.CreatePayment(apiContext, baseURI + "guid=" + guid, blogId);
+                    var links = createPayment.links.GetEnumerator();
+                    string paypalRedirectUrl = null;
+                    while (links.MoveNext())
+                    {
+                        Links lnk = links.Current;
+                        if (lnk.rel.ToLower().Trim().Equals("approval_url"))
+                        {
+                            paypalRedirectUrl = lnk.href;
+                        }
+                    }
+
+                    httpContextAccessor.HttpContext.Session.SetString("payment", createPayment.id);
+                    httpContextAccessor.HttpContext.Session.SetInt32("cityId", Convert.ToInt32(cityId)); // Store the cityId in session
+                    return Redirect(paypalRedirectUrl);
+                }
+                else
+                {
+                    var paymentId = httpContextAccessor.HttpContext.Session.GetString("payment");
+                    var executedPayment = ExecutePayment(apiContext, payerId, paymentId);
+
+                    if (executedPayment.state.ToLower() != "approved")
+                    {
+                        return View("PaymentFailed");
+                    }
+
+                    var cityIdFromSession = httpContextAccessor.HttpContext.Session.GetInt32("cityId"); // Retrieve the cityId from session
+                    if (cityIdFromSession.HasValue)
+                    {
+                        var citySubscription = await dbc.SubscriptionPayments
+                            .Where(s => s.CityId == cityIdFromSession.Value)
+                            .FirstOrDefaultAsync();
+
+                        if (citySubscription == null)
+                        {
+                            SubscriptionPayment subscriptionPayment = new SubscriptionPayment()
+                            {
+                                PaymentId = paymentId,
+                                CityId = Convert.ToInt64(cityIdFromSession.Value),
+                                Amount = 5,
+                                PaymentDate = DateTime.UtcNow,
+                                NextPaymentDate = DateTimeOffset.UtcNow.AddMonths(1),
+                                LandLordId = GetUser().Id,
+                                IsPaid = true,
+                            };
+                            dbc.SubscriptionPayments.Add(subscriptionPayment);
+                            dbc.SaveChanges();
+                            return RedirectToAction("AddCity");
+                        }
+                        else
+                        {
+                            citySubscription.PaymentId = paymentId;
+                            citySubscription.Amount += 5;
+                            citySubscription.PaymentDate = DateTimeOffset.UtcNow;
+                            citySubscription.NextPaymentDate = citySubscription.NextPaymentDate.AddMonths(1);
+                        }
+                    }
+                    else
+                    {
+                        // Handle the scenario when cityId is not found in session
+                        // Redirect or display an error message
+                        return View("CityIdNotFound");
+                    }
+
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                return View(ex);
+            }
+        }
+
+        private Payment ExecutePayment(APIContext apiContext, string payerId, string paymentId)
+        {
+            var paymentExecution = new PaymentExecution()
+            {
+                payer_id = payerId,
+            };
+            this.payment = new Payment()
+            {
+                id = paymentId
+            };
+            return this.payment.Execute(apiContext, paymentExecution);
+        }
+
+
+        private PayPal.Api.Payment payment;
+        public Payment CreatePayment (APIContext apiContext, string redirectUrl, string blogId)
+        {
+            var itemList = new ItemList()
+            {
+                items = new List<Item>()
+            };
+
+            itemList.items.Add(new Item()
+            {
+                name = "Item Detail",
+                currency = "CAD",
+                price = "0.01",
+                quantity = "1",
+                sku = "asd"
+            });
+
+            var payer = new Payer()
+            {
+                payment_method = "paypal"
+            };
+
+            var redirUrls = new RedirectUrls()
+            {
+                cancel_url = redirectUrl + "&Cancel=true",
+                return_url = redirectUrl
+            };
+
+            var amount = new Amount()
+            {
+                currency = "CAD",
+                total = "0.01",
+            };
+            var transactionList = new List<Transaction>();
+
+            transactionList.Add(new Transaction()
+            {
+                description = "DJE Residence subscription payment",
+                invoice_number = Guid.NewGuid().ToString(),
+                amount = amount,
+                item_list = itemList
+            });
+
+            this.payment = new Payment()
+            {
+                intent = "Sale",
+                payer = payer,
+                transactions = transactionList,
+                redirect_urls = redirUrls
+            };
+            return this.payment.Create(apiContext);
+        }
+
+        public IActionResult PaymentFailed()
+        {
+            return View();
         }
     }
 }

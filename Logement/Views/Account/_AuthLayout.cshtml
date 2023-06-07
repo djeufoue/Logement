@@ -1,0 +1,71 @@
+﻿@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .login-register-card .card-header {
+    padding: 0px 0px 12px 0px;
+    }
+
+    .login-register-card ul.nav-tabs {
+        margin: 0px 0px -12px 0px;
+    }
+
+    .login-register-card li.nav-item {
+        width: 50%;
+    }
+
+    .login-register-card a.nav-link {
+        font-size: 1rem ;
+        color: #495057;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .login-logo ut-card .card-body {
+        padding : 10px 20px;
+    }
+</style>
+
+<div class="row justify-content-center" style="margin-top:100px;">
+    <div class="col-5 mt-5">
+       <div class="card login-register-card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                   <li class="nav-item">
+                       <a class="nav-link" href="/Account/Login">
+                            Log In
+                        </a>
+                   </li>
+                   <li class="nav-item">
+                        <a class="nav-link" href="/Account/Register">
+                            Register
+                        </a>
+                   </li>
+               </ul>
+           </div>
+           <div class="card-body">
+               <div class="row justify-content-center">
+                   <div class="col-10 my-4">
+                       @RenderBody();
+                   </div>
+               </div>
+           </div>
+       </div>
+    </div>
+</div>
+
+@section Scripts{
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        $(function () {
+            const currentPage = location.pathname;
+            $('.nav-tabs li a').each(function () {
+                const $this = $(this);
+                if (currentPage.toLowerCase().indexOf($this.attr('href').toLowerCase()) !== -1) {
+                    $this.addClass('active');
+                }
+            })
+        })
+    </script>
+}

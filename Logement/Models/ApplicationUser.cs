@@ -22,9 +22,6 @@ namespace Logement.Models
 
         public string LastName { get; set; }
 
-        // Need to be seed
-        public MaritalStatusEnum? MaritalStatus { get; set; }
-
         public string JobTitle { get; set; }
 
     }

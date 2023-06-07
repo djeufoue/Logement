@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230605172232_Update_CityTable")]
+    partial class Update_CityTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -369,30 +371,6 @@ namespace Logement.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("NotificationSentForRentPayments");
-                });
-
-            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<decimal>("AmmountSupposedToPay")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long>("LandlordId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("NotificationSentDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LandlordId");
-
-                    b.ToTable("NotificationSentForSubscriptions");
                 });
 
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
@@ -761,17 +739,6 @@ namespace Logement.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
-                {
-                    b.HasOne("Logement.Models.ApplicationUser", "Landlord")
-                        .WithMany()
-                        .HasForeignKey("LandlordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Landlord");
                 });
 
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>

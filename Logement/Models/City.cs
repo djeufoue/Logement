@@ -6,7 +6,6 @@
 
         public long LandLordId { get; set; }
         public virtual ApplicationUser LandLord { get; set; }
-
         public string Name { get; set; }
         public long NumbersOfApartment { get; set; }
 

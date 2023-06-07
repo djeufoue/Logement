@@ -3,6 +3,7 @@
 @model RegisterViewModel;
 @{
     ViewData["Title"] = "Create Account";
+    Layout = "~/Views/Account/_AuthLayout.cshtml";
 }
 
 <style>
@@ -25,28 +26,29 @@
 
     @using (Html.BeginForm("Register", "Account", FormMethod.Post))
     {
-        <h3>@ViewData["Title"]</h3>
+        <h2>Create a new account.</h2>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-        <div>
-            <div>@Html.TextBoxFor(m => m.TenantFirstName, new { @class = "form-control", @placeholder = "first name" })</div>
-            <div>@Html.ValidationMessageFor(m => m.TenantFirstName, "", new { @class = "text-danger" })</div>
+        <div class="row">
+            <div class="col-6">
+                <div class="form-floating mb-3">
+                    <input asp-for="FirstName" class="form-control" autocomplete="firstname" aria-required="true" placeholder="first name" />
+                    <label asp-for="FirstName">First Name</label>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-floating mb-3">
+                    <input asp-for="LastName" class="form-control" autocomplete="lastname" aria-required="true" placeholder="last name" />
+                    <label asp-for="LastName">Last Name</label>
+                </div>
+            </div>
         </div>
-
-        <div>
-            <div>@Html.TextBoxFor(m => m.TenantLastName, new { @class = "form-control", @placeholder = "last name" })</div>
-            <div>@Html.ValidationMessageFor(m => m.TenantLastName, "", new { @class = "text-danger" })</div>
-        </div>
-
         <div>
             <div>@Html.TextBoxFor(m => m.JobTitle, new { @class = "form-control", @placeholder = "Your job" })</div>
             <div>@Html.ValidationMessageFor(m => m.JobTitle, "", new { @class = "text-danger" })</div>
         </div>
-
-        <div>
-            <div>@Html.TextBoxFor(m => m.MaritalStatus, new { @class = "form-control", @placeholder = "Your marital status "})</div>
-            <div>@Html.ValidationMessageFor(m => m.MaritalStatus, "", new { @class = "text-danger" })</div>
-        </div>
-
+ 
         <div>
             <div>@Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email" })</div>
             <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
@@ -67,10 +69,7 @@
             <div>@Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })</div>
         </div>
 
-
-        <p>
-            <input type="submit" class="btn btn-success" value="Register">
-        </p>
+        <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
     }
 </section>
 
@@ -82,6 +81,10 @@
 </script>
 <p>
     <a href="https://localhost:44328/">Return to Home Page</a>
-    <span>•</span>
-    <a href="/Account/Login" id="RecoverPassword">Login?</a>
 </p>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

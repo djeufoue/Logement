@@ -112,7 +112,6 @@ namespace Logement.Controllers
                 CityId = cityId,
                 TenantFullName = $"{user.FirstName} {user.LastName}",
                 TenantId = user.Id,
-                MaritalStatus = user.MaritalStatus,
                 JobTitle = user.JobTitle,
                 PhoneNumber = user.PhoneNumber
             };

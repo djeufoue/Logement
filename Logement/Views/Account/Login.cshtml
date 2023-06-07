@@ -1,6 +1,7 @@
 ﻿@model Logement.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
+    Layout = "~/Views/Account/_AuthLayout.cshtml";
 }
 
 <style>
@@ -27,28 +28,29 @@
 <section class="body">
     @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewData["ReturnUrl"] }, FormMethod.Post))
     {
-        <h3>@ViewData["Title"]</h3>
+        <h2>Welcome back!</h2>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-        <div>
+        <div class="form-floating mb-3">
             <div>@Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email" })</div>
             <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
         </div>
 
-        <div class="pword">
+        <div class="form-floating mb-3">
             <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password", @id ="password" })</div>
             <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
-            <span>
-                <input type="image" class="btnshow" src="~/img/hide_icon.png" style="font-size:8px;" , id="image">
-            </span>
         </div>
+         <div class="checkbox mb-3">
+            <label asp-for="RememberMe" class="form-label">
+                <input class="form-check-input" asp-for="RememberMe" />
+                @Html.DisplayNameFor(m => m.RememberMe)
+            </label>
+         </div>
         <div>
-            <input type="submit" class="btn btn-success" value="Sign In">
+            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
         </div>
     }
-
-    <p>
-        <a href="/Account/Register" id="RecoverPassword">Create an account if you don't have one</a>
-    </p>
 </section>
 
 
@@ -67,3 +69,9 @@ $(".btnshow").on("mouseleave" ,function () {
 });
 
 </script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

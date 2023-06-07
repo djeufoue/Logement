@@ -19,6 +19,45 @@
     .table {
         margin-top: 50px;
     }
+
+    .button {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .buttonView {
+        display: grid;
+        height: 35px;
+        width: 80px;
+        background-color: #445744;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        margin-right: 2px;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonDelete {
+        display: grid;
+        height: 35px;
+        width: 75px;
+        background-color: red;
+        margin-right: 5px;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonChoose:hover {
+        background-color: #002ead;
+        transition: 0.7s;
+    }
+
 </style>
 
 <section class="body">
@@ -50,6 +89,7 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Floor)
                     </th>
+                    <th>Apartments</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,9 +97,7 @@
                 {
                     <tr>
                         <td>
-                            <div class="CityName">
-                                @Html.DisplayFor(modelItem => item.Name)
-                            </div>
+                            <a class="city-name" asp-controller="City" asp-action="EditCity" asp-route-id="@item.Id">@item.Name</a>
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Town)
@@ -75,8 +113,14 @@
                         </td>
                         <td>
                             <di class="button">
-                                <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
-                                <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
+                                @if(item.NextPaymentDate <= DateTime.UtcNow)
+                                {
+                                    <a href="/City/PaymentWithPaypal?cityId=@item.Id" class="buttonPay">Pay Now</a>
+                                }
+                                else
+                                {
+                                    <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
+                                }
                             </di>
                         </td>
                     </tr>

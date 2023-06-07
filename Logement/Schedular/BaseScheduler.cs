@@ -39,6 +39,7 @@ namespace Logement.Schedular
         {
            //RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "59 22 * * *");
            RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "38 22 * * *");
+           RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.CheckSubscription(), "*/10 * * * *");
         }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace Logement.Controllers
 {
@@ -110,6 +111,10 @@ namespace Logement.Controllers
      
         protected CityViewModel GetCitiesFromModel(City city)
         {
+            var subscription = dbc.SubscriptionPayments
+                .Where(c => c.CityId == city.Id)
+                .FirstOrDefault();
+
             CityViewModel cityViewModel = new CityViewModel()
             {
                 Id = city.Id,
@@ -118,7 +123,7 @@ namespace Logement.Controllers
                 Town = city.Town,
                 Floor = city.Floor,
                 NumbersOfApartment = city.NumbersOfApartment,
-                //NumberOfParkingSpaces = city.NumberOfParkingSpaces
+                NextPaymentDate = subscription == null? DateTimeOffset.MinValue : subscription.NextPaymentDate,
             };
             return cityViewModel;
         }

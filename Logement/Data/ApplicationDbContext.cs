@@ -20,5 +20,7 @@ namespace Logement.Data
         public DbSet<City> Cities { get; set; }
         public DbSet<Fichier> Fichiers { get; set; }
         public DbSet<CityMember> CityMembers { get; set; }
+        public DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
+        public DbSet<NotificationSentForSubscription> NotificationSentForSubscriptions { get; set; }
     }
 }

@@ -25,5 +25,7 @@ namespace Logement.ViewModels
         public byte[]? Data { get; set; }
         public string? ContentType { get; set; }
         public DateTime DateAdded { get; set; }
+
+        public DateTimeOffset NextPaymentDate { get; set; }
     }
 }

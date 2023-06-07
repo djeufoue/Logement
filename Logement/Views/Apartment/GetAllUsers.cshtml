@@ -3,59 +3,9 @@
 @{
     ViewData["Title"] = "GetAllUsers";
 }
-
-<section class="body">
-
-    <h3>List of all users who have created an account</h3>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.TenantFullName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.MaritalStatus)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.JobTitle)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.PhoneNumber)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <th>
-                        @Html.DisplayFor(modelItem => item.TenantFullName)
-                    </th>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.MaritalStatus)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.JobTitle)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.PhoneNumber)
-                    </td>
-                    <td>
-                        <di class="button">
-                            <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.CityId&tenantId=@item.TenantId">Choose</a>
-                        </di>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</section>
+<link rel="stylesheet" href="~/css/style.css">
 
 <style>
-
-
     .button {
         display: flex;
         justify-content: space-between;
@@ -98,14 +48,79 @@
         background-color: #002ead;
         transition: 0.7s;
     }
-    
-    .body{
-        margin-top: 100px;
-        margin-right: 50px;
-        margin-left: 50px;
-    }
-
-    .table {
-        margin-top: 50px;
-    }
 </style>
+
+<div class="body">
+    <div class="table">
+        <section class="table_header">
+            <h1>Registered users</h1>
+            <div class="input-group">
+                 <input type="search" placeholder="Search Data...">
+                 <img src="~/img/search.png" alt="" >
+            </div>
+        </section>
+        <section class="table_body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.TenantFullName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.JobTitle)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.PhoneNumber)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@Html.DisplayFor(modelItem => item.TenantFullName)</strong>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.JobTitle)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PhoneNumber)
+                            </td>
+                            <td>
+                                <div class="button">
+                                    <a class="buttonChoose" href="/Tenant/AddAsTenant?cityId=@item.CityId&tenantId=@item.TenantId">Choose</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
+   
+
+<script>
+    const search = document.querySelector('.input-group input'),
+        table_rows = document.querySelectorAll('tbody tr'),
+        table_headings = document.querySelectorAll('thead th');
+
+    // 1. Searching for specific data of HTML table
+    search.addEventListener('input', searchTable);
+
+    function searchTable() {
+        table_rows.forEach((row, i) => {
+            let table_data = row.textContent.toLowerCase(),
+                search_data = search.value.toLowerCase();
+
+            row.classList.toggle('hide', table_data.indexOf(search_data) < 0);
+            row.style.setProperty('--delay', i / 25 + 's');
+        })
+
+        document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
+            visible_row.style.backgroundColor = (i % 2 == 0) ? 'transparent' : '#0000000b';
+        });
+    }
+</script>

@@ -6,13 +6,11 @@ namespace Logement.ViewModels
     public class RegisterViewModel: IValidatableObject
     {
      
-        public string TenantFirstName { get; set; }
+        public string FirstName { get; set; }
 
-        public string TenantLastName { get; set; }
+        public string LastName { get; set; }
 
         public string JobTitle { get; set; }
-
-        public MaritalStatusEnum? MaritalStatus { get; set; }
 
         [EmailAddress]
         public string? Email { get; set; }

@@ -55,10 +55,9 @@ namespace Logement.Controllers
                 UserName = email,
                 Email = email,
                 PhoneNumber = registerViewModel.PhoneNumber,
-                FirstName = registerViewModel.TenantFirstName,
-                LastName = registerViewModel.TenantLastName,
-                JobTitle = registerViewModel.JobTitle,
-                MaritalStatus = registerViewModel.MaritalStatus
+                FirstName = registerViewModel.FirstName,
+                LastName = registerViewModel.LastName,
+                JobTitle = registerViewModel.JobTitle
             };
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
             if (result.Succeeded)
