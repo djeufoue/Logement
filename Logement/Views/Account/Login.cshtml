@@ -4,27 +4,6 @@
     Layout = "~/Views/Account/_AuthLayout.cshtml";
 }
 
-<style>
-    form > * {
-        margin: 1em auto;
-    }
-
-    .search-box {
-        display: none;
-    }
-
-    input[type='image'] {
-    width: 30px;
-
-}
-
-    .body {
-        margin-top: 100px;
-        margin-left: 50px;
-        margin-right: 50px;
-    }
-</style>
-
 <section class="body">
     @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewData["ReturnUrl"] }, FormMethod.Post))
     {

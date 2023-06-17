@@ -45,26 +45,33 @@
                     }
                 </div>
                 <div class="contact-section">
-                    <h3>Contact the Owner</h3>
-                    <div class="contact-info">
-                        <div class="phone-number">Phone: @Model.ApartmentInfos.LandlordPhoneNumber</div>
+                  
+                    <div class="contact-form">
+                       @*<div class="phone-number">Phone @Model.ApartmentInfos.LandlordPhoneNumber</div>*@
+                        <span class="circle one"></span>
+                        <span class="circle two"></span>
+
                        @* <div class="email">Email: <a href="mailto:@Model.ApartmentInfos.LandlordEmail" class="email-link">@Model.ApartmentInfos.LandlordEmail</a></div>*@
-                        <form action="/Home/SendMessage" method="post">
-                            <div class="form-group">
-                                <label for="name">Your Name:</label>
-                                <input type="text" id="name" name="name" required class="form-control">
+                        <form action="/Home/SendMessage" method="post" autocomplete="off">
+                            <h3 class="title">Contact the Owner</h3>
+                            <div class="input-container">
+                                <input type="text" id="name" name="name" required class="input">
+                                <label for="name">Name</label>
+                                <span>Name</span>
                             </div>
-                            <div class="form-group">
-                                <label for="email">Your Email:</label>
-                                <input type="email" id="email" name="email" required class="form-control">
+                            <div class="input-container">
+                                <input type="email" id="email" name="email" required class="input">
+                                <label for="email">Email</label>
+                                <span>Email</span>
                             </div>
-                            <div class="form-group">
-                                <label for="message">Message:</label>
-                                <textarea id="message" name="message" required class="form-control"></textarea>
+                            <div class="input-container">
+                                <textarea id="message" name="message" required class="input"></textarea>
+                                <label for="message">Message</label>
+                                <span>Message</span>
                             </div>
                             <input type="hidden" name="apartmentId" value="@Model.ApartmentInfos.Id" />
                             <input type="hidden" name="landlordEmail" value="@Model.ApartmentInfos.LandlordEmail" />
-                            <button type="submit" class="btn btn-primary" style="margin-top:10px">Send Message</button>
+                            <button type="submit" class="send-btn btn-primary" style="margin-top:10px">Send</button>
                         </form>
                     </div>
                 </div>
@@ -206,5 +213,24 @@
             var imageUrl = images.eq(currentImageIndex).find("img").attr("src");
             $("#modal-image").attr("src", imageUrl);
         });
+    });
+
+    const inputs = document.querySelectorAll(".input");
+
+    function focusFunc() {
+        let parent = this.parentNode;
+        parent.classList.add("focus");
+    }
+
+    function blurFunc() {
+        let parent = this.parentNode;
+        if (this.value == "") {
+            parent.classList.remove("focus");
+        }
+    }
+
+    inputs.forEach((input) => {
+        input.addEventListener("focus", focusFunc);
+        input.addEventListener("blur", blurFunc);
     });
 </script>

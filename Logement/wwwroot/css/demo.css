@@ -4,10 +4,37 @@
     box-sizing: border-box;
   -moz-box-sizing: border-box; }
 
+
 body {
-    width:100%;
+    width: 100%;
     font-family: sans-serif;
     color: #793b3b;
+    font-size: 1rem;
+    background: #e8e6e6;
+}
+
+@media (min-width: 1440px) {
+    html {
+        zoom: 1;
+    }
+}
+
+@media (min-width: 2560px) {
+    html {
+        zoom: 1;
+    }
+}
+
+@media (min-width: 3860px) {
+    html {
+        zoom: 1;
+    }
+}
+
+@media (min-width: 3860px) {
+    html {
+        zoom: 1;
+    }
 }
 
 .iti__hide {
@@ -86,13 +113,13 @@ button {
     z-index: 2;
 }
 
-#interface .navigation{
+#interface .navigation {
     display: flex;
-    align-items:center;
-    justify-content: flex-start;
-    background: #fff;
+    align-items: center;
+    justify-content: flex-end;
+    background: #f1e6e6;
     padding: 15px 30px;
-    border-bottom: 3px solid #594ef7;
+    border-bottom: 5px solid #0f0c3a;
 }
 
 #interface .navigation .profile
@@ -105,9 +132,13 @@ button {
 #menu .logo {
     padding: 30px 0 0 30px;
 }
+
 #menu .logo img {
-    width: 60px;
-    margin-right: 15px
+    width: 160px;
+    height: 110px;
+    margin-right: 15px;
+    margin-left: 30px;
+    border-radius: 10px;
 }
 
 #menu .items{

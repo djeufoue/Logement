@@ -99,7 +99,7 @@
 .overlay {
     margin-top: 65px;
     width: 100%;
-    height: 110vh;
+    height: 100vh;
     background: linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7));
     position: absolute;
     top: 0;
@@ -155,7 +155,7 @@ button:hover {
 
 
 /*==============================================================*/
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+/*@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
 .container {
     max-width: 124rem;
@@ -169,12 +169,12 @@ button:hover {
     list-style: none;
     padding: 0;
     z-index: 1;
-    overflow: hidden; /* Add this line */
-}
+    overflow: hidden;*/ /* Add this line */
+/*}
 
 .swiper-slide {
-    flex-shrink: 0; /* Add flex-shrink property */
-}
+    flex-shrink: 0;*/ /* Add flex-shrink property */
+/*}
 
 .swiper-wrapper {
     width: 100%;
@@ -388,4 +388,4 @@ button:hover {
 
 ::-webkit-scrollbar-track {
     background: #f9f9f9;
-}
+}*/

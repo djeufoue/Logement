@@ -113,6 +113,15 @@ thead th {
     text-transform: capitalize;
 }
 
+.city-name {
+    text-decoration: none;
+    color: #3366cc;
+    font-weight: bold;
+}
+
+.city-name:hover {
+    text-decoration: underline;
+}
 
 tbody tr td,
 tbody tr td div {
