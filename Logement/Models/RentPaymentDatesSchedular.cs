@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Logement.Data.Enum;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logement.Models
 {
@@ -9,7 +10,10 @@ namespace Logement.Models
         public long TenantId { get; set; }
         public virtual ApplicationUser Tenant { get; set; }
         public decimal AmmountSupposedToPay { get; set; }
-        public bool IsRentPaidForThisDate { get; set; }
+
         public DateTimeOffset NextDateToPay { get; set; }
+        public RentStatusEnum RentStatus { get; set; }  
+        public decimal? RemainingAmount { get; set; }
+        public decimal? AmountAlreadyPaid { get; set; }
     }
 }

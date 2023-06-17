@@ -9,7 +9,6 @@ namespace Logement.Models
 
         public long TenantId { get; set; }
         public virtual ApplicationUser Tenant { get; set; }
-        public string NunberOfMonthPaid { get; set; }
 
         public decimal AmountPaid { get; set; }
 
