@@ -2,8 +2,9 @@
 {
     public enum RentStatusEnum
     {
+        Unknow,
         Paid,
-        Outstanding_payment,
+        Unpaid,
         Partially_paid
     }
 }
