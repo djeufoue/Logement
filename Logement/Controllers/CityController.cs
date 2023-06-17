@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NLog;
+using NPOI.SS.Formula.Functions;
 using NPOI.XSSF.UserModel;
 using PayPal.Api;
 using System.Net;
@@ -184,7 +185,9 @@ namespace Logement.Controllers
                     city = AddCityFromViewModel("EditCity", cityViewModel);
                     city.LandLordId = cityCreator.UserId;
 
+                    dbc.Update(city);
                     await dbc.SaveChangesAsync();
+
                     return RedirectToAction(nameof(Index));
                 }
                 return View(cityViewModel);

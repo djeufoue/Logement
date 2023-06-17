@@ -29,6 +29,7 @@ namespace Logement.Schedular
         {
         }
 
+        //Need to be strongly improve
         public async Task RunSchedularMethod()
         {
             try
@@ -69,7 +70,7 @@ namespace Logement.Schedular
 
                             //Selectionner les dates dont le status est impaye pour ce locataire actif
                             List<RentPaymentDatesSchedular> RentNotPaid = await (from r in _context.RentPaymentDatesSchedulars
-                                                                                 where r.IsRentPaidForThisDate != true && r.TenantId == tenant.TenantId
+                                                                                 where r.RentStatus == Data.Enum.RentStatusEnum.Unpaid  && r.TenantId == tenant.TenantId
                                                                                  select new RentPaymentDatesSchedular
                                                                                  {
                                                                                      TenantId = r.TenantId,
@@ -250,7 +251,7 @@ namespace Logement.Schedular
                                 <li>Payment Due Date: {subscription.NextPaymentDate}</li>
                             </ul>
                             <p>It appears that we have not received your payment for the current subscription period. We kindly request that you settle the payment as soon as possible to ensure uninterrupted access to our services. Your prompt attention to this matter is greatly appreciated.</p>          
-                            <p>Best regards,<br>[Your Company Name]</p>
+                            <p>Best regards,<br>[DJE RESIDENCE]</p>
                         </body>
                         </html>";
 

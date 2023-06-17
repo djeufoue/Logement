@@ -1,4 +1,6 @@
-﻿using Logement.Data;
+﻿using iTextSharp.text.pdf;
+using iTextSharp.text;
+using Logement.Data;
 using Logement.Data.Enum;
 using Logement.Models;
 using Logement.Schedular;
@@ -7,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
-using PayPal.Api;
 using System.Net;
 
 namespace Logement.Controllers
@@ -305,10 +306,11 @@ namespace Logement.Controllers
 
                 //Unpaid or partially paid rent for this tenant
                 var tenantRentInfos = await dbc.RentPaymentDatesSchedulars
-                                               .Where(t => t.TenantId == tenantId && t.RentStatus == RentStatusEnum.Unpaid ||
-                                               t.RentStatus == RentStatusEnum.Partially_paid && currentDate > t.NextDateToPay)
-                                               .Include(t => t.Tenant)
-                                               .ToListAsync();
+                    .Where(t => t.TenantId == tenantId &&
+                                (t.RentStatus == RentStatusEnum.Unpaid || t.RentStatus == RentStatusEnum.Partially_paid) &&
+                                currentDate > t.NextDateToPay)
+                    .Include(t => t.Tenant)
+                    .ToListAsync();
 
                 foreach (var infos in tenantRentInfos)
                 {
@@ -322,11 +324,12 @@ namespace Logement.Controllers
             }
         }
 
+        [HttpPost]
         public async Task<IActionResult> PayRent(long tenantId, long rentId, decimal amount)
         {
             try
             {
-                var cityMember = dbc.CityMembers
+                var cityMember = await dbc.CityMembers
                     .Include(c => c.City)
                     .Where(c => c.UserId == GetUser().Id)
                     .FirstOrDefaultAsync();
@@ -358,6 +361,7 @@ namespace Logement.Controllers
                     rent.RentStatus = RentStatusEnum.Partially_paid;
                     rent.RemainingAmount = rent.AmmountSupposedToPay - rent.AmountAlreadyPaid; 
                 }
+                dbc.Update(rent);
                 await dbc.SaveChangesAsync();
 
                 Logement.Models.PaymentHistory newPayment = new Logement.Models.PaymentHistory()
@@ -415,6 +419,64 @@ namespace Logement.Controllers
                 return NotFound("No paymentHistory for this tenant");
             }
         }
+
+        public IActionResult DownloadReceipt(long paymentId)
+        {
+            try
+            {
+                // Retrieve the payment record
+                var payment = dbc.PaymentHistories
+                    .Include(p => p.Tenant)
+                    .FirstOrDefault(p => p.Id == paymentId);
+
+                if (payment == null)
+                    return NotFound("Payment record not found");
+
+                // Generate the receipt using iTextSharp
+                var document = new Document();
+                var memoryStream = new MemoryStream();
+                var writer = PdfWriter.GetInstance(document, memoryStream);
+
+                // Set PDF document properties
+                document.AddTitle("Rent receipt");
+                document.AddAuthor("DJE Residence");
+                document.AddSubject("Rent payment for this month");
+
+
+                using (document)
+                {
+                    using (writer)
+                    {
+                        document.Open();
+
+                        // Add content to the receipt
+                        var fullName = $"{payment.Tenant.FirstName} {payment.Tenant.LastName}";
+                        var receiptContent = $"Receipt for payment made by {fullName} on {payment.PaidDate}. Amount Paid: {payment.AmountPaid}";
+
+                        document.Add(new Paragraph(receiptContent));
+
+                        // Close the document
+                        document.Close();
+                        writer.Close();
+
+                        // Prepare the file download response
+                        var fileData = memoryStream.ToArray();
+
+                        // Set the file content type and headers
+                        var contentType = "application/pdf";
+                        var fileName = $"Receipt_{paymentId}.pdf";
+
+                        // Return the file as a download response
+                        return File(fileData, contentType, fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
 
         public async Task SaveFile(IFormFile formFile, FileModel fileModel, long? tenantId)
         {

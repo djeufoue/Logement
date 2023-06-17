@@ -17,11 +17,16 @@ namespace Logement.ViewModels
         [DisplayName("Amount to be paid [FCFA]")]
         public decimal AmmountSupposedToPay { get; set; }
 
+        [DisplayName("Remaining amount [FCFA]")]
+        public decimal? RemainingAmount { get; set; }
+
+        [DisplayName("Amount already paid [FCFA]")]
+        public decimal? AmountAlreadyPaid { get; set; }
+
         [DisplayName("Date to pay")]
         public string ExpectedDateToPay { get; set; }
 
         public RentStatusEnum RentStatus { get; set; }
-        public decimal? RemainingAmount { get; set; }
-        public decimal? AmountAlreadyPaid { get; set; }
+
     }
 }

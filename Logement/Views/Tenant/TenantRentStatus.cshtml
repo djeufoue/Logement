@@ -126,9 +126,33 @@
         var amountInput = document.getElementById("amountInput-" + rentId);
         var amount = amountInput.value;
 
-        // Call the PayRent endpoint
-        window.location.href = "/Tenant/PayRent?tenantId=" + tenantId + "&rentId=" + rentId + "&amount=" + amount;
+        // Prepare the request data
+        var data = {
+            tenantId: tenantId,
+            rentId: rentId,
+            amount: amount
+        };
+
+        // Send a POST request to the PayRent endpoint
+        $.ajax({
+            url: "/Tenant/PayRent",
+            type: "POST",
+            data: data,
+            success: function (response) {
+                var successMessage = "Payment successful!";
+                alert(successMessage);
+                location.reload(); // Reload the page
+            },
+            error: function (xhr, status, error) {
+                var errorMessage = "Payment failed. Please try again.";
+                alert(errorMessage);
+                console.error("Payment failed:", error);
+            }
+        });
     }
+
+
+
 
     function validateAmount(enteredAmount, remainingAmount, buttonId) {
         var payNowButton = document.getElementById(buttonId);

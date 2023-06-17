@@ -2,7 +2,6 @@
 
 namespace Logement.Models
 {
-    
     public class PaymentHistory
     {
         public long Id { get; set; }

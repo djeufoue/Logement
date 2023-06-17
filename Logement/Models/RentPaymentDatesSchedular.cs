@@ -1,9 +1,7 @@
 ﻿using Logement.Data.Enum;
-using Microsoft.EntityFrameworkCore;
 
 namespace Logement.Models
 {
-    //[Index(nameof(NextDateToPay), IsUnique = true)]
     public class RentPaymentDatesSchedular
     {
         public long Id { get; set; }

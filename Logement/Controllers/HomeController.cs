@@ -82,7 +82,7 @@ namespace Logement.Controllers
                     citiesModel.Apartment.Add(new ApartmentInfos
                     {
                         Id = apartment.Id,
-                        Price = (Int32)apartment.Price,
+                        Price = apartment.Price,
                         LocatedAt = apartment.LocatedAt,
                         Data = apartmentImage.Data,
                         ContentType = apartmentImage.ContentType

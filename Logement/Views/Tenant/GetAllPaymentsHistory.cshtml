@@ -53,12 +53,9 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.PaidDate)
                     </td>
-                    @if ((User.IsInRole("Admin")) || (User.IsInRole("SystemAdmin")))
-                    {
-                        <td>
-                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                        </td>
-                    }
+                    <td>
+                        <a href="@Url.Action("DownloadReceipt", "Tenant", new { paymentId = item.Id })" class="btn btn-primary">Download Receipt</a>
+                    </td>
                 </tr>
             }
         </tbody>
