@@ -1,4 +1,24 @@
-﻿<style>
+﻿@using Logement.Data;
+@using Logement.Data.Enum;
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext DbContext
+
+@{
+    long? userId = null;
+    var userName = User.Identity.Name;
+    if (!string.IsNullOrEmpty(userName))
+    {
+        userId = long.Parse(UserManager.GetUserId(User));
+    }
+    var userRoles = DbContext.CityMembers
+        .Where(cm => cm.UserId == userId)
+        .Select(cm => cm.Role)
+        .Distinct()
+        .ToList();
+}
+<style>
     /* Dropdown Button */
     .dropbtn {
         background: linear-gradient(90deg,#d2ff00,#d2ff00);
@@ -84,7 +104,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Logement</title>
+    <title>@ViewData["Title"] - Dje Residence</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/intlTelInput.css" asp-append-version="true" />
@@ -96,13 +116,32 @@
 <body>   
     <section id="menu">
         <div class="logo">
-            <img src="~/img/Dje_residence_logo.png" alt="">
+            <img src="~/img/ADR_DJE.png" alt="">
         </div>
         <div class="items">
             <ol>
-                <li><i class="fa fa-pie-chart" aria-hidden="true"></i><a href="/Home/Index">Dashbord</a></li>
-                <li><i class="fa fa-pie-chart" aria-hidden="true"></i><a href="#">Home</a></li>
-                <li><i class="fa fa-pie-chart" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>
+                <li><i class="fa fa-home" aria-hidden="true"></i><a href="/Home/Index">Dashboard</a></li>
+                @if (!string.IsNullOrEmpty(User.Identity.Name))
+                {
+                    if (userRoles.Contains(CityMemberRoleEnum.Landord))
+                    {
+                        <li><i class="fa fa-briefcase" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>
+                    }
+                    else if (userRoles.Contains(CityMemberRoleEnum.Landord) && userRoles.Contains(CityMemberRoleEnum.Tenant))
+                    {
+                        <li><i class="fa fa-home" aria-hidden="true"></i><a href="/Home/Index">Dashboard</a></li>
+                        <li><i class="fa fa-briefcase" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>
+                        <li><i class="fa fa-renren" aria-hidden="true"></i><a href="/Tenant/TenantRentStatus?tenantId=@userId">Rent Status</a></li>
+                        <li><i class="fa fa-money" aria-hidden="true"></i><a href="/Tenant/GetAllPaymentsHistory?tenantId=@userId">Payments history</a></li>
+                    }
+                    else if (userRoles.Contains(CityMemberRoleEnum.Tenant))
+                    {
+                        <li><i class="fa fa-renren" aria-hidden="true"></i><a href="/Tenant/TenantRentStatus?tenantId=@userId">Rent Status</a></li>
+                        <li><i class="fa fa-money" aria-hidden="true"></i><a href="/Tenant/GetAllPaymentsHistory?tenantId=@userId">Payments history</a></li>
+                        <li><i class="fa fa-cart-plus" aria-hidden="true"></i><a href="/City/Index">Add City</a></li>
+                    }
+                    <li><i class="fa fa-sign-out" aria-hidden="true"></i><a href="/Account/Logout">Log Out</a></li>
+                }
             </ol>
         </div>
     </section>
@@ -122,11 +161,11 @@
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
-        @*<footer class="border-top footer text-muted">
+        <footer class="border-top footer text-muted" style="position:fixed; background:#110b20">
             <div class="container">
-                &copy; 2022 - Logement - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                &copy; 2023 - Dje Residence - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
-        </footer>*@
+        </footer>
     </section>      
        
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
