@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230605172232_Update_CityTable")]
-    partial class Update_CityTable
+    [Migration("20230617170859_Remove_NunberOfMonthPaid_On_PaymentHistories")]
+    partial class Remove_NunberOfMonthPaid_On_PaymentHistories
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -155,9 +155,6 @@ namespace Logement.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<int?>("MaritalStatus")
-                        .HasColumnType("int");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -373,6 +370,30 @@ namespace Logement.Migrations
                     b.ToTable("NotificationSentForRentPayments");
                 });
 
+            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<decimal>("AmmountSupposedToPay")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("LandlordId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("NotificationSentDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LandlordId");
+
+                    b.ToTable("NotificationSentForSubscriptions");
+                });
+
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
                 {
                     b.Property<long>("Id")
@@ -383,10 +404,6 @@ namespace Logement.Migrations
 
                     b.Property<decimal>("AmountPaid")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("NunberOfMonthPaid")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PaidDate")
                         .HasColumnType("datetime2");
@@ -412,11 +429,17 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmmountSupposedToPay")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsRentPaidForThisDate")
-                        .HasColumnType("bit");
+                    b.Property<decimal?>("AmountAlreadyPaid")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset>("ExpectedDateToPay")
+                    b.Property<DateTimeOffset>("NextDateToPay")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal?>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RentStatus")
+                        .HasColumnType("int");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
@@ -739,6 +762,17 @@ namespace Logement.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
+                {
+                    b.HasOne("Logement.Models.ApplicationUser", "Landlord")
+                        .WithMany()
+                        .HasForeignKey("LandlordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Landlord");
                 });
 
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>

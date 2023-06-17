@@ -439,7 +439,7 @@ namespace Logement.Migrations
                     b.Property<bool>("IsRentPaidForThisDate")
                         .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset>("NextDateToPay")
+                    b.Property<DateTimeOffset>("ExpectedDateToPay")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<long>("TenantId")

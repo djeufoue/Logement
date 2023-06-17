@@ -154,9 +154,6 @@ namespace Logement.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("MaritalStatus")
-                        .HasColumnType("int");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -406,10 +403,6 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmountPaid")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("NunberOfMonthPaid")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("PaidDate")
                         .HasColumnType("datetime2");
 
@@ -434,11 +427,17 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmmountSupposedToPay")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsRentPaidForThisDate")
-                        .HasColumnType("bit");
+                    b.Property<decimal?>("AmountAlreadyPaid")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset>("NextDateToPay")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal?>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RentStatus")
+                        .HasColumnType("int");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");

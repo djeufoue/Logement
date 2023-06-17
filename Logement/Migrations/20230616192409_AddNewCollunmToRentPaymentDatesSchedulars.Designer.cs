@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230512185606_RedoTheDatabase")]
-    partial class RedoTheDatabase
+    [Migration("20230616192409_AddNewCollunmToRentPaymentDatesSchedulars")]
+    partial class AddNewCollunmToRentPaymentDatesSchedulars
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -156,9 +156,6 @@ namespace Logement.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("MaritalStatus")
-                        .HasColumnType("int");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -231,6 +228,10 @@ namespace Logement.Migrations
                     b.Property<long>("NumbersOfApartment")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Town")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LandLordId");
@@ -285,7 +286,7 @@ namespace Logement.Migrations
 
                     b.Property<string>("CityOrApartement")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
@@ -307,6 +308,8 @@ namespace Logement.Migrations
                     b.HasIndex("ApartmentId");
 
                     b.HasIndex("CityId");
+
+                    b.HasIndex("CityOrApartement");
 
                     b.ToTable("Fichiers");
                 });
@@ -367,6 +370,30 @@ namespace Logement.Migrations
                     b.ToTable("NotificationSentForRentPayments");
                 });
 
+            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<decimal>("AmmountSupposedToPay")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("LandlordId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("NotificationSentDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LandlordId");
+
+                    b.ToTable("NotificationSentForSubscriptions");
+                });
+
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
                 {
                     b.Property<long>("Id")
@@ -378,7 +405,7 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmountPaid")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("NumberOfMonthPaid")
+                    b.Property<string>("NunberOfMonthPaid")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -406,11 +433,17 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmmountSupposedToPay")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsRentPaidForThisDate")
-                        .HasColumnType("bit");
+                    b.Property<decimal?>("AmountAlreadyPaid")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset>("NextDateToPay")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("NextDateToPay")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RentStatus")
+                        .HasColumnType("int");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
@@ -420,6 +453,43 @@ namespace Logement.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("RentPaymentDatesSchedulars");
+                });
+
+            modelBuilder.Entity("Logement.Models.SubscriptionPayment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("CityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("LandLordId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("NextPaymentDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("PaymentDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PaymentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("SubscriptionPayments");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantPaymentStatu", b =>
@@ -698,6 +768,17 @@ namespace Logement.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
+                {
+                    b.HasOne("Logement.Models.ApplicationUser", "Landlord")
+                        .WithMany()
+                        .HasForeignKey("LandlordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Landlord");
+                });
+
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
                 {
                     b.HasOne("Logement.Models.ApplicationUser", "Tenant")
@@ -718,6 +799,17 @@ namespace Logement.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Logement.Models.SubscriptionPayment", b =>
+                {
+                    b.HasOne("Logement.Models.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantPaymentStatu", b =>
