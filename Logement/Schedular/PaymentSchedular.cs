@@ -1,19 +1,8 @@
 ﻿using Logement.Data;
+using Logement.Data.Enum;
 using Logement.Models;
-using Logement.ViewModels;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGeneration.CommandLine;
-using NPOI.OpenXmlFormats.Dml.Diagram;
-using NPOI.SS.Formula.Functions;
-using NPOI.XWPF.UserModel;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using Twilio.TwiML.Messaging;
-using static NPOI.HSSF.Util.HSSFColor;
 
 namespace Logement.Schedular
 {
@@ -68,64 +57,86 @@ namespace Logement.Schedular
                         {
                             DateTime currentDate = DateTime.UtcNow;
 
-                            //Selectionner les dates dont le status est impaye pour ce locataire actif
+                            //Selectionner les dates dont le status est impayé pour ce locataire actif
                             List<RentPaymentDatesSchedular> RentNotPaid = await (from r in _context.RentPaymentDatesSchedulars
-                                                                                 where r.RentStatus == Data.Enum.RentStatusEnum.Unpaid  && r.TenantId == tenant.TenantId
+                                                                                 where r.RentStatus == Data.Enum.RentStatusEnum.Unpaid &&
+                                                                                       r.TenantId == tenant.TenantId &&
+                                                                                       r.NextDateToPay <= currentDate
                                                                                  select new RentPaymentDatesSchedular
                                                                                  {
                                                                                      TenantId = r.TenantId,
                                                                                      NextDateToPay = r.NextDateToPay,
-                                                                                     AmmountSupposedToPay = r.AmmountSupposedToPay
+                                                                                     AmmountSupposedToPay = r.AmmountSupposedToPay,
+                                                                                     ApartmentNumber = r.ApartmentNumber
                                                                                  }).ToListAsync();
 
-                            //Rents that need to be pay for this tenant
-                            List<RentPaymentDatesSchedular> RentsThatNeedToPay = new List<RentPaymentDatesSchedular>();
 
-                            //Ce locataire peut avoir un ou plusieurs appartements qu'il/elle loue
-                            List<RentPaymentDatesSchedular> RentToPaySoon = new List<RentPaymentDatesSchedular>();
+                            //This allows the tenant to be reminded two days before the scheduled date to pay his rent.
+                            var twoDaysFromNow = currentDate.AddDays(2);
+
+                            List<RentPaymentDatesSchedular> RentToPaySoon = await (from r in _context.RentPaymentDatesSchedulars
+                                                                                 where r.RentStatus == Data.Enum.RentStatusEnum.Unpaid &&
+                                                                                       r.TenantId == tenant.TenantId &&
+                                                                                       r.NextDateToPay <= twoDaysFromNow
+                                                                                 select new RentPaymentDatesSchedular
+                                                                                 {
+                                                                                     TenantId = r.TenantId,
+                                                                                     NextDateToPay = r.NextDateToPay,
+                                                                                     AmmountSupposedToPay = r.AmmountSupposedToPay,
+                                                                                     ApartmentNumber = r.ApartmentNumber
+                                                                                 }).ToListAsync();
+
+
+                            //Rents that need to be pay for this tenant
+                            List<RentPaymentDatesSchedular> RentsThatNeedToBePay = new List<RentPaymentDatesSchedular>();
 
                             if (RentNotPaid != null)
                             {
-                                foreach (var t in RentNotPaid)
+                                foreach (var rent in RentNotPaid)
                                 {
-                                    var dateToPay = await _context.RentPaymentDatesSchedulars
-                                                            .Where(r => r.TenantId == tenant.TenantId)
-                                                            .Select(r => r.NextDateToPay)
-                                                            .FirstAsync();
-
-
                                     //Notification la plus rescente qui a été envoy pour rappeler ce locataire de payer son loyer:
                                     var lastEmailSentDate = await _context.NotificationSentForRentPayments
-                                                                .Where(t => t.TenantId == tenant.TenantId && t.ScheduledDateForRentPayment == dateToPay)
+                                                                .Where(d => d.TenantId == tenant.TenantId && d.ScheduledDateForRentPayment == rent.NextDateToPay)
                                                                 .OrderByDescending(d => d.NotificationSentDate)
-                                                                .Select(t => t.NotificationSentDate)
+                                                                .Select(d => d.NotificationSentDate)
                                                                 .FirstOrDefaultAsync();
+                                 
 
                                     if (lastEmailSentDate != DateTime.MinValue)
                                     {
+                                        var daysPassed = (currentDate - lastEmailSentDate).TotalDays;
+
                                         //Check if it's been more than 15 days since this tenant had to pay
                                         //This is for tenants with more than 15 days or more than a month's unpaid rent
-                                        if ((lastEmailSentDate - currentDate).Days <= -15)
-                                            RentsThatNeedToPay.Add(t);
-                                    }
-                                    //In the event that no notification was ever sent for this date of unpaid rent
-                                    else
-                                    {
-                                        //Check if the person has to pay within the next two days or if the person had to pay but was not alerted when the time came
-                                        if ((dateToPay - currentDate).Days >= 2 && (dateToPay - currentDate).Days < 2 || (dateToPay - currentDate).Days >= -4 && (dateToPay - currentDate).Days <= 0)
-                                        {
-                                            RentToPaySoon.Add(t);
-                                        }
+                                        if (daysPassed > 15)
+                                            RentsThatNeedToBePay.Add(rent);
                                     }
                                 }
 
-                                if (RentsThatNeedToPay.Count != 0)
+                                if (RentsThatNeedToBePay.Count != 0)
                                 {
-                                    await ContructMessage(RentsThatNeedToPay, TenantInfos);
+                                    await ContructMessage(RentsThatNeedToBePay, TenantInfos);
                                 }
                                 //Locataire qui doit bientôt payer le loyer
+                                //Cela ve dire que la fin du moi est proche dont il faut deja predir 
+                                //la date pour le prochain mois
                                 if (RentToPaySoon.Count != 0)
                                 {
+                                    foreach(var rent in RentToPaySoon)
+                                    {
+                                        RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
+                                        {
+                                            TenantId = TenantInfos.Id,
+                                            ApartmentNumber = rent.ApartmentNumber,
+                                            AmountAlreadyPaid = 0,
+                                            RemainingAmount = rent.AmmountSupposedToPay,
+                                            RentStatus = RentStatusEnum.Unpaid,
+                                            AmmountSupposedToPay = rent.AmmountSupposedToPay,
+                                            NextDateToPay = DateTime.UtcNow.AddMonths(1)
+                                        };
+                                        _context.RentPaymentDatesSchedulars.Add(rentPaymentDatesSchedular);
+                                        await _context.SaveChangesAsync();
+                                    }
                                     await ContructMessage(RentToPaySoon, TenantInfos);
                                 }
                             }
@@ -156,12 +167,14 @@ namespace Logement.Schedular
 
                 body += "<table style=\"width:100%\">";
                 body += "<tr>";
+                body += "<th>Numéro d'appartement</th>";
                 body += "<th>Date de paiement du loyer</th>";
                 body += "<th>Montant à payer</th>";
                 body += "</tr>";
                 foreach (var dt in rentsThatNeedToPay)
                 {
                     body += "<tr>";
+                    body += $"<td>{dt.ApartmentNumber}</td>";
                     body += $"<td>{dt.NextDateToPay}</td>";
                     body += $"<td>{dt.AmmountSupposedToPay}</td>";
                     body += "<tr>";
@@ -207,6 +220,20 @@ namespace Logement.Schedular
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
+
+        public async Task NextDateToPay()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
+
 
         public async Task CheckSubscription()
         {
