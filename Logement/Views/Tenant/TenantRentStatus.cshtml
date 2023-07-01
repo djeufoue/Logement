@@ -43,6 +43,9 @@
             <thead>
                 <tr>
                     <th>
+                        @Html.DisplayNameFor(model => model.ApartmentNumber)
+                    </th>
+                    <th>
                         @Html.DisplayNameFor(model => model.TenantFullName)
                     </th>
                     <th>
@@ -64,6 +67,9 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ApartmentNumber)
+                        </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.TenantFullName)
                         </td>

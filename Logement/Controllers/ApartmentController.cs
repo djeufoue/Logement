@@ -134,14 +134,15 @@ namespace Logement.Controllers
                 {
                     //We can assign different apartments to the same user within the same City
                     var cityMember = await dbc.CityMembers
-                        .Where(cm => cm.UserId == user.Id && cm.CityId == cityId 
-                         && cm.Role == CityMemberRoleEnum.Landord)
+                        .Where(cm => cm.UserId == user.Id && cm.CityId == cityId)
                         .FirstOrDefaultAsync();
 
-                    if (cityMember == null)
-                    {
+                    //If it is the landlord of this city
+                    if (cityMember != null && cityMember.UserId == landlord.UserId)
+                        continue;
+                    else
                         allUsersViewModels.Add(GetViewModelFromModel(cityId, user));
-                    }
+
                 }
                 ViewData["cityId"] = cityId;
                 return View(allUsersViewModels);

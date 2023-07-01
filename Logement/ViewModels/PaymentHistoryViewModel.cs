@@ -8,6 +8,9 @@ namespace Logement.ViewModels
 
         public long TenantId { get; set; }
 
+        [Display(Name = "Apartment Number")]
+        public long ApartmentNumber { get; set; }
+
         [Display(Name = "Full name")]
         public string TenantFullName { get; set; }
         //String because the 

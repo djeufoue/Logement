@@ -14,6 +14,9 @@ namespace Logement.ViewModels
         public long TenantId { get; set; }
         public virtual ApplicationUser Tenant { get; set; }
 
+        [DisplayName("Apartment Number")]
+        public long ApartmentNumber { get; set; }
+
         [DisplayName("Amount to be paid [FCFA]")]
         public decimal AmmountSupposedToPay { get; set; }
 

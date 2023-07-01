@@ -237,6 +237,7 @@ namespace Logement.Controllers
                         Logement.Models.PaymentHistory newPayment = new Logement.Models.PaymentHistory()
                         {
                             TenantId = user.Id,
+                            ApartmentNumber = model.AppartmentMember.ApartmentNunber,
                             AmountPaid = model.AmountPaidByTenant,
                             PaidDate = DateTime.UtcNow
                         };
@@ -247,6 +248,7 @@ namespace Logement.Controllers
                         RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
                         {
                             TenantId = user.Id,
+                            ApartmentNumber = model.AppartmentMember.ApartmentNunber,
                             AmountAlreadyPaid = 0,
                             RemainingAmount = model.AppartmentMember.Price,
                             RentStatus = RentStatusEnum.Unpaid,
@@ -285,6 +287,7 @@ namespace Logement.Controllers
             {
                 Id = tenantRents.Id,
                 TenantId = tenantRents.TenantId,
+                ApartmentNumber = tenantRents.ApartmentNumber,
                 TenantFullName = $"{tenantRents.Tenant.FirstName} {tenantRents.Tenant.LastName}",
                 AmmountSupposedToPay = tenantRents.AmmountSupposedToPay,
                 AmountAlreadyPaid = tenantRents.AmountAlreadyPaid,
@@ -367,6 +370,7 @@ namespace Logement.Controllers
                 Logement.Models.PaymentHistory newPayment = new Logement.Models.PaymentHistory()
                 {
                     TenantId = tenantId,
+                    ApartmentNumber = rent.ApartmentNumber,
                     AmountPaid = amount,
                     PaidDate = DateTime.UtcNow
                 };
@@ -387,6 +391,7 @@ namespace Logement.Controllers
             {
                 Id = payments.Id,
                 TenantId  = payments.Tenant.Id,
+                ApartmentNumber = payments.ApartmentNumber,
                 TenantFullName = $"{payments.Tenant.FirstName} {payments.Tenant.LastName}",
                 AmountPaid = payments.AmountPaid,
                 PaidDate = String.Format("{0:dddd, MMMM d, yyyy}", payments.PaidDate)
