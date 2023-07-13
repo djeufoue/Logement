@@ -1,0 +1,131 @@
+﻿@model IEnumerable<Logement.ViewModels.CityViewModel>
+
+@{
+    ViewData["Title"] = "Apartment list";
+}
+<link rel="stylesheet" href="~/css/style.css">
+
+<style>
+
+    .button {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .buttonView {
+        display: grid;
+        height: 35px;
+        width: 80px;
+        background-color: #445744;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        margin-right: 2px;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonPay {
+        display: grid;
+        height: 35px;
+        width: 100px;
+        background-color: seagreen;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        margin-right: 2px;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonDelete {
+        display: grid;
+        height: 35px;
+        width: 75px;
+        background-color: red;
+        margin-right: 5px;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+</style>
+
+
+<div class="body" style="background: url(../img/pexels-sheep-1846386.jpg) center / cover;">
+    <div class="table">
+        <section class="table_header">
+            <h1 style="font-size: 1.5rem; font-family:Arial;"><strong>Cities</strong></h1>
+            <div class="input-group">
+                <input type="search" placeholder="Search Data...">
+                <img src="~/img/search.png" alt="">
+            </div>
+        </section>
+        <section class="table_body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LandlordFullName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Town)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LocatedAt)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.NumbersOfApartment)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Floor)
+                        </th>
+                        <th>Apartments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LandlordFullName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Town)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LocatedAt)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.NumbersOfApartment)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Floor)
+                            </td>
+                            <td>
+                                <di class="button">
+                                    @if (item.NextPaymentDate <= DateTime.UtcNow)
+                                    {
+                                        <a href="/Subscription/ExtendSubscriptionDate?subcriptionId=@item.SubcriptionId&cityId=@item.Id" class="buttonPay">Pay Now</a>
+                                    }                                   
+                                </di>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
+
+<script src="~/js/site.js"></script>

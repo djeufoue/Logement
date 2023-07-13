@@ -28,9 +28,7 @@ namespace Logement.Data
             {
                 var roles = new List<ApplicationRole>()
                 {
-                    new ApplicationRole { Name = "Admin", NormalizedName = "ADMIN" },
                     new ApplicationRole { Name = "SystemAdmin", NormalizedName = "SYSTEMADMIN" },
-                    new ApplicationRole { Name = "Tenant", NormalizedName = "TENANT" },
                 };
                 dbc.Roles.AddRange(roles);
                 dbc.SaveChanges();
@@ -43,10 +41,10 @@ namespace Logement.Data
             {
                 ApplicationUser user = new ApplicationUser()
                 {
-                    UserName = "pablodjeufoue@gmail.com",
-                    Email = "pablodjeufoue@gmail.com",
+                    UserName = "djeufoueadrien@gmail.com",
+                    Email = "djeufoueadrien@gmail.com",
                     EmailConfirmed = true,
-                    JobTitle = "info",
+                    JobTitle = "Software engineering",
                     FirstName = "Adrien",
                     LastName = "Lontsi",
                 };
@@ -55,7 +53,7 @@ namespace Logement.Data
 
                 if (result.Succeeded)
                 {
-                    userManager.AddToRoleAsync(user, "Admin").Wait();
+                    userManager.AddToRoleAsync(user, "SystemAdmin").Wait();
                 }
             }
         }
