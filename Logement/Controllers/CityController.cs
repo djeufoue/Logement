@@ -19,14 +19,30 @@ namespace Logement.Controllers
     [Authorize]
     public class CityController : BaseController
     {
-        private readonly ILogger<CityController> _logger;   
+        private readonly ILogger<CityController> _logger;
         private IHttpContextAccessor httpContextAccessor;
-        
-        public CityController(ApplicationDbContext context,ILogger<CityController> logger, IHttpContextAccessor ihcontext, IConfiguration configuration)
+
+        public CityController(ApplicationDbContext context, ILogger<CityController> logger, IHttpContextAccessor ihcontext, IConfiguration configuration)
             : base(context, configuration)
         {
             _logger = logger;
             httpContextAccessor = ihcontext;
+        }
+
+        public async Task<JsonResult> CheckCityNameAvailability(string cityName)
+        {
+            var checkCityName = await dbc.Cities
+                .Where(c => c.Name == cityName)
+                .FirstOrDefaultAsync();
+
+            if (checkCityName != null)
+            {
+                return Json(1);  //City name taken
+            }
+            else if (checkCityName == null)
+                return Json(0); //City name not taken
+            else
+                return Json(-1);  //error occurred
         }
 
         private City AddCityFromViewModel(string method, CityViewModel c)
@@ -72,13 +88,20 @@ namespace Logement.Controllers
 
                 if (cities != null)
                 {
-                    var creatorCities = await dbc.CityMembers
-                            .Where(c => c.UserId == GetUser().Id && c.Role == CityMemberRoleEnum.Landord)
+                    var CitiesMembers = await dbc.CityMembers
+                            .Where(c => c.UserId == GetUser().Id && (c.Role == CityMemberRoleEnum.Landord || c.Role == CityMemberRoleEnum.Tenant))
                             .Include(c => c.City)
+                            .Include(c => c.Apartment)
                             .ToListAsync();
 
-                    foreach (var city in creatorCities)
-                        citiesModel.Add(GetCitiesFromModel(city.City));
+                    foreach (var city in CitiesMembers)
+                    {
+                        if(city.Role == CityMemberRoleEnum.Landord)
+                            citiesModel.Add(GetCitiesFromModel(city.City,0, null, city.Role));
+                        else if( city.Role == CityMemberRoleEnum.Tenant)
+                            citiesModel.Add(GetCitiesFromModel(city.City, city.Apartment.ApartmentNumber, null, city.Role));
+
+                    }
                 }
                 return View(citiesModel);
             }
@@ -110,11 +133,8 @@ namespace Logement.Controllers
                     dbc.Cities.Add(city);
                     await dbc.SaveChangesAsync();
 
-                    foreach (var file in model.Image)
-                    {
-                        string methodName = "AddCity";
-                        await SaveImageFile(file, city.Id, methodName);
-                    }
+                    string methodName = "AddCity";
+                    await SaveImageFile(model.Image, city.Id, methodName);
 
                     CityMember cityMember = new CityMember
                     {
@@ -135,6 +155,42 @@ namespace Logement.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<JsonResult> CheckImageExistence(IFormFile file)
+        {
+            try
+            {
+                // Check if the file with the same name already exists in the Fichier table
+                bool exists = await CheckIfImageExists(file.FileName);
+                if (exists)
+                {
+                    return Json(1); // Image already exists
+                }
+                else
+                {
+                    return Json(0); // Image does not exist
+                }
+            }
+            catch (Exception ex)
+            {
+                // an error occurred
+                Console.WriteLine(ex.Message);
+                return Json(-1);
+            }
+        }
+
+        private async Task<bool> CheckIfImageExists(string fileName)
+        {
+            var image = await dbc.Fichiers
+                .Where(img => img.FileName == fileName)
+                .FirstOrDefaultAsync();
+
+            if (image == null)
+                return false;
+            else
+                return true;
+        }
+
         [HttpGet]
         public async Task<ActionResult> EditCity(long id)
         {
@@ -148,7 +204,10 @@ namespace Logement.Controllers
                 if (cityCreator == null)
                     return Forbid();
 
-                CityViewModel cityViewModel = GetCitiesFromModel(city);
+                var cityIamage = await dbc.Fichiers.Where( img => img.CityId == id)
+                    .FirstOrDefaultAsync();
+
+                CityViewModel cityViewModel = GetCitiesFromModel(city,0, cityIamage, null);
                 return View(cityViewModel);
             }
             catch (Exception e)
@@ -191,6 +250,174 @@ namespace Logement.Controllers
                     return RedirectToAction(nameof(Index));
                 }
                 return View(cityViewModel);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        [HttpDelete, HttpGet]
+        public async Task<IActionResult> DeleteCity(long cityId)
+        {
+            var city = await dbc.Cities.FindAsync(cityId);
+
+            if (city == null)
+                return NotFound();
+
+           var  CityOwner = await GetCityCreator(cityId);
+
+            if (CityOwner == null)
+                return Forbid();
+
+            var cityMembers = await dbc.CityMembers
+                .Where( c => c.CityId == cityId)
+                .ToListAsync();
+
+            dbc.CityMembers.RemoveRange(cityMembers);
+            await dbc.SaveChangesAsync();
+
+
+            var cityImages = await dbc.Fichiers.Where(c => c.CityId == cityId).ToListAsync();
+
+            dbc.Fichiers.RemoveRange(cityImages);
+            await dbc.SaveChangesAsync();
+
+            var cityApartments = await dbc.Apartments.Where( c => c.CityId == cityId).ToListAsync();
+
+            if(cityApartments.Count > 0)
+            {
+                long apartmentId = 0;
+                foreach(var apt in cityApartments)
+                {
+                    apartmentId = apt.Id;
+                    break;
+                }
+
+                var tenantRentApartments = await dbc.TenantRentApartments
+                    .Where(a => a.ApartmentId == apartmentId)
+                    .ToListAsync();
+
+                dbc.TenantRentApartments.RemoveRange(tenantRentApartments);
+                await dbc.SaveChangesAsync();
+
+                var contract = await dbc.FileModel
+                    .Where(c => c.CityId == cityId)
+                    .ToListAsync();
+
+                if(contract.Count > 0)
+                {
+                    dbc.FileModel.RemoveRange(contract);
+                    await dbc.SaveChangesAsync();
+                }
+                             
+                foreach(var apt in cityApartments)
+                {
+                    //find all notifications that were send for a specific apartment inside a city
+                    var notificationsSentForRentPayments = await dbc.NotificationSentForRentPayments
+                       .Where(n => n.CityId == cityId && n.ApartmentNumber == apt.ApartmentNumber)
+                       .ToListAsync();
+
+                    if(notificationsSentForRentPayments.Count > 0)
+                    {
+                        dbc.NotificationSentForRentPayments.RemoveRange(notificationsSentForRentPayments);
+                        await dbc.SaveChangesAsync();
+                    }
+
+                    var paymenHistories = await dbc.PaymentHistories
+                      .Where(n => n.CityId == cityId && n.ApartmentNumber == apt.ApartmentNumber)
+                      .ToListAsync();
+
+                    if(paymenHistories.Count > 0)
+                    {
+                        dbc.PaymentHistories.RemoveRange(paymenHistories);
+                        await dbc.SaveChangesAsync();
+                    }
+                }
+
+                var apartmentImages = await dbc.Fichiers.Where(c => c.ApartmentId == apartmentId).ToListAsync();
+
+                dbc.Fichiers.RemoveRange(apartmentImages);
+                await dbc.SaveChangesAsync();
+
+                dbc.Apartments.RemoveRange(cityApartments);
+                await dbc.SaveChangesAsync();
+            }
+
+            var notificationSentForCitySubscription = await dbc.NotificationSentForSubscriptions
+                .Where(n => n.CityId == cityId)
+                .ToListAsync();
+
+            if (notificationSentForCitySubscription.Count > 0)
+            {
+                dbc.NotificationSentForSubscriptions.RemoveRange(notificationSentForCitySubscription);
+                await dbc.SaveChangesAsync();
+            }
+
+            var subscriptionPayment = await dbc.SubscriptionPayments
+                .Where( s => s.CityId == cityId )
+                .FirstOrDefaultAsync();
+
+            if(subscriptionPayment != null )
+            {
+                dbc.SubscriptionPayments.Remove(subscriptionPayment);
+                await dbc.SaveChangesAsync();
+            }
+
+            var rentPaymentDatesSchedulars = await dbc.RentPaymentDatesSchedulars
+                .Where(r => r.CityId == cityId)
+                .ToListAsync();
+
+            if(rentPaymentDatesSchedulars.Count > 0)
+            {
+                dbc.RentPaymentDatesSchedulars.RemoveRange(rentPaymentDatesSchedulars);
+                await dbc.SaveChangesAsync();
+            }
+
+            dbc.Cities.Remove(city);
+            await dbc.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Route("EditCity/EditCityImage/{id}")]
+        public async Task<ActionResult> EditCityImage(long id, IFormFile file)
+        {
+            try
+            {
+                var city = await dbc.Cities.FindAsync(id);
+                if (city == null)
+                    return NotFound();
+
+                var cityCreator = await GetCityCreator(id);
+                if (cityCreator == null)
+                    return Forbid();
+
+                var cityImage = await dbc.Fichiers.Where(img => img.CityId == id)
+                    .FirstOrDefaultAsync();
+
+                if(cityImage == null)
+                    return NotFound("Image not found");
+
+                if (file == null)
+                    return RedirectToAction("EditCity", new { id = id });
+
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    var imageData = stream.ToArray();
+
+                    cityImage.Data = imageData;
+                    cityImage.ContentType = file.ContentType;
+                    cityImage.FileName = file.FileName;
+                    cityImage.UploadDate = DateTime.UtcNow;
+
+                    dbc.Update(cityImage);
+                    await dbc.SaveChangesAsync();
+
+                    return RedirectToAction("EditCity", new { id = id });
+                }
             }
             catch (Exception e)
             {
@@ -302,7 +529,7 @@ namespace Logement.Controllers
 
 
         private PayPal.Api.Payment payment;
-        public Payment CreatePayment (APIContext apiContext, string redirectUrl, string blogId)
+        public Payment CreatePayment(APIContext apiContext, string redirectUrl, string blogId)
         {
             var itemList = new ItemList()
             {
