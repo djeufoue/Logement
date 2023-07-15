@@ -148,7 +148,6 @@ namespace Logement.Controllers
                             NumberOfbathRooms = a.NumberOfbathRooms,
                             FloorNumber = a.FloorNumber,
                             Type = a.Type,
-                            Description = a.Description,
                             LocatedAt = a.City.LocatedAt
                         }).FirstOrDefaultAsync();
 
@@ -163,7 +162,6 @@ namespace Logement.Controllers
                     RoomArea = apartmentsInfos.RoomArea,
                     FloorNumber = (Int32)apartmentsInfos.FloorNumber,
                     ApartmentType = apartmentsInfos.Type,
-                    Description = apartmentsInfos.Description,
                     LocatedAt = apartmentsInfos.LocatedAt,
                     LandlordId = apartmentsInfos.LessorId,
                     LandlordPhoneNumber = apartmentsInfos.PhoneNumber,

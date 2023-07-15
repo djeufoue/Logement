@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
 using System.Net;
+using Twilio.TwiML.Voice;
 
 namespace Logement.Controllers
 {
@@ -37,7 +38,6 @@ namespace Logement.Controllers
                 Id = a.Id,
                 ApartmentNumber = a.ApartmentNunber,
                 LessorId = a.LessorId,
-                Description = a.Description,
                 NumberOfRooms = a.NumberOfRooms,
                 NumberOfbathRooms = a.NumberOfbathRooms,
                 RoomArea = a.RoomArea,
@@ -49,52 +49,6 @@ namespace Logement.Controllers
                 Type = a.Type,
             };
             return apartment;
-        }
-
-        private TenantInfos GetTenantFromModel(CityMember tenant)
-        {
-            TenantInfos allTenant = new TenantInfos()
-            {
-                Id = tenant.Id,
-                TenantId = tenant.User.Id,
-                ApartmentNumber = (int)tenant.Apartment.ApartmentNumber,
-                TenantFullName = $"{tenant.User.FirstName} {tenant.User.LastName}",
-                TenantPhoneNumber = tenant.User.PhoneNumber,
-                ApartementPrice = tenant.Apartment.Price,
-                DepositePrice = tenant.Apartment.DepositePrice,
-            };
-            return allTenant;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllTenants(long cityId)
-        {
-            try
-            {
-                List<TenantInfos> allTenants = new List<TenantInfos>();
-
-                var landlord = await GetCityCreator(cityId);
-
-                if (landlord == null)
-                    return Forbid();
-
-                var cityMembers = await dbc.CityMembers
-                    .Where(cm => cm.CityId == cityId && cm.Role == CityMemberRoleEnum.Tenant)
-                    .Include(cm => cm.User)
-                    .Include(cm => cm.Apartment)
-                    .ToListAsync();
-
-                foreach (var tenant in cityMembers)
-                {
-                    allTenants.Add(GetTenantFromModel(tenant));
-                }
-                ViewData["cityId"] = cityId;
-                return View(allTenants);
-            }
-            catch (Exception e)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
-            }
         }
 
         public async Task<IActionResult> AddApartment(ApartmentViewModel model)
@@ -157,7 +111,8 @@ namespace Logement.Controllers
                 if (ModelState.IsValid)
                 {
                     var checkApartmentNumber = await dbc.Apartments
-                        .Where(ap => ap.ApartmentNumber == model.AppartmentMember.ApartmentNunber)
+                        .Where(ap => ap.CityId == model.AppartmentMember.CityId
+                        && ap.ApartmentNumber == model.AppartmentMember.ApartmentNunber)
                         .FirstOrDefaultAsync();
 
 
@@ -174,7 +129,7 @@ namespace Logement.Controllers
                         TenantRentApartment tenantRentApartment;
                         var fileModel = new FileModel();
 
-                        await SaveFile(model.ContractFile, fileModel, user.Id);
+                        await SaveFile(model.ContractFile, fileModel, user.Id, model.AppartmentMember.CityId, model.AppartmentMember.Id);
 
                         tenantRentApartment = new TenantRentApartment()
                         {
@@ -231,12 +186,13 @@ namespace Logement.Controllers
                         decimal nbOfMonthPaid = 0;
 
                         nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, model.AppartmentMember.Price);
-
+                
                         //Add 30 days on the current payment date in case the amount paid is not enough
                         //Remind tenant after 30 days that he must pay his rent
                         Logement.Models.PaymentHistory newPayment = new Logement.Models.PaymentHistory()
                         {
                             TenantId = user.Id,
+                            CityId = model.AppartmentMember.CityId,
                             ApartmentNumber = model.AppartmentMember.ApartmentNunber,
                             AmountPaid = model.AmountPaidByTenant,
                             PaidDate = DateTime.UtcNow
@@ -244,12 +200,15 @@ namespace Logement.Controllers
                         dbc.PaymentHistories.Add(newPayment);
                         await dbc.SaveChangesAsync();
 
+                        decimal extraAmount = model.AmountPaidByTenant - (model.AppartmentMember.Price * Math.Floor(nbOfMonthPaid));
+
                         //Schedule the next date to pay the rent 
                         RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
                         {
                             TenantId = user.Id,
+                            CityId = model.AppartmentMember.CityId,
                             ApartmentNumber = model.AppartmentMember.ApartmentNunber,
-                            AmountAlreadyPaid = 0,
+                            AmountAlreadyPaid = extraAmount > 0 ? extraAmount: 0,
                             RemainingAmount = model.AppartmentMember.Price,
                             RentStatus = RentStatusEnum.Unpaid,
                             AmmountSupposedToPay = model.AppartmentMember.Price,
@@ -260,7 +219,7 @@ namespace Logement.Controllers
 
                         CityMember cityMember = new CityMember
                         {
-                            CityId = (long)model.AppartmentMember.CityId,
+                            CityId = model.AppartmentMember.CityId,
                             ApartmentId = (long)model.AppartmentMember.Id,
                             UserId = user.Id,
                             Role = CityMemberRoleEnum.Tenant
@@ -268,7 +227,7 @@ namespace Logement.Controllers
                         dbc.CityMembers.Add(cityMember);
                         await dbc.SaveChangesAsync();
 
-                        return Redirect("/Tenant/GetAllTenants?cityId=" + model.AppartmentMember.CityId);
+                        return Redirect("/Apartment/Index?cityId=" + model.AppartmentMember.CityId);
                     }
                     else
                         return BadRequest($"The user does not even exist");
@@ -287,6 +246,7 @@ namespace Logement.Controllers
             {
                 Id = tenantRents.Id,
                 TenantId = tenantRents.TenantId,
+                CityId = tenantRents.CityId,
                 ApartmentNumber = tenantRents.ApartmentNumber,
                 TenantFullName = $"{tenantRents.Tenant.FirstName} {tenantRents.Tenant.LastName}",
                 AmmountSupposedToPay = tenantRents.AmmountSupposedToPay,
@@ -299,17 +259,21 @@ namespace Logement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> TenantRentStatus(long tenantId)
+        public async Task<IActionResult> TenantRentStatus(long cityId, long tenantId, long apartmentMumber)
         {
             try
             {
+                var cityOwner = await dbc.Cities
+                    .Where(c => c.Id == cityId && c.LandLordId == GetUser().Id)
+                    .FirstOrDefaultAsync();
+
                 List<RentPaymentDatesSchedularViewModel> tenantRentStatus = new List<RentPaymentDatesSchedularViewModel>();
 
                 DateTime currentDate = DateTime.UtcNow;
 
                 //Unpaid or partially paid rent for this tenant
                 var tenantRentInfos = await dbc.RentPaymentDatesSchedulars
-                    .Where(t => t.TenantId == tenantId &&
+                    .Where(t => t.TenantId == tenantId && t.ApartmentNumber == apartmentMumber &&
                                 (t.RentStatus == RentStatusEnum.Unpaid || t.RentStatus == RentStatusEnum.Partially_paid) &&
                                 currentDate > t.NextDateToPay)
                     .Include(t => t.Tenant)
@@ -319,6 +283,15 @@ namespace Logement.Controllers
                 {
                     tenantRentStatus.Add(GetAllTenantInfos(infos));
                 }
+
+                var rentStatus = await dbc.RentPaymentDatesSchedulars
+                     .Where(rp => rp.CityId == cityId && rp.TenantId == tenantId && rp.ApartmentNumber == apartmentMumber)
+                     .OrderByDescending(rp => rp.NextDateToPay)
+                     .FirstOrDefaultAsync();
+              
+                ViewData["cityOwner"] = cityOwner;
+                ViewData["rentStatus"] = rentStatus;
+
                 return View(tenantRentStatus);
             }
             catch (Exception ex)
@@ -327,26 +300,27 @@ namespace Logement.Controllers
             }
         }
 
+        //TO complete
         [HttpPost]
-        public async Task<IActionResult> PayRent(long tenantId, long rentId, decimal amount)
+        public async Task<IActionResult> PayRent(long tenantId, long rentId, decimal amount, long cityId)
         {
             try
             {
-                var cityMember = await dbc.CityMembers
+                var cityOwner = await dbc.CityMembers
                     .Include(c => c.City)
-                    .Where(c => c.UserId == GetUser().Id)
+                    .Where(c => c.UserId == GetUser().Id && c.Role == CityMemberRoleEnum.Landord)
                     .FirstOrDefaultAsync();
 
-                if (cityMember == null)
-                    return NotFound("You are not a member of the city");
+                if (cityOwner == null)
+                    return NotFound("You are not the owner of the city");
 
                 var tenant = await dbc.CityMembers.Where(c => c.UserId == tenantId).FirstOrDefaultAsync();
 
                 if (tenant == null)
-                    return NotFound("This user is not a tenant");
+                    return NotFound("This user is not a tenant of this city");
 
                 var rent = await dbc.RentPaymentDatesSchedulars
-                    .Where( r => r.Id == rentId && r.TenantId == tenantId)
+                    .Where(r => r.Id == rentId && r.TenantId == tenantId)
                     .FirstOrDefaultAsync();
 
                 if (rent == null)
@@ -362,7 +336,7 @@ namespace Logement.Controllers
                 else if (rent.AmountAlreadyPaid < rent.AmmountSupposedToPay)
                 {
                     rent.RentStatus = RentStatusEnum.Partially_paid;
-                    rent.RemainingAmount = rent.AmmountSupposedToPay - rent.AmountAlreadyPaid; 
+                    rent.RemainingAmount = rent.AmmountSupposedToPay - rent.AmountAlreadyPaid;
                 }
                 dbc.Update(rent);
                 await dbc.SaveChangesAsync();
@@ -377,7 +351,7 @@ namespace Logement.Controllers
                 dbc.PaymentHistories.Add(newPayment);
                 await dbc.SaveChangesAsync();
 
-                return Redirect("/Tenant/TenantRentStatus?tenantId="+tenantId);
+                return Redirect("/Tenant/TenantRentStatus?tenantId=" + tenantId);
             }
             catch (Exception ex)
             {
@@ -390,7 +364,9 @@ namespace Logement.Controllers
             PaymentHistoryViewModel allPayments = new PaymentHistoryViewModel()
             {
                 Id = payments.Id,
-                TenantId  = payments.Tenant.Id,
+                //CityId = payments.CityId,
+                //CityName = payments.City.Name,
+                TenantId = payments.Tenant.Id,
                 ApartmentNumber = payments.ApartmentNumber,
                 TenantFullName = $"{payments.Tenant.FirstName} {payments.Tenant.LastName}",
                 AmountPaid = payments.AmountPaid,
@@ -402,13 +378,14 @@ namespace Logement.Controllers
         //Add security
         [HttpGet]
         public IActionResult GetAllPaymentsHistory(long tenantId)
-        {           
+        {
             List<PaymentHistoryViewModel> paymentHistory = new List<PaymentHistoryViewModel>();
 
             //Payments for a specific tenant
             var payments = dbc.PaymentHistories
                                 .Where(t => t.TenantId == tenantId)
-                                .Include( t => t.Tenant)
+                                .Include(t => t.Tenant)
+                                //.Include( t => t.City)
                                 .ToList();
 
             if (payments != null)
@@ -456,7 +433,7 @@ namespace Logement.Controllers
 
                         // Add content to the receipt
                         var fullName = $"{payment.Tenant.FirstName} {payment.Tenant.LastName}";
-                        var receiptContent = $"Receipt for payment made by {fullName} on {payment.PaidDate}. Amount Paid: {payment.AmountPaid}";
+                        var receiptContent = $"Receipt for payment made by {fullName} on {payment.PaidDate}. Amount Paid: {payment.AmountPaid} FCFA";
 
                         document.Add(new Paragraph(receiptContent));
 
@@ -483,7 +460,7 @@ namespace Logement.Controllers
         }
 
 
-        public async Task SaveFile(IFormFile formFile, FileModel fileModel, long? tenantId)
+        public async System.Threading.Tasks.Task SaveFile(IFormFile formFile, FileModel fileModel, long? tenantId,long cityId, long apartmentId)
         {
             if (formFile != null)
             {
@@ -496,6 +473,8 @@ namespace Logement.Controllers
                     fileModel = new FileModel()
                     {
                         TenantId = tenantId,
+                        CityId = cityId,
+                        ApartmentId = apartmentId,
                         Name = fileName,
                         Size = formFile.Length
                     };

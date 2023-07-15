@@ -13,7 +13,7 @@ namespace Logement.Controllers
     {
         UserManager<ApplicationUser> _userManager;
         public ApartmentController(ApplicationDbContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager)
-            :base(context, configuration)
+            : base(context, configuration)
         {
             _userManager = userManager;
         }
@@ -24,10 +24,11 @@ namespace Logement.Controllers
             {
                 Id = apartment.Id,
                 LessorId = apartment.LessorId,
+                TenantId = tenant.UserId,
+                CityId = city.Id,
                 ApartmentNunber = apartment.ApartmentNumber,
                 CityName = city.Name,
                 OccupiedBy = $"{tenant.User.FirstName} {tenant.User.LastName}",
-                Description = apartment.Description,
                 LocatedAt = city.LocatedAt,
                 NumberOfRooms = apartment.NumberOfRooms,
                 NumberOfbathRooms = apartment.NumberOfbathRooms,
@@ -41,10 +42,10 @@ namespace Logement.Controllers
             return apartmentViewModel;
         }
 
-        public async Task<JsonResult> CheckApartmentNumberAvailability(long apartmentNumber)
+        public async Task<JsonResult> CheckApartmentNumberAvailability(long apartmentNumber, long cityId)
         {
             var checkApartment = await dbc.Apartments
-                .Where(a => a.ApartmentNumber == apartmentNumber)
+                .Where(a => a.CityId == cityId && a.ApartmentNumber == apartmentNumber)
                 .FirstOrDefaultAsync();
 
             if (checkApartment != null)
@@ -137,8 +138,14 @@ namespace Logement.Controllers
                         .Where(cm => cm.UserId == user.Id && cm.CityId == cityId)
                         .FirstOrDefaultAsync();
 
+                    // Check if current user is the systemAdmin 
+                    var isSystemAdmin = await _userManager.IsInRoleAsync(user, "SystemAdmin");
+
+
                     //If it is the landlord of this city
                     if (cityMember != null && cityMember.UserId == landlord.UserId)
+                        continue;
+                    else if (isSystemAdmin)
                         continue;
                     else
                         allUsersViewModels.Add(GetViewModelFromModel(cityId, user));
@@ -152,5 +159,5 @@ namespace Logement.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
             }
         }
-    } 
+    }
 }

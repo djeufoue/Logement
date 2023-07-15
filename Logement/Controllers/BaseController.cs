@@ -109,7 +109,7 @@ namespace Logement.Controllers
             }
         }
      
-        protected CityViewModel GetCitiesFromModel(City city)
+        protected CityViewModel GetCitiesFromModel(City city, long apartmentNumber, Fichier? cityImage = null, CityMemberRoleEnum? memberRole = null)
         {
             var subscription = dbc.SubscriptionPayments
                 .Where(c => c.CityId == city.Id)
@@ -119,9 +119,13 @@ namespace Logement.Controllers
             {
                 Id = city.Id,
                 Name = city.Name,
+                ApartmentNumber = apartmentNumber, 
+                CityMemberRole = memberRole,
                 LocatedAt = city.LocatedAt,
                 Town = city.Town,
                 Floor = city.Floor,
+                Data = cityImage != null ? cityImage.Data : null,
+                ContentType = cityImage != null ? cityImage.ContentType : null,
                 NumbersOfApartment = city.NumbersOfApartment,
                 NextPaymentDate = subscription == null? DateTimeOffset.MinValue : subscription.NextPaymentDate,
             };
