@@ -1,5 +1,6 @@
 ﻿using Logement.Data.Enum;
 using Logement.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.ComponentModel;
 
 namespace Logement.ViewModels
@@ -14,8 +15,13 @@ namespace Logement.ViewModels
         public long TenantId { get; set; }
         public virtual ApplicationUser Tenant { get; set; }
 
+        /*public long CityId { get; set; }    
+        public string? CityName { get; set; }*/
+
         [DisplayName("Apartment Number")]
         public long ApartmentNumber { get; set; }
+
+        public long CityId { get; set; }
 
         [DisplayName("Amount to be paid [FCFA]")]
         public decimal AmmountSupposedToPay { get; set; }

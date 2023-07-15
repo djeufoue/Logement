@@ -1,5 +1,8 @@
-﻿namespace Logement.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Logement.Models
 {
+    [Index(nameof(Name), IsUnique =true)]
     public class City
     {
         public long Id { get; set; }

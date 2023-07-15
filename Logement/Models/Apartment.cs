@@ -17,10 +17,6 @@ namespace Logement.Models
         public long CityId { get; set; }
         public virtual City City { get; set; }
 
-        [Required]
-        [MaxLength(2000)]
-        public string? Description { get; set; }
-
         public int NumberOfRooms { get; set; }
         public int NumberOfbathRooms { get; set; }
 

@@ -67,6 +67,7 @@ namespace Logement.Schedular
                                                                                      TenantId = r.TenantId,
                                                                                      NextDateToPay = r.NextDateToPay,
                                                                                      AmmountSupposedToPay = r.AmmountSupposedToPay,
+                                                                                     CityId = r.CityId,
                                                                                      ApartmentNumber = r.ApartmentNumber
                                                                                  }).ToListAsync();
 
@@ -83,7 +84,8 @@ namespace Logement.Schedular
                                                                                      TenantId = r.TenantId,
                                                                                      NextDateToPay = r.NextDateToPay,
                                                                                      AmmountSupposedToPay = r.AmmountSupposedToPay,
-                                                                                     ApartmentNumber = r.ApartmentNumber
+                                                                                     ApartmentNumber = r.ApartmentNumber,
+                                                                                     CityId = r.CityId
                                                                                  }).ToListAsync();
 
 
@@ -128,6 +130,7 @@ namespace Logement.Schedular
                                         {
                                             TenantId = TenantInfos.Id,
                                             ApartmentNumber = rent.ApartmentNumber,
+                                            CityId = rent.CityId,
                                             AmountAlreadyPaid = 0,
                                             RemainingAmount = rent.AmmountSupposedToPay,
                                             RentStatus = RentStatusEnum.Unpaid,
@@ -181,6 +184,8 @@ namespace Logement.Schedular
 
                     NotificationSentForRentPayment notificationSentForRentPayments = new NotificationSentForRentPayment
                     {
+                        CityId = dt.CityId,
+                        ApartmentNumber = dt.ApartmentNumber,
                         TenantId = dt.TenantId,
                         AmmountSupposedToPay = dt.AmmountSupposedToPay,
                         ScheduledDateForRentPayment = dt.NextDateToPay.DateTime,
@@ -220,20 +225,6 @@ namespace Logement.Schedular
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
-
-        public async Task NextDateToPay()
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
-        }
-
 
         public async Task CheckSubscription()
         {
@@ -286,6 +277,7 @@ namespace Logement.Schedular
 
                     NotificationSentForSubscription notificationSentForSubscription = new NotificationSentForSubscription
                     {
+                        CityId = subscription.CityId,
                         LandlordId = subscription.LandLordId,
                         AmmountSupposedToPay = subscription.Amount,
                         NotificationSentDate = DateTime.UtcNow,

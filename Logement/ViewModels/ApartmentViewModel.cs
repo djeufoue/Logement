@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Twilio.Types;
@@ -18,12 +19,10 @@ namespace Logement.ViewModels
         [Display(Name = "Apartment nunber")]
         public long ApartmentNunber { get; set; }
         public long LessorId { get; set; }
+        public long? TenantId { get; set; }
 
         [Display(Name = "City")]
         public string? CityName { get; set;}
-
-        [Required]
-        public string? Description { get; set; }
 
         public long CityId { get; set; } 
 
@@ -50,6 +49,7 @@ namespace Logement.ViewModels
 
         [Required]
         [Precision(14, 2)]
+        [Display(Name = "Apartement price")]
         public decimal Price { get; set; }
 
         /// <summary>

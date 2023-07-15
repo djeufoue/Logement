@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 
 namespace Logement.ViewModels
 {
@@ -7,6 +8,8 @@ namespace Logement.ViewModels
         public long Id { get; set; }
 
         public long TenantId { get; set; }
+       /* public long CityId { get; set; }
+        public string? CityName { get; set; }*/
 
         [Display(Name = "Apartment Number")]
         public long ApartmentNumber { get; set; }

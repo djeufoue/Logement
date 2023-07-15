@@ -4,6 +4,7 @@ using Logement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Logement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230715183011_RemoveDescription")]
+    partial class RemoveDescription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -318,12 +320,6 @@ namespace Logement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<long>("ApartmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CityId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("FileURL")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -339,10 +335,6 @@ namespace Logement.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApartmentId");
-
-                    b.HasIndex("CityId");
 
                     b.HasIndex("TenantId");
 
@@ -360,12 +352,6 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmmountSupposedToPay")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long>("ApartmentNumber")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CityId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("NotificationSentDate")
                         .HasColumnType("datetime2");
 
@@ -376,8 +362,6 @@ namespace Logement.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityId");
 
                     b.HasIndex("TenantId");
 
@@ -395,9 +379,6 @@ namespace Logement.Migrations
                     b.Property<decimal>("AmmountSupposedToPay")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long>("CityId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("LandlordId")
                         .HasColumnType("bigint");
 
@@ -405,8 +386,6 @@ namespace Logement.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityId");
 
                     b.HasIndex("LandlordId");
 
@@ -427,9 +406,6 @@ namespace Logement.Migrations
                     b.Property<long>("ApartmentNumber")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("CityId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("PaidDate")
                         .HasColumnType("datetime2");
 
@@ -437,8 +413,6 @@ namespace Logement.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityId");
 
                     b.HasIndex("TenantId");
 
@@ -754,82 +728,42 @@ namespace Logement.Migrations
 
             modelBuilder.Entity("Logement.Models.FileModel", b =>
                 {
-                    b.HasOne("Logement.Models.Apartment", "Apartment")
-                        .WithMany()
-                        .HasForeignKey("ApartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Logement.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.ApplicationUser", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId");
-
-                    b.Navigation("Apartment");
-
-                    b.Navigation("City");
 
                     b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Logement.Models.NotificationSentForRentPayment", b =>
                 {
-                    b.HasOne("Logement.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.ApplicationUser", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("City");
 
                     b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Logement.Models.NotificationSentForSubscription", b =>
                 {
-                    b.HasOne("Logement.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.ApplicationUser", "Landlord")
                         .WithMany()
                         .HasForeignKey("LandlordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("City");
-
                     b.Navigation("Landlord");
                 });
 
             modelBuilder.Entity("Logement.Models.PaymentHistory", b =>
                 {
-                    b.HasOne("Logement.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Logement.Models.ApplicationUser", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("City");
 
                     b.Navigation("Tenant");
                 });

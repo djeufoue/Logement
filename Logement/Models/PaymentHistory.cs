@@ -5,6 +5,8 @@ namespace Logement.Models
     public class PaymentHistory
     {
         public long Id { get; set; }
+        public long CityId { get; set; }
+        public virtual City City { get; set; }
 
         public long TenantId { get; set; }
         public virtual ApplicationUser Tenant { get; set; }
