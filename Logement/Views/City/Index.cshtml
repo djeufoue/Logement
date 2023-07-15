@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<Logement.ViewModels.CityViewModel>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Apartment list";
@@ -26,26 +28,34 @@
         place-items: center;
     }
 
-    .buttonPay {
+    .paymentMessage {
+        background-color: #f8c291;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .buttonRentStatus {
         display: grid;
         height: 35px;
         width: 100px;
-        background-color: seagreen;
+        background-color: #445744;
+        margin-right: 5px;
         font-family: "Poppins", sans-serif;
         color: #ffffff;
         font-weight: 500;
-        margin-right: 2px;
         text-decoration: none;
         border-radius: 10px;
         place-items: center;
     }
 
-    .buttonDelete {
+    .buttonPaymentHis {
         display: grid;
         height: 35px;
-        width: 75px;
-        background-color: red;
-        margin-right: 5px;
+        width: 150px;
+        background-color: #e65959;
+        margin: auto;
         font-family: "Poppins", sans-serif;
         color: #ffffff;
         font-weight: 500;
@@ -79,6 +89,9 @@
                             @Html.DisplayNameFor(model => model.Name)
                         </th>
                         <th>
+                            @Html.DisplayNameFor(model => model.ApartmentNumber)
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model.Town)
                         </th>
                         <th>
@@ -90,16 +103,29 @@
                         <th>
                             @Html.DisplayNameFor(model => model.Floor)
                         </th>
-                        <th>Apartments</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>
-                                <a class="city-name" asp-controller="City" asp-action="EditCity" asp-route-id="@item.Id">@item.Name</a>
-                            </td>
+                            @if(item.CityMemberRole == Logement.Data.Enum.CityMemberRoleEnum.Tenant){
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ApartmentNumber)
+                                </td>
+                            }
+                            else if (item.CityMemberRole == Logement.Data.Enum.CityMemberRoleEnum.Landord)
+                            {
+                                 <td>
+                                    <a class="city-name" asp-controller="City" asp-action="EditCity" asp-route-id="@item.Id">@item.Name</a>
+                                </td>   
+                                <td>
+                                    <span class="landlord-data" style="color: #FF0000; font-weight: bold;">Landlord</span>
+                                </td>
+                            }
                             <td>
                                 @Html.DisplayFor(modelItem => item.Town)
                             </td>
@@ -113,16 +139,27 @@
                                 @Html.DisplayFor(modelItem => item.Floor)
                             </td>
                             <td>
-                                <di class="button">
-                                    @if (item.NextPaymentDate <= DateTime.UtcNow)
-                                    {
-                                        <a href="/City/PaymentWithPaypal?cityId=@item.Id" class="buttonPay">Pay Now</a>
-                                    }
-                                    else
-                                    {
-                                        <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
-                                    }
-                                </di>
+                                @if(item.CityMemberRole == Logement.Data.Enum.CityMemberRoleEnum.Landord){
+                                    <di class="button">
+                                        @if (item.NextPaymentDate <= DateTime.UtcNow)
+                                        {
+                                            <span class="paymentMessage">Payment Due</span>
+                                        }
+                                        else
+                                        {
+                                            <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
+                                        }
+                                    </di>
+                                }
+                                else if(item.CityMemberRole == Logement.Data.Enum.CityMemberRoleEnum.Tenant)
+                                {
+                                    var currentUser = await UserManager.GetUserAsync(User);
+                                    <di class="button">
+                                        <a class="buttonRentStatus" href="/Tenant/TenantRentStatus?cityId=@item.Id&tenantId=@currentUser.Id&apartmentMumber=@item.ApartmentNumber">Rent status</a>
+                                        <a class="buttonPaymentHis" asp-area="" asp-controller="Tenant" asp-action="GetAllPaymentsHistory" asp-route-tenantId="@currentUser.Id">Payments history</a>
+                                    </di>
+                                }
+
                             </td>
                         </tr>
                     }

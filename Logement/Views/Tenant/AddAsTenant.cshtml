@@ -15,6 +15,20 @@
         margin-right: 50px;
         margin-left: 50px;
     }
+
+    h2 {
+        color: #cba40b;
+        font-family: 'Trocchi', serif;
+        font-size: 20px;
+        font-weight: normal;
+        margin-top: 50px;
+        line-height: 35px;
+        margin-bottom: 15px;
+    }
+
+    h2 i{
+        color: red;
+    }
 </style>
 
 <section class="body">
@@ -62,12 +76,6 @@
                     <label asp-for="AppartmentMember.FloorNumber" class="control-label"></label>
                     <input asp-for="AppartmentMember.FloorNumber" class="form-control" />
                     <span asp-validation-for="AppartmentMember.FloorNumber" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="AppartmentMember.Description" class="control-label"></label>
-                    <textarea asp-for="AppartmentMember.Description" class="form-control" rows="10"></textarea>
-                    <span asp-validation-for="AppartmentMember.Description" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
@@ -130,11 +138,12 @@
 <script src="/js/site.js"></script>
 
 <script>
-    // SHIVAM : Check for a duplicate ApartmentNumber
+    //Check for a duplicate ApartmentNumber
     function CheckApartmentNumber() {
         $.post("@Url.Action("CheckApartmentNumberAvailability", "Apartment")",
             {
-                ApartmentNumber: $("#AppartmentMember_ApartmentNunber").val()
+                ApartmentNumber: $("#AppartmentMember_ApartmentNunber").val(),
+                cityId: $("#AppartmentMember_CityId").val()
             },
 
             function (data) {
@@ -154,20 +163,3 @@
             });
     }
 </script>
-
-
-<style>
-    h2 {
-        color: #cba40b;
-        font-family: 'Trocchi', serif;
-        font-size: 20px;
-        font-weight: normal;
-        margin-top: 50px;
-        line-height: 35px;
-        margin-bottom: 15px;
-    }
-
-    h2 i{
-        color: red;
-    }
-</style>

@@ -27,7 +27,7 @@
 
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                <input asp-for="Name" class="form-control" onchange="CheckCityName()" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -52,8 +52,8 @@
                 <span asp-validation-for="Floor" class="text-danger"></span>
             </div>
             <div>
-                <h2 class="box-title" style="color: #333; font-weight: bold;">Select apartment images</h2>
-                <input asp-for="Image" type="file" multiple />
+                <h2 class="box-title" style="color: #333; font-weight: bold;">Select city image</h2>
+                <input asp-for="Image" id="image-input" type="file" onchange="checkImageExistence(event)" />
             </div>
 
             <div class="form-group" style="margin-top:20px;">
@@ -62,3 +62,55 @@
         </form>
     </div>
 </div>
+<script>
+
+    //Check for a duplicate images
+    function checkImageExistence(event) {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        const xhr = new XMLHttpRequest();
+
+        formData.append('file', file);
+
+        xhr.open('POST', '/City/CheckImageExistence', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response === 1) {
+                        alert('The image name is already taken. Please choose another image or change the image name.');
+                        // Clear the file input value to allow selecting a different image
+                        document.getElementById('image-input').value = '';
+                    } else if (response === -1) {
+                        alert('Error checking image existence. Please try again.');
+                    }
+                }
+            }
+        };
+        xhr.send(formData);
+    }
+
+    //Check for a duplicate city name
+    function CheckCityName() {
+        $.post("@Url.Action("CheckCityNameAvailability", "City")",
+            {
+                cityName: $("#Name").val()
+            },
+
+            function (data) {
+                if (data == 1) {
+                    $("#Name").next(".validation").remove(); // remove previous message
+                    $("#Name").after("<div class='validation' style='color:red;'>Ce nom appartient déjà à une autre citeé, veuillez en choisir un autre.</div>");
+
+                    //disable save button:
+                    $(':input[type="submit"]').prop('disabled', true);
+
+                    $('#Name').focus();
+                }
+                else if (data == 0) {
+                    $(':input[type="submit"]').prop('disabled', false);
+                    $("#Name").next(".validation").remove(); // remove previous message
+                }
+            });
+    }
+</script>

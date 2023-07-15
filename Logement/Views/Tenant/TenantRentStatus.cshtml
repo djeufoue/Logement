@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "AllTenantRentStatus";
+    City? cityOwner = (City)ViewData["cityOwner"];
+    var rentStatus = (RentPaymentDatesSchedular)ViewData["rentStatus"]; 
 }
 
 <style>
@@ -30,7 +32,20 @@
     @if (!Model.Any())
     {
         <div class="alert alert-info" role="alert">
-            <strong>Good news!</strong> You have no rent to pay at the moment.
+            <div class="good-news-message">
+                <strong>Good news!</strong> You have no rent to pay at the moment.
+            </div>
+            <div class="next-payment-message" style="margin-top: 10px;">
+                <strong>Next rent payment date: </strong><span class="next-payment-date" style="color: #ff6600; font-size: 24px;">@String.Format("{0:dddd, MMMM d, yyyy}", @rentStatus.NextDateToPay)</span>
+            </div>
+            <div class="amount-to-pay-message" style="margin-top: 10px;">
+                <strong>Amount to pay:</strong>
+                
+                <span class="amount-to-pay" style="color: #3366cc; font-size: 24px;">
+                    @string.Format("{0:n0}", rentStatus.AmountAlreadyPaid > 0 ? (rentStatus.AmmountSupposedToPay - rentStatus.AmountAlreadyPaid) : rentStatus.AmmountSupposedToPay) FCFA
+                </span>
+
+            </div>
         </div>
         <p>If you have any questions or need assistance, please contact our support team.</p>
         <p>Thank you for being a valued!</p>
@@ -86,10 +101,12 @@
                             @Html.DisplayFor(modelItem => item.ExpectedDateToPay)
                         </td>
                         <td>
-                            <button type="button" class="btn btn-primary btn-pay" data-toggle="modal" data-target="#payModal-@item.Id">
-                                Pay
-                            </button>
-
+                            @if(cityOwner != null)
+                            {
+                                <button type="button" class="btn btn-primary btn-pay" data-toggle="modal" data-target="#payModal-@item.Id">
+                                    Pay
+                                </button>
+                            }
                             <!-- Modal -->
                             <div class="modal fade" id="payModal-@item.Id" tabindex="-1" role="dialog" aria-labelledby="payModalLabel-@item.Id" aria-hidden="true">
                                 <div class="modal-dialog" role="document">

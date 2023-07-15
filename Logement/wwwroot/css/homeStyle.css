@@ -14,7 +14,7 @@
 #slideImg {
     width: 100%;
     height: 100%;
-    /* animation: zoom 3s linear infinite;*/
+     animation: zoom 3s linear infinite;
 }
 
 @keyframes zoom {
@@ -93,9 +93,6 @@ button:hover {
     background: #fe7250;
 }
 
-
-/*===================For the main body==================*/
-
 .container {
     max-width: 124rem;
     padding: 0 1rem;
@@ -117,171 +114,60 @@ button:hover {
     position: sticky;
 }
 
-@media (max-width:1440px) {
+@media (max-width: 1440px) {
     #tranding {
         padding: 7rem 0;
     }
 }
 
-#tranding .tranding-slider {
-    height: 52rem;
-    padding: 2rem 0;
-    position: relative;
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+    grid-gap: 2rem;
+    justify-items: center;
 }
 
-@media (max-width:500px) {
-    #tranding .tranding-slider {
-        height: 45rem;
-    }
+.card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.1);
 }
 
-.tranding-slide {
-    width: 37rem;
-    height: 42rem;
-    position: relative;
-}
-
-@media (max-width:500px) {
-    .tranding-slide {
-        width: 28rem !important;
-        height: 36rem !important;
-    }
-
-    .tranding-slide .tranding-slide-img img {
-        width: 28rem !important;
-        height: 36rem !important;
-    }
-}
-
-.tranding-slide .tranding-slide-img img {
-    width: 37rem;
-    height: 42rem;
-    border-radius: 2rem;
+.card-image {
+    width: 100%;
+    height: auto;
     object-fit: cover;
 }
 
-.tranding-slide .tranding-slide-content {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+.card-content {
+    flex: 1;
+    padding: 1.5rem;
+    background-color: #f8f8f8;
 }
 
-.tranding-slide-content .food-price {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    color: var(--white);
+.card-title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #1b181b;
 }
 
-.tranding-slide-content .tranding-slide-content-bottom {
-    position: absolute;
-    bottom: 2rem;
-    left: 2rem;
-    color: var(--white);
-}
-
-.food-rating {
-    padding-top: 1rem;
-    display: flex;
-    gap: 1rem;
-}
-
-.rating ion-icon {
-    color: #cebca0;
-}
-
-.swiper-slide-shadow-left,
-.swiper-slide-shadow-right {
-    display: none;
-}
-
-.tranding-slider-control {
-    position: relative;
-    bottom: 2rem;
+.card-footer {
     display: flex;
     align-items: center;
-    justify-content: center;
-}
-
-.tranding-slider-control .swiper-button-next {
-    left: 58% !important;
-    transform: translateX(-58%) !important;
-}
-
-@media (max-width:990px) {
-    .tranding-slider-control .swiper-button-next {
-        left: 70% !important;
-        transform: translateX(-70%) !important;
-    }
-}
-
-@media (max-width:450px) {
-    .tranding-slider-control .swiper-button-next {
-        left: 80% !important;
-        transform: translateX(-80%) !important;
-    }
-}
-
-@media (max-width:990px) {
-    .tranding-slider-control .swiper-button-prev {
-        left: 30% !important;
-        transform: translateX(-30%) !important;
-    }
-}
-
-@media (max-width:450px) {
-    .tranding-slider-control .swiper-button-prev {
-        left: 20% !important;
-        transform: translateX(-20%) !important;
-    }
-}
-
-.tranding-slider-control .slider-arrow {
-    background: var(--white);
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    left: 42%;
-    transform: translateX(-42%);
-    filter: drop-shadow(0px 8px 24px rgba(18, 28, 53, 0.1));
-}
-
-.tranding-slider-control .slider-arrow ion-icon {
-    font-size: 2rem;
-    color: #222224;
-}
-
-.tranding-slider-control .slider-arrow::after {
-    content: '';
-}
-
-.tranding-slider-control .swiper-pagination {
-    position: relative;
-    width: 15rem;
-    bottom: 1rem;
-}
-
-.tranding-slider-control .swiper-pagination .swiper-pagination-bullet {
-    filter: drop-shadow(0px 8px 24px rgba(18, 28, 53, 0.1));
-}
-
-.tranding-slider-control .swiper-pagination .swiper-pagination-active {
-    background: var(--primary);
+    justify-content: space-between;
 }
 
 .see-more-button {
-    display: inline-block;
     padding: 10px 20px;
     background-color: #29557b;
     color: #fff;
     text-decoration: none;
     border-radius: 4px;
-    border: none;
-    font-size: 16px;
+    font-size: 1.4rem;
 }
 
-.see-more-button:hover {
-    background-color: #23527c;
+.rating ion-icon {
+    color: #cebca0;
 }

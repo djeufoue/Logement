@@ -108,6 +108,11 @@ namespace Logement
             app.UseHangfireDashboard();
             app.UseSession();
 
+            using (var serviceScope = app.Services.CreateScope())
+            {
+                ApplicationDbSeed.SeedDatabase(serviceScope.ServiceProvider);
+            }
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}");

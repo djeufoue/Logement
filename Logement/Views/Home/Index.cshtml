@@ -24,55 +24,34 @@
 </div>
 <div id="tranding">
     <div class="container">
-        <h3 class="text-center section-subheading">- apartments with the highest demand -</h3>
-        <h1 class="text-center section-heading">Trending apartments</h1>
+        <h3 class="text-center section-subheading">- Apartments with the highest demand -</h3>
+        <h1 class="text-center section-heading">Trending Apartments</h1>
     </div>
     <div class="container">
-        <div class="swiper tranding-slider">
-            <div class="swiper-wrapper">
-                 @foreach (var item in Model.Apartment)
-                 {
-                    <!-- Slide-start -->
-                    <div class="swiper-slide tranding-slide">
-                        <div class="tranding-slide-img">
-                            <img src="data:@item.ContentType;base64,@Convert.ToBase64String(item.Data)" alt="Tranding">
-                        </div>
-                        <div class="tranding-slide-content">
-                            <div class="tranding-slide-content-bottom">
-                                <h2 class="food-name" style="color: #1b181b;">
-                                    <strong>
-                                        @item.LocatedAt
-                                    </strong>
-                                </h2>
-                                <h3 class="food-rating">
-                                    <span><a href="/Home/GetAllApartmentImages?apartmentId=@item.Id" class="see-more-button">See More</a></span>
-                                    <div class="rating">
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                        <ion-icon name="star"></ion-icon>
-                                    </div>
-                                </h3>
+        <div class="image-grid">
+            @foreach (var item in Model.Apartment)
+            {
+                <div class="card">
+                    <img src="data:@item.ContentType;base64,@Convert.ToBase64String(item.Data)" alt="Trending" class="card-image">
+                    <div class="card-content">
+                        <h2 class="card-title">@item.LocatedAt</h2>
+                        <div class="card-footer">
+                            <a href="/Home/GetAllApartmentImages?apartmentId=@item.Id" class="see-more-button">See More</a>
+                            <div class="rating">
+                                <ion-icon name="star"></ion-icon>
+                                <ion-icon name="star"></ion-icon>
+                                <ion-icon name="star"></ion-icon>
+                                <ion-icon name="star"></ion-icon>
+                                <ion-icon name="star"></ion-icon>
                             </div>
                         </div>
                     </div>
-                    <!-- Slide-end -->
-                }
-            </div>
-
-            <div class="tranding-slider-control">
-                <div class="swiper-button-prev slider-arrow">
-                    <ion-icon name="arrow-back-outline"></ion-icon>
                 </div>
-                <div class="swiper-button-next slider-arrow">
-                    <ion-icon name="arrow-forward-outline"></ion-icon>
-                </div>
-                <div class="swiper-pagination"></div>
-            </div>
+            }
         </div>
     </div>
 </div>
+
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>

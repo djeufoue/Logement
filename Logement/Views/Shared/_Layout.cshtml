@@ -123,6 +123,9 @@
                 <li><i class="fa fa-home" aria-hidden="true"></i><a href="/Home/Index">Dashboard</a></li>
                 @if (!string.IsNullOrEmpty(User.Identity.Name))
                 {
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var currentUserRole = await UserManager.GetRolesAsync(currentUser);
+
                     if (userRoles.Contains(CityMemberRoleEnum.Landord))
                     {
                         <li><i class="fa fa-briefcase" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>
@@ -136,9 +139,18 @@
                     }
                     else if (userRoles.Contains(CityMemberRoleEnum.Tenant))
                     {
+                        <li><i class="fa fa-briefcase" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>@*
                         <li><i class="fa fa-renren" aria-hidden="true"></i><a href="/Tenant/TenantRentStatus?tenantId=@userId">Rent Status</a></li>
                         <li><i class="fa fa-money" aria-hidden="true"></i><a href="/Tenant/GetAllPaymentsHistory?tenantId=@userId">Payments history</a></li>
-                        <li><i class="fa fa-cart-plus" aria-hidden="true"></i><a href="/City/Index">Add City</a></li>
+                        <li><i class="fa fa-cart-plus" aria-hidden="true"></i><a href="/City/Index">Add City</a></li>*@
+                    }
+                    else if (currentUserRole.Contains("SystemAdmin"))
+                    {
+                        <li><i class="fa fa-cart-shopping" aria-hidden="true"></i><a href="/Subscription/Index">Subscriptions</a></li>
+                    }
+                    else
+                    {
+                        <li><i class="fa fa-briefcase" aria-hidden="true"></i><a href="/City/Index">My Cities</a></li>
                     }
                     <li><i class="fa fa-sign-out" aria-hidden="true"></i><a href="/Account/Logout">Log Out</a></li>
                 }

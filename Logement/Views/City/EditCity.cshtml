@@ -3,65 +3,8 @@
 @{
     ViewData["Title"] = "Edit city";
 }
-<section>
-    <div class="container">
-        <h1>
-            Edit Project
-        </h1>
 
-        <hr />
-        <div class="row">
-            <div class="col-md-4">
-                <form asp-action="EditCity">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                       <label asp-for="Town" class="control-label"></label>
-                       <input asp-for="Town" class="form-control" />
-                       <span asp-validation-for="Town" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="LocatedAt" class=" control-label"></label>
-                        <input asp-for="LocatedAt" class="form-control" />
-                        <span asp-validation-for="LocatedAt" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="NumbersOfApartment" class=" control-label"></label>
-                        <input asp-for="NumbersOfApartment" class="form-control" />
-                        <span asp-validation-for="NumbersOfApartment" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Floor" class=" control-label"></label>
-                        <input asp-for="Floor" class="form-control" />
-                        <span asp-validation-for="Floor" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-primary" />
-                    </div>
-                </form>
-            </div>
-        </div>
-
-
-        <div class="button">
-            <a class="cityList" href="@Url.Action("Index", "City")">
-                <span>Back to List</span>
-            </a>
-        </div>
-    </div>
-</section>
-
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+<link rel="stylesheet" href="~/css/style.css">
 
 <style>
     .content-header h1 {
@@ -93,7 +36,166 @@
         place-items: center;
     }
 
-    .container{
-        margin-top: 100px;
+    .danger-zone {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        font-weight: bold;
+    }
+
+    .danger-zone p {
+        margin-bottom: 10px;
+    }
+
+    .buttonDelete {
+        color: #721c24;
+        background-color: #f5c6cb;
+        border-color: #f5c6cb;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+
+    .buttonDelete:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
     }
 </style>
+
+
+<section>
+    <div class="container">
+        <h1>
+            Edit Project
+        </h1>
+
+        <hr />
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-controller="City" asp-action="EditCity" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label" onchange="CheckCityName()></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Town" class="control-label"></label>
+                        <input asp-for="Town" class="form-control" />
+                        <span asp-validation-for="Town" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LocatedAt" class="control-label"></label>
+                        <input asp-for="LocatedAt" class="form-control" />
+                        <span asp-validation-for="LocatedAt" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NumbersOfApartment" class="control-label"></label>
+                        <input asp-for="NumbersOfApartment" class="form-control" />
+                        <span asp-validation-for="NumbersOfApartment" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Floor" class="control-label"></label>
+                        <input asp-for="Floor" class="form-control" />
+                        <span asp-validation-for="Floor" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-8">
+                <div class="city-image">
+                    <img src="data:@Model.ContentType;base64,@Convert.ToBase64String(Model.Data)" alt="@Model.Name" style="max-width: 500px; max-height: 300px; margin-top: 15px" />
+                </div>
+
+                <div class="change-image">
+                    <form action="/EditCity/EditCityImage/@Model.Id" enctype="multipart/form-data" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group">
+                            <label for="image-input" class="control-label">Change Image</label>
+                            <input id="image-input" type="file" name="file" accept="image/*" onchange="checkImageExistence(event)" required/>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Change" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="button">
+            <a class="cityList" href="@Url.Action("Index", "City")">
+                <span>Back to List</span>
+            </a>
+        </div>
+        <div class="danger-zone">
+            <p>This action cannot be undone. Proceed with caution!</p>
+            <a href="@Url.Action("DeleteCity", "City", new { cityId = @Model.Id })" class="buttonDelete">Delete</a>
+        </div>
+    </div>
+</section>
+
+<script src="~/js/site.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+
+    //Check for a duplicate images
+    function checkImageExistence(event) {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        const xhr = new XMLHttpRequest();
+
+        formData.append('file', file);
+
+        xhr.open('POST', '/City/CheckImageExistence', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response === 1) {
+                        alert('The image name is already taken. Please choose another image or change the image name.');
+                        // Clear the file input value to allow selecting a different image
+                        document.getElementById('image-input').value = '';
+                    } else if (response === -1) {
+                        alert('Error checking image existence. Please try again.');
+                    }
+                }
+            }
+        };
+        xhr.send(formData);
+    }
+
+    //Check for a duplicate city name
+    function CheckCityName() {
+        $.post("@Url.Action("CheckCityNameAvailability", "City")",
+            {
+                cityName: $("#Name").val()
+            },
+
+            function (data) {
+                if (data == 1) {
+                    $("#Name").next(".validation").remove(); // remove previous message
+                    $("#Name").after("<div class='validation' style='color:red;'>Ce nom appartient déjà à une autre citeé, veuillez en choisir un autre.</div>");
+
+                    //disable save button:
+                    $(':input[type="submit"]').prop('disabled', true);
+
+                    $('#Name').focus();
+                }
+                else if (data == 0) {
+                    $(':input[type="submit"]').prop('disabled', false);
+                    $("#Name").next(".validation").remove(); // remove previous message
+                }
+            });
+    }
+</script>
+

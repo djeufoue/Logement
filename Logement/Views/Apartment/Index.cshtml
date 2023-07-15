@@ -20,6 +20,39 @@
     .table{
         margin-top: 50px;
     }
+
+    .button {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .buttonRentStatus {
+        display: grid;
+        height: 35px;
+        width: 100px;
+        background-color: #445744;
+        margin-right: 5px;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
+
+    .buttonPaymentHis {
+        display: grid;
+        height: 35px;
+        width: 150px;
+        background-color: #e65959;
+        margin: auto;
+        font-family: "Poppins", sans-serif;
+        color: #ffffff;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 10px;
+        place-items: center;
+    }
 </style>
 
 <section class="body">
@@ -28,11 +61,6 @@
             Apartments
             <a class="btn btn-success" href="@Url.Action("GetAllUsers", "Apartment", new { cityId = cityId})">
                 <span>Pending Users</span>
-                <i class="fa fa-plus"></i>
-            </a>
-
-            <a class="btn btn-success" href="@Url.Action("GetAllTenants", "Tenant", new { cityId = cityId})">
-                <span>My Tenants</span>
                 <i class="fa fa-plus"></i>
             </a>
         </h1>
@@ -49,10 +77,16 @@
                     @Html.DisplayNameFor(model => model.ApartmentNunber)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.LocatedAt)
+                    @Html.DisplayNameFor(model => model.OccupiedBy)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OccupiedBy)
+                    @Html.DisplayNameFor(model => model.Price)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DepositePrice)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LocatedAt)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.FloorNumber)
@@ -72,20 +106,26 @@
                         @Html.DisplayFor(modelItem => item.ApartmentNunber)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.LocatedAt)
+                        @Html.DisplayFor(modelItem => item.OccupiedBy)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.OccupiedBy)
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DepositePrice)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LocatedAt)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.FloorNumber)
                     </td>
-                    @*<td>
-                    <di class="button">
-                    <a class="buttonView" href="/Apartment/Index?cityId=@item.Id">View</a>
-                    <a asp-action="EditCity" class="buttonEdit" asp-route-id="@item.Id">Edit</a>
-                    </di>
-                    </td>*@
+                    <td>
+                        <di class="button">
+                            <a class="buttonRentStatus" href="/Tenant/TenantRentStatus?cityId=@item.CityId&tenantId=@item.TenantId&apartmentMumber=@item.ApartmentNunber">Rent status</a>
+                            <a class="buttonPaymentHis" asp-area="" asp-controller="Tenant" asp-action="GetAllPaymentsHistory" asp-route-tenantId="@item.TenantId">Payments history</a>
+                        </di>
+                    </td>
                 </tr>
             }
         </tbody>
