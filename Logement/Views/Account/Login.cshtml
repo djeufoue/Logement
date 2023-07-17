@@ -27,26 +27,24 @@
             </label>
          </div>
         <div>
+            <p><a asp-controller="Account" asp-action="ForgotPassword">Mot de passe oublié?</a></p>
             <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
         </div>
     }
 </section>
 
-
 <script src = "~/lib/jquery/dist/jquery.min.js"></script>
 
 <script type="text/javascript">
+    $(".btnshow").mousedown(function () { 
+        $("#password").attr("type", "text");
+        $("#image").attr("src", "~/img/hide_icon.png");
+    });
 
-$(".btnshow").mousedown(function () { 
-    $("#password").attr("type", "text");
-    $("#image").attr("src", "~/img/hide_icon.png");
-});
-
-$(".btnshow").on("mouseleave" ,function () { 
-    $("#password").attr("type", "password");
-    $("#image").attr("src", "~/img/show_icon.png");
-});
-
+    $(".btnshow").on("mouseleave" ,function () { 
+        $("#password").attr("type", "password");
+        $("#image").attr("src", "~/img/show_icon.png");
+    });
 </script>
 
 @section Scripts {

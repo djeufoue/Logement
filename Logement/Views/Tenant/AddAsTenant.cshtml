@@ -5,7 +5,7 @@
 }
 
 
-<style >
+<style>
     .form-group {
         margin-bottom: 1rem;
     }
@@ -26,9 +26,9 @@
         margin-bottom: 15px;
     }
 
-    h2 i{
-        color: red;
-    }
+        h2 i {
+            color: red;
+        }
 </style>
 
 <section class="body">
@@ -131,9 +131,10 @@
 </section>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
-
 
 <script src="/js/site.js"></script>
 

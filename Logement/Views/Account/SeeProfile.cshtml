@@ -1,0 +1,166 @@
+﻿@model Logement.ViewModels.UserProfileViewModel
+
+<!-- Include Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+<style>
+    .profile-card {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .profile-card h1 {
+        margin-bottom: 10px;
+    }
+
+    .profile-card p {
+        margin: 5px 0;
+    }
+
+    .edit-button {
+        display: inline-block;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .edit-button:hover {
+        background-color: #0056b3;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        border-radius: 8px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .custom-backdrop.modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1040;
+    }
+
+    .modal {
+        z-index: 1050;
+    }
+
+    .modal-dialog {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .modal-content {
+        width: 80%;
+    }
+</style>
+
+<div class="profile-card">
+    <h1>User Profile</h1>
+    <p><strong>First Name:</strong> @Model.FirstName</p>
+    <p><strong>Last Name:</strong> @Model.LastName</p>
+    <p><strong>Job Title:</strong> @Model.JobTitle</p>
+    <p><strong>Phone Number:</strong> @Model.PhoneNumber</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+
+    <button class="edit-button btn btn-primary" data-toggle="modal" data-target="#editModal">
+        Edit Profile
+    </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Profile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <strong><label for="firstName">First Name</label></strong>
+                    <input type="text" class="form-control" id="firstName" name="FirstName" value="@Model.FirstName" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <strong><label for="lastName">Last Name</label></strong>
+                    <input type="text" class="form-control" id="lastName" name="LastName" value="@Model.LastName" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <strong><label for="jobTitle">Job Title</label></strong>
+                    <input type="text" class="form-control" id="jobTitle" name="JobTitle" value="@Model.JobTitle" />
+                    <span asp-validation-for="JobTitle" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <strong><label for="phoneNumber">Phone Number</label></strong>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <select class="custom-select" id="countryCode">
+                                <option value="237" selected>237 (Cameroon)</option>
+                                <option value="1">1 (USA)</option>
+                                <option value="44">44 (UK)</option>
+                            </select>
+                        </div>
+                        <input type="text" class="form-control" id="phoneNumber" name="PhoneNumber" value="@Model.PhoneNumber" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <strong><label for="email">Email</label></strong>
+                    <input type="email" class="form-control" id="email" name="Email" value="@Model.Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary secondCloseButton" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveButton">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="~/js/site.js"></script>
+
+
+

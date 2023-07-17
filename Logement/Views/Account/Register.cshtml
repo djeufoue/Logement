@@ -8,49 +8,70 @@
 
 
 <section class="body">
-
-    @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+    @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @id = "registerForm" }))
     {
         <h2>Create a new account.</h2>
         <hr />
         <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-6">
-                <div class="form-floating mb-3">
-                    <input asp-for="FirstName" class="form-control" autocomplete="firstname" aria-required="true" placeholder="first name" />
+                <div class="form-floating">
+                    <input asp-for="FirstName" class="form-control" autocomplete="firstname" aria-required="true" placeholder="First Name" />
                     <label asp-for="FirstName">First Name</label>
                 </div>
             </div>
             <div class="col-6">
-                <div class="form-floating mb-3">
-                    <input asp-for="LastName" class="form-control" autocomplete="lastname" aria-required="true" placeholder="last name" />
+                <div class="form-floating">
+                    <input asp-for="LastName" class="form-control" autocomplete="lastname" aria-required="true" placeholder="Last Name" />
                     <label asp-for="LastName">Last Name</label>
                 </div>
             </div>
         </div>
-        <div>
-            <div>@Html.TextBoxFor(m => m.JobTitle, new { @class = "form-control", @placeholder = "Your job" })</div>
+
+        <div class="mb-3">
+            <div class="form-floating">
+                @Html.TextBoxFor(m => m.JobTitle, new { @class = "form-control", @placeholder = "Your Job Title" })
+                <label asp-for="JobTitle">Job Title</label>
+            </div>
             <div>@Html.ValidationMessageFor(m => m.JobTitle, "", new { @class = "text-danger" })</div>
         </div>
- 
-        <div>
-            <div>@Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email" })</div>
+
+        <div class="mb-3">
+            <div class="form-floating">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email" })
+                <label asp-for="Email">Email</label>
+            </div>
             <div>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</div>
         </div>
 
-        <div>
-            <div>@Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control",@id ="Phone", @placeholder = "Phone number with country code" })</div>
-            <div>@Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })</div>
+        <div class="mb-3">
+            <label for="phoneNumber">Phone Number:</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <select class="custom-select" id="countryCode">
+                        <option value="237" selected>237 (Cameroon)</option>
+                        <option value="1">1 (USA)</option>
+                        <option value="44">44 (UK)</option>
+                    </select>
+                </div>
+                <input type="text" class="form-control" id="phoneNumber" name="PhoneNumber" value="@Model.PhoneNumber" onchange="CheckPhoneNumber()" />
+            </div>
         </div>
 
-        <div>
-            <div>@Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password" })</div>
+        <div class="mb-3">
+            <div class="form-floating">
+                @Html.TextBoxFor(m => m.Password, new { @class = "form-control", @placeholder = "Password", @type = "password" })
+                <label asp-for="Password">Password</label>
+            </div>
             <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
         </div>
 
-        <div>
-            <div>@Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", @placeholder = "Confirm password", @type = "password" })</div>
+        <div class="mb-3">
+            <div class="form-floating">
+                @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", @placeholder = "Confirm password", @type = "password" })
+                <label asp-for="ConfirmPassword">Confirm Password</label>
+            </div>
             <div>@Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })</div>
         </div>
 
@@ -58,15 +79,50 @@
     }
 </section>
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 <script src="/js/intlTelInput.js"></script>
+
 <script>
-    var input = document.querySelector("#Phone");
-    window.intlTelInput(input,{});
+    $(document).ready(function () {
+        $("#registerForm").on("submit", function (e) {
+            e.preventDefault();
+
+            var countryCode = $("#countryCode").val();
+            var phoneNumber = $("#phoneNumber").val();
+
+            var fullPhoneNumber = countryCode + phoneNumber;
+            $("#phoneNumber").val(fullPhoneNumber.replace(/\s+/g, ''));
+
+            this.submit();
+        });
+    });
+
+    //Check for a duplicate ApartmentNumber
+    function CheckPhoneNumber() {
+        var countryCode = $("#countryCode").val();
+        var phoneNumber = $("#phoneNumber").val();
+        var fullPhoneNumber = countryCode + phoneNumber; 
+
+        fullPhoneNumber = fullPhoneNumber.replace(/\s+/g, '');
+
+        $.post("@Url.Action("CheckPhoneNumberAvailability", "Account")", {
+            phoneNumber: fullPhoneNumber 
+        }, function (data) {
+            if (data == 1) {
+                $("#phoneNumber").next(".validation").remove(); // remove previous message
+                $("#phoneNumber").after("<div class='validation' style='color:red;'>Ce numéro de téléphone a déjà été pris.</div>");
+
+                //disable save button:
+                $(':input[type="submit"]').prop('disabled', true);
+
+                $('#phoneNumber').focus();
+            } else if (data == 0) {
+                $(':input[type="submit"]').prop('disabled', false);
+                $("#phoneNumber").next(".validation").remove(); // remove previous message
+            }
+        });
+    }
 </script>
-<p>
-    <a href="https://localhost:44328/">Return to Home Page</a>
-</p>
 
 @section Scripts {
     @{
