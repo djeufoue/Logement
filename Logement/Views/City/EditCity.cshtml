@@ -109,7 +109,7 @@
             </div>
             <div class="col-md-8">
                 <div class="city-image">
-                    <img src="data:@Model.ContentType;base64,@Convert.ToBase64String(Model.Data)" alt="@Model.Name" style="max-width: 500px; max-height: 300px; margin-top: 15px" />
+                    <img src="data:@Model.ContentType;base64,@Convert.ToBase64String(Model.Data)" alt="@Model.Name" style="max-width: 500px; max-height: 300px; margin-top: 15px; border-radius: 10px;" />
                 </div>
 
                 <div class="change-image">
@@ -119,6 +119,7 @@
                             <label for="image-input" class="control-label">Change Image</label>
                             <input id="image-input" type="file" name="file" accept="image/*" onchange="checkImageExistence(event)" required/>
                         </div>
+                        <div id="errorMessage" class="alert alert-danger d-none" role="alert" style="color: red; margin-top: 10px;"></div>
                         <div class="form-group">
                             <input type="submit" value="Change" class="btn btn-primary" />
                         </div>
@@ -147,32 +148,35 @@
 }
 
 <script>
-
     //Check for a duplicate images
-    function checkImageExistence(event) {
-        const file = event.target.files[0];
-        const formData = new FormData();
-        const xhr = new XMLHttpRequest();
+        function checkImageExistence(event) {
+            const file = event.target.files[0];
+            const formData = new FormData();
+            const xhr = new XMLHttpRequest();
 
-        formData.append('file', file);
+            formData.append('file', file);
 
-        xhr.open('POST', '/City/CheckImageExistence', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response === 1) {
-                        alert('The image name is already taken. Please choose another image or change the image name.');
-                        // Clear the file input value to allow selecting a different image
-                        document.getElementById('image-input').value = '';
-                    } else if (response === -1) {
-                        alert('Error checking image existence. Please try again.');
+            xhr.open('POST', '/City/CheckImageExistence', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response === 1) {                             
+                            $("#errorMessage").text("The image already exists in the database. Please choose another image.").removeClass("d-none");
+
+                            // Clear the file input value to prevent uploading the existing image
+                            document.getElementById('image-input').value = '';
+                            
+                        } else if (response === 0) {
+                            // Image doesn't exist, proceed with the upload
+                        } else {
+                        $("#errorMessage").text("Error checking image existence.Please try again.").removeClass("d - none");
+                        }
                     }
                 }
-            }
-        };
-        xhr.send(formData);
-    }
+            };
+            xhr.send(formData);
+        }
 
     //Check for a duplicate city name
     function CheckCityName() {

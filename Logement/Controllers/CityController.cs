@@ -156,26 +156,37 @@ namespace Logement.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> CheckImageExistence(IFormFile file)
+        public async Task<IActionResult> CheckImageExistence(IFormFile file)
         {
             try
             {
-                // Check if the file with the same name already exists in the Fichier table
-                bool exists = await CheckIfImageExists(file.FileName);
-                if (exists)
+                if (file != null && file.Length > 0)
                 {
-                    return Json(1); // Image already exists
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        await file.CopyToAsync(ms);
+                        byte[] imageData = ms.ToArray();
+
+                        var checkImage = await dbc.Fichiers
+                            .Where(f => f.Data.SequenceEqual(imageData))
+                            .FirstOrDefaultAsync();
+
+                        if (checkImage != null)
+                        {
+                            return Json(1); // Image exists in the database
+                        }
+                        else
+                        {
+                            return Json(0); // Image doesn't exist in the database
+                        }
+                    }
                 }
-                else
-                {
-                    return Json(0); // Image does not exist
-                }
+
+                return Json(-1); // No file or error occurred
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // an error occurred
-                Console.WriteLine(ex.Message);
-                return Json(-1);
+                return Json(-1); // Error occurred
             }
         }
 
