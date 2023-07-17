@@ -1,11 +1,14 @@
 ﻿using Logement.Data;
 using Logement.Models;
+using Logement.Services;
 using Logement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
+using Twilio.Types;
 
 namespace Logement.Controllers
 {
@@ -14,17 +17,37 @@ namespace Logement.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<AccountController> _logger;
+        private readonly EmailService _emailService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+             EmailService emailService,
             ApplicationDbContext context,
              IConfiguration configuration,
-            ILogger<AccountController> logger):base(context, configuration)
+            ILogger<AccountController> logger) : base(context, configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
             _logger = logger;
+        }
+
+        [AllowAnonymous]
+        public async Task<JsonResult> CheckPhoneNumberAvailability(string phoneNumber)
+        {
+            var checkPhone = await dbc.Users
+                .Where(p => p.PhoneNumber == phoneNumber)
+                .FirstOrDefaultAsync();
+
+            if (checkPhone != null)
+            {
+                return Json(1);  //phone number number taken
+            }
+            else if (checkPhone == null)
+                return Json(0); //phone number not taken
+            else
+                return Json(-1);  //error occurred
         }
 
         [HttpGet]
@@ -49,6 +72,21 @@ namespace Logement.Controllers
                 ModelState.AddModelError(nameof(email), $"User account {email} already exists");
                 return View(registerViewModel);
             }
+
+            if (String.IsNullOrEmpty(registerViewModel.PhoneNumber))
+            {
+                string? phoneNumber = registerViewModel.PhoneNumber;
+                var checkPhone = await dbc.Users
+                    .Where(u => u.PhoneNumber == registerViewModel.PhoneNumber)
+                    .FirstOrDefaultAsync();
+
+                if (phoneNumber != null)
+                {
+                    ModelState.AddModelError(nameof(phoneNumber), $"User account {phoneNumber} already exists");
+                    return View(registerViewModel);
+                }
+            }
+            
 
             user = new ApplicationUser
             {
@@ -130,6 +168,164 @@ namespace Logement.Controllers
             return View(loginViewModel);
 
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    return View(model);
+                }
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                await _emailService.SendEmailAsync(model.Email, "Réinitialiser le mot de passe",
+                    $"Veuillez réinitialiser votre mot de passe en cliquant ici: <a href='{callbackUrl}'>Réinitialiser le mot de passe</a>");
+
+                model.EmailSent = true;
+                return View(model);
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(long userId, string? code = null)
+        {
+            if (code == null || userId == 0)
+            {
+                return BadRequest("Un code et un ID utilisateur doivent être fournis pour la réinitialisation du mot de passe.");
+            }
+            else
+            {
+                var model = new ResetPasswordViewModel { Token = code, UserId = userId };
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            model.Token = model.Token.Replace(' ', '+');
+            var user = await _userManager.FindByIdAsync(model.UserId.ToString());
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return RedirectToAction(nameof(AccountController.ForgotPassword), "Account");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                model.IsSuccess = true;
+                return View(model);
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> SeeProfile()
+        {
+            var userInfos = await dbc.Users.FindAsync(GetUser().Id);
+
+            if (userInfos != null)
+            {
+                var userProfileViewModel = new UserProfileViewModel
+                {
+                    FirstName = userInfos.FirstName,
+                    LastName = userInfos.LastName,
+                    JobTitle = userInfos.JobTitle,
+                    PhoneNumber = userInfos.PhoneNumber,
+                    Email = userInfos.Email,
+                };
+                return View(userProfileViewModel);
+            }
+            else
+                return NotFound();
+        }
+
+
+        public async Task<ApplicationUser>? CheckEmail(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(string firstName, string lastName, string jobTitle, string? phoneNumber, string email)
+        {
+            try
+            {
+                var currentUser = GetUser();
+                if(currentUser != null)
+                {
+                    if (!String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
+                    {
+                        if (currentUser.Email != email)
+                        {
+                            if (CheckEmail(email) != null)
+                                return BadRequest();//The email already exists 
+                        }
+                        if (currentUser.PhoneNumber != phoneNumber)
+                        {
+                            var isPhoneNumberTaken = await CheckPhoneNumberAvailability(phoneNumber);
+                            if (isPhoneNumberTaken.Value.Equals(0))
+                                return BadRequest(); //The phone number already exists 
+                        }
+                        await changeProfile(currentUser, firstName, lastName, jobTitle, phoneNumber, email);
+                        return RedirectToAction(nameof(SeeProfile));
+                    }
+                    else if (String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
+                    {
+                        if (currentUser.PhoneNumber != phoneNumber)
+                        {
+                            if (CheckEmail(email) != null)
+                                return BadRequest(); //The email already exists
+                        }
+                        await changeProfile(currentUser, firstName, lastName, jobTitle, null, email);
+                        return RedirectToAction(nameof(SeeProfile));
+                    }
+                }
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        public async  Task changeProfile(ApplicationUser currentUser, string firstName, string lastName, string jobTitle, string? phoneNumber, string email)
+        {
+            currentUser.FirstName = firstName;
+            currentUser.LastName = lastName;
+            currentUser.JobTitle = jobTitle;
+            currentUser.PhoneNumber = phoneNumber;
+            currentUser.Email = email;
+            currentUser.UserName = email;
+            currentUser.NormalizedEmail = _userManager.NormalizeEmail(email).ToUpper();
+            currentUser.NormalizedUserName = _userManager.NormalizeName(email).ToUpper();
+            dbc.Users.Update(currentUser);
+            await dbc.SaveChangesAsync();
+        } 
 
         [Authorize]
         public async Task<IActionResult> Logout()
