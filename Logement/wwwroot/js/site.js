@@ -18,3 +18,73 @@ function searchTable() {
         visible_row.style.backgroundColor = (i % 2 == 0) ? 'transparent' : '#0000000b';
     });
 }
+
+
+$(document).ready(function () {
+    // Show the modal and add the custom backdrop class
+    $("#editButton").on("click", function () {
+        $("#editModal").modal("show");
+        $(".modal-backdrop").addClass("custom-backdrop");
+    });
+
+    // Remove the custom backdrop class when the modal is hidden
+    $("#editModal").on("hidden.bs.modal", function () {
+        $(".modal-backdrop").removeClass("custom-backdrop");
+    });
+
+    // Handle the click event on the modal close button
+    $("#editModal .close").on("click", function () {
+        // Refresh the page when the modal is closed without saving
+        window.location.reload();
+    });
+
+    $("#editModal .secondCloseButton").on("click", function () {
+        // Refresh the page when the modal is closed without saving
+        window.location.reload();
+    });
+
+    $("#saveButton").on("click", function (event) {
+        event.preventDefault(); 
+
+        var FirstName = $("#firstName").val();
+        var LastName = $("#lastName").val();
+        var JobTitle = $("#jobTitle").val();
+        var countryCode = $("#countryCode").val();
+        var PhoneNumber = $("#phoneNumber").val();
+        var Email = $("#email").val();
+
+        // Check if required fields are filled
+        if (!FirstName || !LastName || !JobTitle || !Email) {
+            alert("First Name, Last Name, Job Title, and Email are required fields.");
+            return;
+        }
+
+        var data = {
+            firstName: FirstName,
+            lastName: LastName,
+            jobTitle: JobTitle,
+            phoneNumber: countryCode + PhoneNumber.replace(/\s+/g, ''),
+            email: Email
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/Account/EditProfile",
+            data: data,
+            success: function (response) {
+                if (response.redirectTo) {
+                    // Reload the page to perform the redirect
+                    location.reload();
+                }
+            },
+            error: function (xhr, status, error) {
+                // Display the error message in the modal body
+                var errorMessage = xhr.responseText; // Get the error message from the response
+                $("#errorMessage").text(errorMessage).removeClass("d-none");
+
+                // Optionally, you can scroll the modal to show the error message
+                $("#editModal").animate({ scrollTop: $("#errorMessage").offset().top }, "slow");
+            }
+        });
+    });
+});
