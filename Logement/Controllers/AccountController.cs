@@ -42,7 +42,7 @@ namespace Logement.Controllers
 
             if (checkPhone != null)
             {
-                return Json(1);  //phone number number taken
+                return Json(1);  //phone number taken
             }
             else if (checkPhone == null)
                 return Json(0); //phone number not taken
@@ -86,7 +86,6 @@ namespace Logement.Controllers
                     return View(registerViewModel);
                 }
             }
-            
 
             user = new ApplicationUser
             {
@@ -276,33 +275,33 @@ namespace Logement.Controllers
             try
             {
                 var currentUser = GetUser();
-                if(currentUser != null)
+                if (currentUser != null)
                 {
                     if (!String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
                     {
                         if (currentUser.Email != email)
                         {
                             if (CheckEmail(email) != null)
-                                return BadRequest();//The email already exists 
+                                return BadRequest("The email already exists");//The email already exists 
                         }
                         if (currentUser.PhoneNumber != phoneNumber)
                         {
                             var isPhoneNumberTaken = await CheckPhoneNumberAvailability(phoneNumber);
-                            if (isPhoneNumberTaken.Value.Equals(0))
-                                return BadRequest(); //The phone number already exists 
+                            if (isPhoneNumberTaken.Value.Equals(1))
+                                return BadRequest("Phone number already taken"); //The phone number already exists 
                         }
                         await changeProfile(currentUser, firstName, lastName, jobTitle, phoneNumber, email);
-                        return RedirectToAction(nameof(SeeProfile));
+                        return Json(new { redirectTo = Url.Action(nameof(SeeProfile)) });
                     }
                     else if (String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
                     {
                         if (currentUser.PhoneNumber != phoneNumber)
                         {
                             if (CheckEmail(email) != null)
-                                return BadRequest(); //The email already exists
+                                return BadRequest("The email already exists"); //The email already exists
                         }
                         await changeProfile(currentUser, firstName, lastName, jobTitle, null, email);
-                        return RedirectToAction(nameof(SeeProfile));
+                        return Json(new { redirectTo = Url.Action(nameof(SeeProfile)) });
                     }
                 }
                 return NotFound();
@@ -313,7 +312,7 @@ namespace Logement.Controllers
             }
         }
 
-        public async  Task changeProfile(ApplicationUser currentUser, string firstName, string lastName, string jobTitle, string? phoneNumber, string email)
+        public async Task changeProfile(ApplicationUser currentUser, string firstName, string lastName, string jobTitle, string? phoneNumber, string email)
         {
             currentUser.FirstName = firstName;
             currentUser.LastName = lastName;
@@ -325,7 +324,7 @@ namespace Logement.Controllers
             currentUser.NormalizedUserName = _userManager.NormalizeName(email).ToUpper();
             dbc.Users.Update(currentUser);
             await dbc.SaveChangesAsync();
-        } 
+        }
 
         [Authorize]
         public async Task<IActionResult> Logout()
