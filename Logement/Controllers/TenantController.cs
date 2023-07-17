@@ -300,9 +300,8 @@ namespace Logement.Controllers
             }
         }
 
-        //TO complete
         [HttpPost]
-        public async Task<IActionResult> PayRent(long tenantId, long rentId, decimal amount, long cityId)
+        public async Task<IActionResult> PayRent(long tenantId, long rentId, decimal amount)
         {
             try
             {

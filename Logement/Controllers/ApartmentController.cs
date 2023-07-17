@@ -113,7 +113,6 @@ namespace Logement.Controllers
                 CityId = cityId,
                 TenantFullName = $"{user.FirstName} {user.LastName}",
                 TenantId = user.Id,
-                JobTitle = user.JobTitle,
                 PhoneNumber = user.PhoneNumber
             };
             return allUsersViewModel;

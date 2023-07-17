@@ -132,7 +132,6 @@ namespace Logement.Controllers
             return cityViewModel;
         }
 
-
         protected async Task<CityMember?> GetCityCreator(long cityId)
         {
             return await dbc.CityMembers

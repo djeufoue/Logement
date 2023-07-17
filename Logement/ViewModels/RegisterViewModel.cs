@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Logement.ViewModels
 {
-    public class RegisterViewModel: IValidatableObject
+    public class RegisterViewModel
     {
      
         public string FirstName { get; set; }
@@ -13,17 +13,10 @@ namespace Logement.ViewModels
         public string JobTitle { get; set; }
 
         [EmailAddress]
-        public string? Email { get; set; }
+        [Required]
+        public string Email { get; set; }
 
-        [Phone]
-        [RegularExpression(@"^[\+\d]?(?:[\d-.\s()]*)$", ErrorMessage = "Your phone number must start with + and followed by your country code")]
         public string? PhoneNumber { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext vC)
-        {
-            if (string.IsNullOrEmpty(Email) && string.IsNullOrEmpty(PhoneNumber))
-                yield return new ValidationResult("Choose either email, phone number, or both!", new[] { "Email", "PhoneNumber" });
-        }
 
         [Required]
         [DataType(DataType.Password)]

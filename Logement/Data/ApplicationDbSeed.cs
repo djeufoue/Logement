@@ -15,7 +15,7 @@ namespace Logement.Data
 
             if (dbc != null && umg != null)
             {
-                dbc.Database.Migrate();
+                //dbc.Database.Migrate();
 
                 SeedRoles(dbc);
                 SeedAdmin(umg, dbc);
@@ -44,7 +44,6 @@ namespace Logement.Data
                     UserName = "djeufoueadrien@gmail.com",
                     Email = "djeufoueadrien@gmail.com",
                     EmailConfirmed = true,
-                    JobTitle = "Software engineering",
                     FirstName = "Adrien",
                     LastName = "Lontsi",
                 };

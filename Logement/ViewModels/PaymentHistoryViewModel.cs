@@ -16,10 +16,6 @@ namespace Logement.ViewModels
 
         [Display(Name = "Full name")]
         public string TenantFullName { get; set; }
-        //String because the 
-
-        [Display(Name = "Number of month paid")]
-        public string NumberOfMonthPaid { get; set; }
 
         [Display(Name = "Amount paid")]
         public decimal AmountPaid { get; set; }
