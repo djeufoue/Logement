@@ -190,18 +190,6 @@ namespace Logement.Controllers
             }
         }
 
-        private async Task<bool> CheckIfImageExists(string fileName)
-        {
-            var image = await dbc.Fichiers
-                .Where(img => img.FileName == fileName)
-                .FirstOrDefaultAsync();
-
-            if (image == null)
-                return false;
-            else
-                return true;
-        }
-
         [HttpGet]
         public async Task<ActionResult> EditCity(long id)
         {

@@ -11,9 +11,10 @@
     }
 
     .body {
-        margin-top: 100px;
+        margin-top: 50px;
         margin-right: 50px;
         margin-left: 50px;
+        margin-bottom: 20px;
     }
 
     h2 {
@@ -116,9 +117,10 @@
                 </div>
                 <div>
                     <h2 class="box-title" style="color: #333; font-weight: bold;">Select apartment images</h2>
-                    <input asp-for="AppartmentMember.Images" type="file" multiple />
+                    <input asp-for="AppartmentMember.Images" type="file" multiple onchange="CheckMultipleImageExistence(event)" />
                 </div>
-                <div class="form-group">
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert" style="color: red; margin-top: 10px;"></div>
+                <div class="form-group" style="margin-top: 10px;">
                     <input type="submit" value="Save" class="btn btn-primary" />
                 </div>
             </form>
@@ -162,5 +164,5 @@
                     $("#AppartmentMember_ApartmentNunber").next(".validation").remove(); // remove previous message
                 }
             });
-    }
+    }   
 </script>

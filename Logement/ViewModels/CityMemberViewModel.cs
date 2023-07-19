@@ -20,6 +20,7 @@ namespace Logement.ViewModels
         [Required]
         public decimal Price { get; set; }
 
+        [Display(Name = "Amount paid by tenant")]
         public decimal AmountPaidByTenant { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext vC)

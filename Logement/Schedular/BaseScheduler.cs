@@ -30,9 +30,9 @@ namespace Logement.Schedular
             await _emailService.SendEmailAsync(tenantEmail, subject, body);
         }
 
-        public void sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
+        public async Task sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
         {
-            _smsService.SendSMS(tenantPhoneNumber, htmlBody);
+            _smsService.SendNewSMSAsync(tenantPhoneNumber, htmlBody);
         }
 
         public static void Setup()

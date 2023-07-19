@@ -31,6 +31,50 @@ namespace Logement.Controllers
             baseScheduler = new BaseScheduler(context, logger, emailService, userManager, smsService);
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> CheckMultipleImageExistence(List<IFormFile> files)
+        {
+            try
+            {
+                List<string> existingFiles = new List<string>();
+
+                foreach (var file in files)
+                {
+                    if (file != null && file.Length > 0)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            await file.CopyToAsync(ms);
+                            byte[] imageData = ms.ToArray();
+
+                            var checkImage = await dbc.Fichiers
+                                .Where(f => f.Data.SequenceEqual(imageData))
+                                .FirstOrDefaultAsync();
+
+                            if (checkImage != null)
+                            {
+                                existingFiles.Add(file.FileName);
+                            }
+                        }
+                    }
+                }
+
+                if (existingFiles.Count > 0)
+                {
+                    return Json(existingFiles);
+                }
+                else
+                {
+                    return Json(""); 
+                }
+            }
+            catch (Exception)
+            {
+                return Json(-1); // Error occurred
+            }
+        }
+
         private Apartment AddApartmenFromViewModel(ApartmentViewModel a)
         {
             Apartment apartment = new Apartment()
@@ -159,7 +203,6 @@ namespace Logement.Controllers
                         emailBody += "<p>Thanks for trusting us.</p>";
                         emailBody += "<p>Best regards, your landlord</p>";
 
-
                         //For users having phone number                              
                         string smsBody = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.\n\n";
                         smsBody += $"Housing type: {model.AppartmentMember.Type}\n";
@@ -169,19 +212,16 @@ namespace Logement.Controllers
                         smsBody += $"Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}\n";
                         smsBody += $"Thanks for trusting us";
                         smsBody += "Best regards, your landlord";
-
-                        //if (user.PhoneNumber != null && user.Email == null)
-                        //baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
-
-                        if (user.Email != null && user.PhoneNumber == null)
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
-
-                        else if (user.Email != null && user.PhoneNumber != null)
+                     
+                        if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
                         {
-                            //To Do: Need to pay for twiolio sms service per month
-                            //baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                            //To Do: Need to pay Orange Api sms service per month
+                            await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
                             await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
                         }
+                        else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
+                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+
 
                         decimal nbOfMonthPaid = 0;
 

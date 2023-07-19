@@ -88,3 +88,68 @@ $(document).ready(function () {
         });
     });
 });
+
+//Check for a duplicate images
+function checkImageExistence(event) {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    const xhr = new XMLHttpRequest();
+
+    formData.append('file', file);
+
+    xhr.open('POST', '/City/CheckImageExistence', true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response === 1) {
+                    $("#errorMessage").text("The image already exists in the database. Please choose another image.").removeClass("d-none");
+
+                    // Clear the file input value to prevent uploading the existing image
+                    document.getElementById('image-input').value = '';
+
+                } else if (response === 0) {
+                    // Image doesn't exist, proceed with the upload
+                } else {
+                    $("#errorMessage").text("Error checking image existence.Please try again.").removeClass("d - none");
+                }
+            }
+        }
+    };
+    xhr.send(formData);
+}
+
+//Check multiple existence
+function CheckMultipleImageExistence(event) {
+    const files = event.target.files;
+
+    if (files.length === 0) {
+        return; // No files selected
+    }
+
+    const formData = new FormData();
+    const xhr = new XMLHttpRequest();
+
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+    }
+
+    xhr.open('POST', '/Tenant/CheckMultipleImageExistence', true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.length > 0) {
+                    const errorMessageDiv = document.getElementById('errorMessage');
+                    errorMessageDiv.innerHTML = `The following file(s) already exist: ${response.join(', ')}`;
+                    errorMessageDiv.classList.remove('d-none');
+
+                    document.getElementById('image-input').value = '';
+                } else if (response === -1) {
+                    alert('Error checking image existence. Please try again.');
+                }
+            }
+        }
+    };
+    xhr.send(formData);
+}

@@ -263,9 +263,9 @@ namespace Logement.Controllers
         }
 
 
-        public async Task<ApplicationUser>? CheckEmail(string email)
+        public async Task<Boolean> CheckEmail(string email)
         {
-            return await _userManager.FindByEmailAsync(email);
+            return await _userManager.FindByEmailAsync(email) != null ? true: false;
         }
 
         [Authorize]
@@ -281,7 +281,7 @@ namespace Logement.Controllers
                     {
                         if (currentUser.Email != email)
                         {
-                            if (CheckEmail(email) != null)
+                            if (await CheckEmail(email))
                                 return BadRequest("The email already exists");//The email already exists 
                         }
                         if (currentUser.PhoneNumber != phoneNumber)
@@ -295,9 +295,9 @@ namespace Logement.Controllers
                     }
                     else if (String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
                     {
-                        if (currentUser.PhoneNumber != phoneNumber)
+                        if (currentUser.Email != email)
                         {
-                            if (CheckEmail(email) != null)
+                            if (await CheckEmail(email))
                                 return BadRequest("The email already exists"); //The email already exists
                         }
                         await changeProfile(currentUser, firstName, lastName, jobTitle, null, email);
