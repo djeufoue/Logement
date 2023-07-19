@@ -105,6 +105,105 @@ namespace Logement.Controllers
             }
         }
 
+        public async Task<IActionResult> ApartmentDetails(long? cityId, long? apartmentNumber)
+        {
+            if (cityId == null || apartmentNumber == null)
+            {
+                return NotFound();
+            }
+
+            var apartmentsInfos = await dbc.Apartments
+                         .Include(a => a.City)
+                         .Include(a => a.Lessor)
+                         .Where(a => a.CityId == cityId && a.ApartmentNumber == apartmentNumber)
+                         .Select(a => new
+                         {
+                             Id = a.Id,
+                             LessorId = a.LessorId,
+                             PhoneNumber = a.Lessor.PhoneNumber,
+                             Email = a.Lessor.Email,
+                             Price = a.Price,
+                             NumberOfRooms = a.NumberOfRooms,
+                             RoomArea = a.RoomArea,
+                             NumberOfbathRooms = a.NumberOfbathRooms,
+                             FloorNumber = a.FloorNumber,
+                             Type = a.Type,
+                             LocatedAt = a.City.LocatedAt
+                         }).FirstOrDefaultAsync();
+
+            if (apartmentsInfos == null)
+                return NotFound();
+
+            var tenant = await dbc.TenantRentApartments
+                .Where(t => t.ApartmentId == apartmentsInfos.Id && t.TenantId == GetUser().Id)
+                .FirstOrDefaultAsync();
+
+
+            if (tenant == null && apartmentsInfos.LessorId != GetUser().Id)
+                return Forbid("This apartment does not belong to you!");
+
+            //Tenant or landlord
+            else if (tenant != null || apartmentsInfos.LessorId == GetUser().Id)
+            {
+                ApartmentBaseInfos apartmentBaseInfos = new ApartmentBaseInfos();
+
+                apartmentBaseInfos.ApartmentInfos = new ApartmentDescriptions
+                {
+                    Id = apartmentsInfos.Id,
+                    Price = (Int32)apartmentsInfos.Price,
+                    NumberOfRooms = apartmentsInfos.NumberOfRooms,
+                    NumberOfbathRooms = apartmentsInfos.NumberOfbathRooms,
+                    RoomArea = apartmentsInfos.RoomArea,
+                    FloorNumber = (Int32)apartmentsInfos.FloorNumber,
+                    ApartmentType = apartmentsInfos.Type,
+                    LocatedAt = apartmentsInfos.LocatedAt,
+                    LandlordId = apartmentsInfos.LessorId,
+                    LandlordPhoneNumber = apartmentsInfos.PhoneNumber,
+                    LandlordEmail = apartmentsInfos.Email,
+                };
+
+                var apartmentImages = await dbc.Fichiers
+                    .Where(a => a.CityOrApartement == "Apartement" && a.ApartmentId == apartmentsInfos.Id)
+                    .ToListAsync();
+
+                if (apartmentImages.Count == 0)
+                    return NotFound("There is no image for this apartment, please contact the system administrator");
+
+                foreach (var image in apartmentImages)
+                {
+                    apartmentBaseInfos.ApartmentImages.Add(new ApartmentImagesInfos
+                    {
+                        Data = image.Data,
+                        ContentType = image.ContentType
+                    });
+                }
+                return View(apartmentBaseInfos);
+            }
+            else
+                return Forbid();
+        }
+
+        /*public async Task<IActionResult> EditImage(long id, string imageId)
+        {
+            // Decode the image data from base64
+            byte[] imageData = Convert.FromBase64String(imageId);
+
+            // Find the corresponding image in the database
+            var image = await dbc.Fichiers.FirstOrDefaultAsync(i => i.ApartmentId == id && i.Data == imageData);
+
+            if (image == null)
+            {
+                return NotFound();
+            }
+
+            // Your logic for image editing goes here
+
+            // Replace this with your desired view for image editing
+            return View("ImageEditView", image);
+        }*/
+
+
+
         private AllUsersViewModel GetViewModelFromModel(long cityId, ApplicationUser user)
         {
             AllUsersViewModel allUsersViewModel = new AllUsersViewModel()

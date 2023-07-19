@@ -1,0 +1,122 @@
+﻿@model Logement.ViewModels.ApartmentBaseInfos
+
+@{
+    ViewData["Title"] = "Apartment Details";
+}
+
+<style>
+    .body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .content-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .content-header h1 {
+        font-size: 28px;
+        margin: 0;
+    }
+
+    .content-header h2 {
+        font-size: 20px;
+        margin: 0;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+
+    .image-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .image-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .image-card img {
+        max-width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .image-card a {
+        display: block;
+        margin-top: 10px;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+    .image-card a:hover {
+        background-color: #0056b3;
+    }
+
+    .apartment-info {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .apartment-info h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .apartment-info p {
+        margin: 0;
+    }
+</style>
+
+<section class="body">
+    <section class="content-header">
+        <h1>
+            Apartment Details
+        </h1>
+    </section>
+
+    <div class="apartment-info">
+        <h3>Apartment Number: @Model.ApartmentInfos.Id</h3>
+        <p>City: @Model.ApartmentInfos.LocatedAt</p>
+        <p>Located At: @Model.ApartmentInfos.LocatedAt</p>
+        <p>Number of Rooms: @Model.ApartmentInfos.NumberOfRooms</p>
+        <p>Number of Bathrooms: @Model.ApartmentInfos.NumberOfbathRooms</p>
+        <p>Room Area: @Model.ApartmentInfos.RoomArea</p>
+        <p>Floor Number: @Model.ApartmentInfos.FloorNumber</p>
+        <p>Price: @Model.ApartmentInfos.Price</p>
+    </div>
+
+    <div>
+        <div class="image-container">
+            @foreach (var image in Model.ApartmentImages)
+            {
+                <div class="image-card">
+                    <img src="data:@image.ContentType;base64,@Convert.ToBase64String(image.Data)" alt="Apartment Image" />
+                    <a href="@Url.Action("EditImage", "Apartment", new { id = Model.ApartmentInfos.Id, imageId = Convert.ToBase64String(image.Data) })">Edit</a>
+                    <a href="@Url.Action("DeleteImage", "Apartment", new { id = Model.ApartmentInfos.Id, imageId = Convert.ToBase64String(image.Data) })">Delete</a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
