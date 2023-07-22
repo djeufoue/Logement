@@ -14,7 +14,7 @@ namespace Logement.Models
         public decimal AmmountSupposedToPay { get; set; }
 
         [Description("Date that was scheduled for the payment of the rent")]
-        public DateTime ScheduledDateForRentPayment { get; set; }
+        public DateTimeOffset ScheduledDateForRentPayment { get; set; }
 
         [Description("Date the notification was sent")]
         public DateTime NotificationSentDate { get; set; }

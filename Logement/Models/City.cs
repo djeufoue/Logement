@@ -15,8 +15,6 @@ namespace Logement.Models
         public string Town { get; set; }
         public string LocatedAt { get; set; }
 
-        //public int? NumberOfParkingSpaces { get; set; }
-
         public string Floor { get; set; }
 
         public DateTime DateAdded { get; set; }
