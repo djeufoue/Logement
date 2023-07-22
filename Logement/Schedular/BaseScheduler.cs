@@ -25,20 +25,20 @@ namespace Logement.Schedular
             _smsService = smsService;
         }
 
-        public async Task SendConfirmationEmail(string tenantEmail, string subject, string body)
+        public async Task<bool> SendConfirmationEmail(string tenantEmail, string subject, string body)
         {  
-            await _emailService.SendEmailAsync(tenantEmail, subject, body);
+           return await _emailService.SendEmailAsync(tenantEmail, subject, body);
         }
 
-        public async Task sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
+        public async Task<bool> sendSMStoTenant(string tenantPhoneNumber, string htmlBody)
         {
-            _smsService.SendNewSMSAsync(tenantPhoneNumber, htmlBody);
+            return await _smsService.SendNewSMSAsync(tenantPhoneNumber, htmlBody);
         }
 
         public static void Setup()
         {
            //RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "59 22 * * *");
-           RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "38 22 * * *");
+           RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.RunSchedularMethod(), "51 23 * * *");
            RecurringJob.AddOrUpdate<PaymentSchedular>(x => x.CheckSubscription(), "*/10 * * * *");
         }
     }

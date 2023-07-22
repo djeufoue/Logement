@@ -22,15 +22,17 @@ namespace Logement.Services
         }
 
         [HttpPost]
-        public async Task SendNewSMSAsync(string recipientPhoneNumber,string message)
+        public async Task<bool> SendNewSMSAsync(string recipientPhoneNumber,string message)
         {
             string authorizationHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_settings.ClientId}:{_settings.ClientSecret}"));
 
             string accessToken = await GetAccessToken(authorizationHeader);
             if (!string.IsNullOrEmpty(accessToken))
             {
-                await SendSMS(accessToken, recipientPhoneNumber, "23758772239", message);
+                return await SendSMS(accessToken, recipientPhoneNumber, "23758772239", message);
             }
+            else
+                return false;
         }
 
         static async Task<string?> GetAccessToken(string authorizationHeader)
@@ -65,7 +67,7 @@ namespace Logement.Services
             }
         }
 
-        static async Task SendSMS(string accessToken, string recipientPhoneNumber, string devPhoneNumber, string message)
+        static async Task<bool> SendSMS(string accessToken, string recipientPhoneNumber, string devPhoneNumber, string message)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -92,12 +94,14 @@ namespace Logement.Services
                     string responseContent = await response.Content.ReadAsStringAsync();
                     Console.WriteLine("SMS sent successfully.");
                     Console.WriteLine(responseContent);
+                    return true;
                 }
                 else
                 {
                     string responseContent = await response.Content.ReadAsStringAsync();
                     Console.WriteLine("Failed to send SMS. Status code: " + response.StatusCode);
                     Console.WriteLine(responseContent);
+                    return false;
                 }
             }
         }
