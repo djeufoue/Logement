@@ -22,7 +22,7 @@ namespace Logement.Schedular
 
         //Need to be strongly improve
         public async Task RunSchedularMethod()
-       {
+        {
             try
             {
                 //Find all active tenants
@@ -60,7 +60,7 @@ namespace Logement.Schedular
                             }
                             else
                             {
-                                DateTime currentDate = DateTime.UtcNow;
+                                DateTimeOffset currentDate = DateTimeOffset.UtcNow;
 
                                 //(t.RentStatus == RentStatusEnum.Unpaid || t.RentStatus == RentStatusEnum.Partially_paid)
                                 //Selectionner les dates dont le status est impayé pour ce locataire actif
@@ -79,20 +79,19 @@ namespace Logement.Schedular
 
 
                                 //This allows the tenant to be reminded two days before the scheduled date to pay his rent.
-                                DateTimeOffset twoDaysFromNow = currentDate.AddDays(2);
-
+                                //Probleme to be solve
                                 List<RentPaymentDatesSchedular> RentToPaySoon = await (from r in _context.RentPaymentDatesSchedulars
-                                                                                       where (r.RentStatus == Data.Enum.RentStatusEnum.Unpaid || r.RentStatus == Data.Enum.RentStatusEnum.Partially_paid) &&
-                                                                                             r.TenantId == tenant.TenantId &&
-                                                                                             (r.NextDateToPay.Day - twoDaysFromNow.Day >= 0 && r.NextDateToPay.Day - twoDaysFromNow.Day <= 2)
-                                                                                       select new RentPaymentDatesSchedular
-                                                                                       {
-                                                                                           TenantId = r.TenantId,
-                                                                                           NextDateToPay = r.NextDateToPay,
-                                                                                           AmmountSupposedToPay = r.AmmountSupposedToPay,
-                                                                                           ApartmentNumber = r.ApartmentNumber,
-                                                                                           CityId = r.CityId
-                                                                                       }).ToListAsync();
+                                                                                where (r.RentStatus == Data.Enum.RentStatusEnum.Unpaid || r.RentStatus == Data.Enum.RentStatusEnum.Partially_paid) &&
+                                                                                    r.TenantId == tenant.TenantId &&
+                                                                                    (r.NextDateToPay >= DateTimeOffset.Now && r.NextDateToPay <= DateTimeOffset.Now.AddDays(2))
+                                                                                select new RentPaymentDatesSchedular
+                                                                                {
+                                                                                    TenantId = r.TenantId,
+                                                                                    NextDateToPay = r.NextDateToPay,
+                                                                                    AmmountSupposedToPay = r.AmmountSupposedToPay,
+                                                                                    ApartmentNumber = r.ApartmentNumber,
+                                                                                    CityId = r.CityId
+                                                                                }).ToListAsync();
 
 
                                 //Rents that need to be pay for this tenant

@@ -183,27 +183,6 @@ namespace Logement.Controllers
                 return Forbid();
         }
 
-        /*public async Task<IActionResult> EditImage(long id, string imageId)
-        {
-            // Decode the image data from base64
-            byte[] imageData = Convert.FromBase64String(imageId);
-
-            // Find the corresponding image in the database
-            var image = await dbc.Fichiers.FirstOrDefaultAsync(i => i.ApartmentId == id && i.Data == imageData);
-
-            if (image == null)
-            {
-                return NotFound();
-            }
-
-            // Your logic for image editing goes here
-
-            // Replace this with your desired view for image editing
-            return View("ImageEditView", image);
-        }*/
-
-
-
         private AllUsersViewModel GetViewModelFromModel(long cityId, ApplicationUser user)
         {
             AllUsersViewModel allUsersViewModel = new AllUsersViewModel()

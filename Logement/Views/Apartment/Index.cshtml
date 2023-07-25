@@ -106,9 +106,6 @@
                         <a class="city-name" asp-controller="Apartment" asp-action="ApartmentDetails" asp-route-cityId="@item.CityId" asp-route-apartmentNumber="@item.ApartmentNunber">@item.ApartmentNunber</a>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ApartmentNunber)
-                    </td>
-                    <td>
                         @Html.DisplayFor(modelItem => item.OccupiedBy)
                     </td>
                     <td>

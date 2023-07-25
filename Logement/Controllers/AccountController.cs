@@ -93,8 +93,7 @@ namespace Logement.Controllers
                 Email = email,
                 PhoneNumber = registerViewModel.PhoneNumber,
                 FirstName = registerViewModel.FirstName,
-                LastName = registerViewModel.LastName,
-                JobTitle = registerViewModel.JobTitle
+                LastName = registerViewModel.LastName
             };
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
             if (result.Succeeded)
@@ -252,7 +251,6 @@ namespace Logement.Controllers
                 {
                     FirstName = userInfos.FirstName,
                     LastName = userInfos.LastName,
-                    JobTitle = userInfos.JobTitle,
                     PhoneNumber = userInfos.PhoneNumber,
                     Email = userInfos.Email,
                 };
@@ -316,7 +314,6 @@ namespace Logement.Controllers
         {
             currentUser.FirstName = firstName;
             currentUser.LastName = lastName;
-            currentUser.JobTitle = jobTitle;
             currentUser.PhoneNumber = phoneNumber;
             currentUser.Email = email;
             currentUser.UserName = email;

@@ -210,7 +210,7 @@ namespace Logement.Controllers
                         smsBody += $"Area: {model.AppartmentMember.RoomArea} m²\n";
                         smsBody += $"Number of bedrooms: {model.AppartmentMember.NumberOfRooms}\n";
                         smsBody += $"Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}\n";
-                        smsBody += $"Thanks for trusting us";
+                        smsBody += $"Thanks for trusting us\n";
                         smsBody += "Best regards, your landlord";
                      
                         if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
@@ -250,7 +250,7 @@ namespace Logement.Controllers
                             ApartmentNumber = model.AppartmentMember.ApartmentNunber,
                             AmountAlreadyPaid = extraAmount > 0 ? extraAmount: 0,
                             RemainingAmount = model.AppartmentMember.Price,
-                            RentStatus = RentStatusEnum.Unpaid,
+                            RentStatus = extraAmount > 0 ? RentStatusEnum.Partially_paid : RentStatusEnum.Unpaid,
                             AmmountSupposedToPay = model.AppartmentMember.Price,
                             NextDateToPay = DateTime.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
                         };

@@ -35,7 +35,7 @@ namespace Logement.Services
                 return false;
         }
 
-        static async Task<string?> GetAccessToken(string authorizationHeader)
+        public static async Task<string?> GetAccessToken(string authorizationHeader)
         {
             using (HttpClient client = new HttpClient())
             {
