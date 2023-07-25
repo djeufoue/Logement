@@ -17,6 +17,7 @@ namespace Logement.ViewModels
 
         [Display(Name = "Phone number")]
         public string? TenantPhoneNumber { get; set; }
+        public string? CountryCode { get; set; }
 
         [Display(Name = "Apartement price")]
         public decimal? ApartementPrice { get; set; }

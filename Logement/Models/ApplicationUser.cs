@@ -17,13 +17,11 @@ namespace Logement.Models
 
         [MaxLength(256)]
         public override string? PhoneNumber { get; set; }
+        public string? CountryCode { get; set; }
 
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
-
-        public string JobTitle { get; set; }
-
     }
 
 
