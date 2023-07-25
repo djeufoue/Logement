@@ -564,7 +564,7 @@ namespace Logement.Controllers
 
             transactionList.Add(new Transaction()
             {
-                description = "DJE Residence subscription payment",
+                description = "DJE Rentals subscription payment",
                 invoice_number = Guid.NewGuid().ToString(),
                 amount = amount,
                 item_list = itemList

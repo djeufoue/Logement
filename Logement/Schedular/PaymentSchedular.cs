@@ -358,7 +358,7 @@ namespace Logement.Schedular
                                 <li>Payment Due Date: {subscription.NextPaymentDate}</li>
                             </ul>
                             <p>It appears that we have not received your payment for the current subscription period. We kindly request that you settle the payment as soon as possible to ensure uninterrupted access to our services. Your prompt attention to this matter is greatly appreciated.</p>          
-                            <p>Best regards,<br>[DJE RESIDENCE]</p>
+                            <p>Best regards,<br>[DJE Rentals]</p>
                         </body>
                         </html>";
 

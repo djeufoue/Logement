@@ -460,7 +460,7 @@ namespace Logement.Controllers
 
                 // Set PDF document properties
                 document.AddTitle("Rent receipt");
-                document.AddAuthor("DJE Residence");
+                document.AddAuthor("DJE Rentals");
                 document.AddSubject("Rent payment for this month");
 
 
