@@ -193,10 +193,16 @@ namespace Logement.Controllers
                         dbc.TenantRentApartments.Add(tenantRentApartment);
                         await dbc.SaveChangesAsync();
 
+                        string cityName = await dbc.Cities
+                            .Where(c => c.Id == model.AppartmentMember.CityId)
+                            .Select(c => c.Name)
+                            .FirstOrDefaultAsync();
+
                         //For users having email
                         string emailSubject = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.";
                         string emailBody = $"<p>Housing type: {model.AppartmentMember.Type}</p>";
                         emailBody += $"<p>Located at: {model.AppartmentMember.LocatedAt}</p>";
+                        emailBody += $"<p>City name: {cityName}</p>";
                         emailBody += $"<p>Area: {model.AppartmentMember.RoomArea} m²</p>";
                         emailBody += $"<p>Number of bedrooms: {model.AppartmentMember.NumberOfRooms}</p>";
                         emailBody += $"<p>Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}</p><br>";
@@ -207,12 +213,15 @@ namespace Logement.Controllers
                         string smsBody = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.\n\n";
                         smsBody += $"Housing type: {model.AppartmentMember.Type}\n";
                         smsBody += $"Located at: {model.AppartmentMember.LocatedAt}\n";
+                        smsBody += $"City name: {cityName}\n";
                         smsBody += $"Area: {model.AppartmentMember.RoomArea} m²\n";
                         smsBody += $"Number of bedrooms: {model.AppartmentMember.NumberOfRooms}\n";
-                        smsBody += $"Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}\n";
+                        smsBody += $"Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}\n\n";
                         smsBody += $"Thanks for trusting us\n";
-                        smsBody += "Best regards, your landlord";
-                     
+                        smsBody += "Best regards,\n";
+                        smsBody += "your landlord";
+
+
                         if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
                         {
                             //To Do: Need to pay Orange Api sms service per month

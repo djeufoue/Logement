@@ -7,6 +7,7 @@
 }
 
 
+
 <section class="body">
     @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @id = "registerForm" }))
     {
@@ -49,7 +50,7 @@
             <label for="phoneNumber">Phone Number:</label>
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <select class="custom-select" id="countryCode">
+                    <select asp-for="CountryCode" class="custom-select" id="countryCode">
                         <option value="237" selected>237 (Cameroon)</option>
                         <option value="1">1 (USA)</option>
                         <option value="44">44 (UK)</option>
@@ -75,23 +76,20 @@
             <div>@Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })</div>
         </div>
 
-        <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+        <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-success custom-button">Register</button>
     }
 </section>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
-<script src="/js/intlTelInput.js"></script>
 
 <script>
     $(document).ready(function () {
         $("#registerForm").on("submit", function (e) {
             e.preventDefault();
 
-            var countryCode = $("#countryCode").val();
             var phoneNumber = $("#phoneNumber").val();
 
-            var fullPhoneNumber = countryCode + phoneNumber;
-            $("#phoneNumber").val(fullPhoneNumber.replace(/\s+/g, ''));
+            $("#phoneNumber").val(phoneNumber.replace(/\s+/g, ''));
 
             this.submit();
         });
@@ -101,26 +99,29 @@
     function CheckPhoneNumber() {
         var countryCode = $("#countryCode").val();
         var phoneNumber = $("#phoneNumber").val();
-        var fullPhoneNumber = countryCode + phoneNumber; 
 
-        fullPhoneNumber = fullPhoneNumber.replace(/\s+/g, '');
+        // Remove any whitespace from the phone number
+        phoneNumber = phoneNumber.replace(/\s+/g, '');
 
-        $.post("@Url.Action("CheckPhoneNumberAvailability", "Account")", {
-            phoneNumber: fullPhoneNumber 
-        }, function (data) {
-            if (data == 1) {
-                $("#phoneNumber").next(".validation").remove(); // remove previous message
-                $("#phoneNumber").after("<div class='validation' style='color:red;'>Ce numéro de téléphone a déjà été pris.</div>");
+        // Make the AJAX request
+        $.post(
+            "@Url.Action("CheckPhoneNumberAvailability", "Account")",
+            { countryCode: countryCode, phoneNumber: phoneNumber },
+            function (data) {
+                if (data == 1) {
+                    $("#phoneNumber").next(".validation").remove(); // Remove previous message
+                    $("#phoneNumber").after("<div class='validation' style='color:red;'>Ce numéro de téléphone a déjà été pris.</div>");
 
-                //disable save button:
-                $(':input[type="submit"]').prop('disabled', true);
+                    // Disable save button:
+                    $(':input[type="submit"]').prop('disabled', true);
 
-                $('#phoneNumber').focus();
-            } else if (data == 0) {
-                $(':input[type="submit"]').prop('disabled', false);
-                $("#phoneNumber").next(".validation").remove(); // remove previous message
+                    $('#phoneNumber').focus();
+                } else if (data == 0) {
+                    $(':input[type="submit"]').prop('disabled', false);
+                    $("#phoneNumber").next(".validation").remove(); // Remove previous message
+                }
             }
-        });
+        );
     }
 </script>
 

@@ -15,10 +15,10 @@
         <div class="content-title">
             <h1>COMFORT AT LOW PRICES NEAR YOU</h1>
             <h3>Easily create an account and start chatting with the different owners of the apartment</h3>
-            <div>
+           @* <div>
                 <button type="button">WATCH MORE</button>
-                <button type="button" class="btn-2">SUBSCRIBE</button>
-            </div>
+                <button type="button" class="btn-2" onclick="subscribe()">SUBSCRIBE</button>
+            </div>*@
         </div>
     </div>
 </div>
@@ -36,14 +36,7 @@
                     <div class="card-content">
                         <h2 class="card-title">@item.LocatedAt</h2>
                         <div class="card-footer">
-                            <a href="/Home/GetAllApartmentImages?apartmentId=@item.Id" class="see-more-button">See More</a>
-                            <div class="rating">
-                                <ion-icon name="star"></ion-icon>
-                                <ion-icon name="star"></ion-icon>
-                                <ion-icon name="star"></ion-icon>
-                                <ion-icon name="star"></ion-icon>
-                                <ion-icon name="star"></ion-icon>
-                            </div>
+                            <a href="/Home/GetAllApartmentImages?apartmentId=@item.Id" class="see-more-button">See More</a>                           
                         </div>
                     </div>
                 </div>
@@ -51,8 +44,8 @@
         </div>
     </div>
 </div>
-
+<script src="~/js/home.js"></script>
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
-<script src="~/js/home.js"></script>
+

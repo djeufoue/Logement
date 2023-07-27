@@ -86,7 +86,7 @@ namespace Logement.Controllers
                 List<CityViewModel> citiesModel = new List<CityViewModel>();
                 var cities = await dbc.Cities.ToListAsync();
 
-                if (cities != null)
+                if (cities.Count > 0)
                 {
                     var CitiesMembers = await dbc.CityMembers
                             .Where(c => c.UserId == GetUser().Id && (c.Role == CityMemberRoleEnum.Landord || c.Role == CityMemberRoleEnum.Tenant))

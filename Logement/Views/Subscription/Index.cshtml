@@ -53,6 +53,18 @@
         border-radius: 10px;
         place-items: center;
     }
+
+    .british-message {
+        display: inline-block;
+        padding: 10px;
+        background-color: #959ca9;
+        color: #1a1a1a; 
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
 </style>
 
 
@@ -114,10 +126,14 @@
                             </td>
                             <td>
                                 <di class="button">
-                                    @if (item.NextPaymentDate <= DateTime.UtcNow)
+                                    @if (item.NextPaymentDate <= DateTimeOffset.UtcNow)
                                     {
                                         <a href="/Subscription/ExtendSubscriptionDate?subcriptionId=@item.SubcriptionId&cityId=@item.Id" class="buttonPay">Pay Now</a>
-                                    }                                   
+                                    }  
+                                    else if(item.NextPaymentDate > DateTimeOffset.UtcNow)
+                                    {
+                                        <span class="british-message">subscription has been successfully processed</span>
+                                    }
                                 </di>
                             </td>
                         </tr>
