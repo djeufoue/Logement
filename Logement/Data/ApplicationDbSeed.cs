@@ -43,6 +43,7 @@ namespace Logement.Data
                 {
                     UserName = "djeufoueadrien@gmail.com",
                     Email = "djeufoueadrien@gmail.com",
+                    CountryCode = "237",
                     EmailConfirmed = true,
                     FirstName = "Adrien",
                     LastName = "Lontsi",

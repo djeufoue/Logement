@@ -48,22 +48,21 @@ $(document).ready(function () {
 
         var FirstName = $("#firstName").val();
         var LastName = $("#lastName").val();
-        var JobTitle = $("#jobTitle").val();
-        var countryCode = $("#countryCode").val();
+        var CountryCode = $("#countryCode").val();
         var PhoneNumber = $("#phoneNumber").val();
         var Email = $("#email").val();
 
         // Check if required fields are filled
-        if (!FirstName || !LastName || !JobTitle || !Email) {
-            alert("First Name, Last Name, Job Title, and Email are required fields.");
+        if (!FirstName || !LastName || !Email) {
+            alert("First Name, Last Name, and Email are required fields.");
             return;
         }
 
         var data = {
             firstName: FirstName,
             lastName: LastName,
-            jobTitle: JobTitle,
-            phoneNumber: countryCode + PhoneNumber.replace(/\s+/g, ''),
+            countryCode: CountryCode,
+            phoneNumber: PhoneNumber.replace(/\s+/g, ''),
             email: Email
         };
 
@@ -77,7 +76,7 @@ $(document).ready(function () {
                     location.reload();
                 }
             },
-            error: function (xhr, status, error) {
+            error: function (xhr) {
                 // Display the error message in the modal body
                 var errorMessage = xhr.responseText; // Get the error message from the response
                 $("#errorMessage").text(errorMessage).removeClass("d-none");

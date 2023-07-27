@@ -34,10 +34,10 @@ namespace Logement.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<JsonResult> CheckPhoneNumberAvailability(string phoneNumber)
+        public async Task<JsonResult> CheckPhoneNumberAvailability(string countryCode ,string phoneNumber)
         {
             var checkPhone = await dbc.Users
-                .Where(p => p.PhoneNumber == phoneNumber)
+                .Where(p => p.PhoneNumber == phoneNumber && p.CountryCode == countryCode)
                 .FirstOrDefaultAsync();
 
             if (checkPhone != null)
@@ -73,16 +73,16 @@ namespace Logement.Controllers
                 return View(registerViewModel);
             }
 
-            if (String.IsNullOrEmpty(registerViewModel.PhoneNumber))
+            if (!String.IsNullOrEmpty(registerViewModel.PhoneNumber))
             {
                 string? phoneNumber = registerViewModel.PhoneNumber;
                 var checkPhone = await dbc.Users
-                    .Where(u => u.PhoneNumber == registerViewModel.PhoneNumber)
+                    .Where(u => u.PhoneNumber == registerViewModel.PhoneNumber && u.CountryCode == registerViewModel.CountryCode)
                     .FirstOrDefaultAsync();
 
-                if (phoneNumber != null)
+                if (checkPhone != null)
                 {
-                    ModelState.AddModelError(nameof(phoneNumber), $"User account {phoneNumber} already exists");
+                    ModelState.AddModelError(nameof(phoneNumber), $"User account {registerViewModel.CountryCode} {phoneNumber} already exists");
                     return View(registerViewModel);
                 }
             }
@@ -93,6 +93,7 @@ namespace Logement.Controllers
                 Email = email,
                 PhoneNumber = registerViewModel.PhoneNumber,
                 FirstName = registerViewModel.FirstName,
+                CountryCode = registerViewModel.CountryCode,
                 LastName = registerViewModel.LastName
             };
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
@@ -252,6 +253,7 @@ namespace Logement.Controllers
                     FirstName = userInfos.FirstName,
                     LastName = userInfos.LastName,
                     PhoneNumber = userInfos.PhoneNumber,
+                    CountryCode = userInfos.CountryCode,
                     Email = userInfos.Email,
                 };
                 return View(userProfileViewModel);
@@ -268,7 +270,7 @@ namespace Logement.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> EditProfile(string firstName, string lastName, string jobTitle, string? phoneNumber, string email)
+        public async Task<IActionResult> EditProfile(string firstName, string lastName, string countryCode ,string? phoneNumber, string email)
         {
             try
             {
@@ -282,13 +284,13 @@ namespace Logement.Controllers
                             if (await CheckEmail(email))
                                 return BadRequest("The email already exists");//The email already exists 
                         }
-                        if (currentUser.PhoneNumber != phoneNumber)
+                        if (currentUser.PhoneNumber != phoneNumber || currentUser.CountryCode != countryCode)
                         {
-                            var isPhoneNumberTaken = await CheckPhoneNumberAvailability(phoneNumber);
+                            var isPhoneNumberTaken = await CheckPhoneNumberAvailability(countryCode,phoneNumber);
                             if (isPhoneNumberTaken.Value.Equals(1))
                                 return BadRequest("Phone number already taken"); //The phone number already exists 
                         }
-                        await changeProfile(currentUser, firstName, lastName, jobTitle, phoneNumber, email);
+                        await changeProfile(currentUser, firstName, lastName,countryCode, phoneNumber, email);
                         return Json(new { redirectTo = Url.Action(nameof(SeeProfile)) });
                     }
                     else if (String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
@@ -298,7 +300,7 @@ namespace Logement.Controllers
                             if (await CheckEmail(email))
                                 return BadRequest("The email already exists"); //The email already exists
                         }
-                        await changeProfile(currentUser, firstName, lastName, jobTitle, null, email);
+                        await changeProfile(currentUser, firstName, lastName, null, null, email);
                         return Json(new { redirectTo = Url.Action(nameof(SeeProfile)) });
                     }
                 }
@@ -310,10 +312,11 @@ namespace Logement.Controllers
             }
         }
 
-        public async Task changeProfile(ApplicationUser currentUser, string firstName, string lastName, string jobTitle, string? phoneNumber, string email)
+        public async Task changeProfile(ApplicationUser currentUser, string firstName, string lastName,string? countryCode, string? phoneNumber, string email)
         {
             currentUser.FirstName = firstName;
             currentUser.LastName = lastName;
+            currentUser.CountryCode = countryCode;
             currentUser.PhoneNumber = phoneNumber;
             currentUser.Email = email;
             currentUser.UserName = email;
