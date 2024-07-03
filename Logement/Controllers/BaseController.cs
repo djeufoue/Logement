@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 
 namespace Logement.Controllers
 {
@@ -24,6 +25,8 @@ namespace Logement.Controllers
             dbc = context;
             _configuration = configuration;
         }
+
+        protected long UserId => long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         protected async Task SaveImageFile(IFormFile file, long Id, string methodName)
         {

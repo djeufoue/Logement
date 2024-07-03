@@ -2,6 +2,7 @@
 using Logement.Data.Enum;
 using Logement.Models;
 using Logement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using System.Net;
 
 namespace Logement.Controllers
 {
+    [Authorize]
     public class ApartmentController : BaseController
     {
         UserManager<ApplicationUser> _userManager;
@@ -17,6 +19,69 @@ namespace Logement.Controllers
         {
             _userManager = userManager;
         }
+
+        [HttpPost]
+        private async Task<IActionResult> AddApartment(ApartmentModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var currentUser = await dbc.Users.Where( u => u.Id == UserId).FirstOrDefaultAsync();
+
+                    if(currentUser != null)                    
+                    {
+                        var city = await dbc.Cities.Where(c => c.Id == model.CityId).FirstOrDefaultAsync();
+
+                        if (city != null)
+                        {
+                            var cityCreator = GetCityCreator(city.Id);
+
+                            if (cityCreator != null)
+                            {
+                                var apatment = await dbc.Apartments.
+                                    Where(a => a.ApartmentName == model.ApartmentName)
+                                    .FirstOrDefaultAsync();
+
+                                if (apatment == null)
+                                {
+                                    apatment = new Apartment
+                                    {
+                                        ApartmentName = model.ApartmentName,
+                                        CityId = city.Id,
+                                        NumberOfRooms = model.NumberOfRooms,
+                                        NumberOfbathRooms = model.NumberOfbathRooms,
+                                        RoomArea = model.RoomArea,
+                                        FloorNumber = model.FloorNumber,
+                                        Price = model.Price,
+                                        DepositePrice = model.DepositePrice,
+                                        Status = model.Status,
+                                        CreatedOn = DateTime.UtcNow,
+                                        ApartmentAdderId = currentUser.Id,
+                                    };
+
+                                    await dbc.Apartments.AddAsync(apatment);
+                                }
+                                else
+                                    return StatusCode((int)HttpStatusCode.Forbidden, "This apartment name already exists, choose another name");
+                            }
+                            else
+                                return StatusCode((int)HttpStatusCode.Forbidden, "You do not have the necessary right to add an apartment to this city");
+                        }
+                        else
+                            return StatusCode((int)HttpStatusCode.NotFound, "This city does not exist or was deleted");
+                    }
+                    else
+                        return StatusCode((int)HttpStatusCode.NotFound,"This user does not exist or was deleted");
+                }
+
+                return Ok(model);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        } 
 
         private ApartmentViewModel GetAllApartmentsFromModel(Apartment apartment, City city, CityMember tenant)
         {
