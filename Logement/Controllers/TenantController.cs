@@ -11,9 +11,14 @@ using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
 using System.Net;
 using Twilio.TwiML.Voice;
+using Logement.DTO;
+using NPOI.OpenXmlFormats.Spreadsheet;
+using NPOI.OpenXmlFormats.Dml.Diagram;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Logement.Controllers
 {
+    [Authorize]
     public class TenantController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -145,6 +150,95 @@ namespace Logement.Controllers
             ViewData["locatedAt"] = city.LocatedAt;
             ViewData["tenantId"] = tenantId;
             return View(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAsTenantV2(TenancyMemberDTO model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var currentUser = await dbc.Users.Where(u => u.Id == UserId).FirstOrDefaultAsync();
+
+                    if (currentUser != null)
+                    {
+                        var user = await dbc.Users.Where(u => u.Id == model.TenantId).FirstOrDefaultAsync();
+
+                        if (user == null)
+                            return StatusCode((int)HttpStatusCode.NotFound, "This user does not exist");
+
+                        var tenancy = await dbc.Tenancies
+                            .Include(t => t.Apartment).ThenInclude(t => t.City)
+                            .Where(t => t.Id == model.TenancyId).FirstOrDefaultAsync();
+
+                        if (tenancy == null)
+                            return StatusCode((int)HttpStatusCode.NotFound, "This tenancy does not exist or was deleted");
+
+                        var tenantMember = await dbc.TenancyMembers.Where(tm => tm.TenancyId == tenancy.Id && tm.TenantId == user.Id).FirstOrDefaultAsync();
+
+                        if(tenantMember != null)
+                            return StatusCode((int)HttpStatusCode.BadRequest, "This user is already a tenant of this tenancy");
+
+                        TenancyMemberRoleEnum tenantRole = model.Role == "Locataire Principal" ?
+                            TenancyMemberRoleEnum.LocatairePrincipal : model.Role == "Co Locataire" ?
+                            TenancyMemberRoleEnum.CoLocataire : model.Role == "Enfant" ?
+                            TenancyMemberRoleEnum.Enfant : TenancyMemberRoleEnum.Unknown;
+
+                        tenantMember = new TenancyMember
+                        {
+                            TenancyId = tenancy.Id,
+                            TenantId = user.Id,
+                            AdderId = currentUser.Id,
+                            DateAdded = DateTime.UtcNow,
+                            Role = tenantRole,
+                            SendEmail = model.SendEmail
+                        };
+
+                        dbc.TenancyMembers.Add(tenantMember);
+                        await dbc.SaveChangesAsync();
+
+                        //For users having email
+                        string emailSubject = $"You have been added as a tenant by {GetUser().LastName} {GetUser().FirstName}.";
+                        string emailBody = $"<p>Housing type: {tenancy.Apartment!.Type.ToString()}</p>";
+                        emailBody += $"<p>Located at: {tenancy.Apartment!.City.LocatedAt}</p>";
+                        emailBody += $"<p>City name: {tenancy.Apartment!.City.Name}</p>";
+                        emailBody += $"<p>Area: {tenancy.Apartment!.RoomArea} m²</p>";
+                        emailBody += $"<p>Number of bedrooms: {tenancy.Apartment!.NumberOfRooms}</p>";
+                        emailBody += $"<p>Number of bathrooms: {tenancy.Apartment!.NumberOfbathRooms}</p><br>";
+                        emailBody += "<p>Thanks for trusting us.</p>";
+                        emailBody += "<p>Best regards, your landlord</p>";
+
+                        //For users having phone number                              
+                        string smsBody = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.\n\n";
+                        smsBody += $"Housing type: {tenancy.Apartment!.Type}\n";
+                        smsBody += $"Located at: {tenancy.Apartment!.City.LocatedAt}\n";
+                        smsBody += $"City name: {tenancy.Apartment!.City.Name}\n";
+                        smsBody += $"Area: {tenancy.Apartment!.RoomArea} m²\n";
+                        smsBody += $"Number of bedrooms: {tenancy.Apartment!.NumberOfRooms}\n";
+                        smsBody += $"Number of bathrooms: {tenancy.Apartment!.NumberOfbathRooms}\n\n";
+                        smsBody += $"Thanks for trusting us\n";
+                        smsBody += "Best regards,\n";
+                        smsBody += "your landlord";
+
+                        if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
+                        {
+                            //To Do: Need to pay Orange Api sms service per month
+                            await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+                        }
+                        else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
+                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+                    }
+                    else
+                        return StatusCode((int)HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
+                }
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         [HttpPost]
