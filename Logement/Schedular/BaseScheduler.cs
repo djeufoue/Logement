@@ -25,7 +25,7 @@ namespace Logement.Schedular
             _smsService = smsService;
         }
 
-        public async Task<bool> SendConfirmationEmail(string tenantEmail, string subject, string body)
+        public async Task<bool> SendEmail(string tenantEmail, string subject, string body)
         {  
            return await _emailService.SendEmailAsync(tenantEmail, subject, body);
         }

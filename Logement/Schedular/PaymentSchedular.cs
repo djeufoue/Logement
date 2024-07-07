@@ -56,7 +56,7 @@ namespace Logement.Schedular
                                 body += "<p>téléphone pour lui rappeler de payer son loyer; ";
                                 body += "<p>veuillez contacter l'administration pour résoudre ce problème<p>";
 
-                                await SendConfirmationEmail(LandLord.Lessor.Email, subject, body);
+                                await SendEmail(LandLord.Lessor.Email, subject, body);
                             }
                             else
                             {
@@ -159,7 +159,7 @@ namespace Logement.Schedular
                         body += $"<p>apartment number {LandLord.ApartmentNumber} belonging to the city called {LandLord.City.Name}";
                         body += "<p>Please solve this problem as soon as possible<p>";
 
-                        await SendConfirmationEmail("pablodjeufoue@gmail.com", subject, body);
+                        await SendEmail("pablodjeufoue@gmail.com", subject, body);
                     }
                 }
             }
@@ -178,7 +178,7 @@ namespace Logement.Schedular
                 string ErroBody = $"<p>Error when sending message to the tenant {tenantEmailOrPhone} to remind him to pay his rent <p>\n";
                 ErroBody += "<p>Please solve this problem as soon as possible<p>";
 
-                if (await SendConfirmationEmail("pablodjeufoue@gmail.com", ErrorSubject, ErroBody) == false)
+                if (await SendEmail("pablodjeufoue@gmail.com", ErrorSubject, ErroBody) == false)
                 {
                     Console.WriteLine("Error while sending message to pablodjeufoue@gmail.com");
                 }
@@ -190,7 +190,7 @@ namespace Logement.Schedular
                 ErroBody += "<p>to also remind about tenant that need to pay the rent</p>";
                 ErroBody += "<p>Please solve this problem as soon as possible<p>";
 
-                if (await SendConfirmationEmail("pablodjeufoue@gmail.com", ErrorSubject, ErroBody) == false)
+                if (await SendEmail("pablodjeufoue@gmail.com", ErrorSubject, ErroBody) == false)
                 {
                     Console.WriteLine("Error while sending message to pablodjeufoue@gmail.com");
                 }
@@ -277,13 +277,13 @@ namespace Logement.Schedular
                         await EmailErrorMessage(tenantInfos.Email);
 
 
-                    tenantEmailResponse = await SendConfirmationEmail(tenantInfos.Email, subject, body);
+                    tenantEmailResponse = await SendEmail(tenantInfos.Email, subject, body);
                     if (tenantEmailResponse == false)
                         await EmailErrorMessage(tenantInfos.Email);
                 }
                 else if (!String.IsNullOrEmpty(tenantInfos.Email) && String.IsNullOrEmpty(tenantInfos.PhoneNumber))
                 {
-                    tenantEmailResponse = await SendConfirmationEmail(tenantInfos.Email, subject, body);
+                    tenantEmailResponse = await SendEmail(tenantInfos.Email, subject, body);
 
                     if (tenantEmailResponse == false)
                         await EmailErrorMessage(tenantInfos.Email);
@@ -293,7 +293,7 @@ namespace Logement.Schedular
                 //To do: Modifier le tritre de cette notification
                 subject = $"Loyer non payé par le locataire {tenantInfos.FirstName} {tenantInfos.LastName}";
 
-                emailSentToLandlord = await SendConfirmationEmail(landLordinfos.Email, subject, body);
+                emailSentToLandlord = await SendEmail(landLordinfos.Email, subject, body);
                 if (emailSentToLandlord == false)
                     await EmailErrorMessage(landLordinfos.Email);
 
@@ -362,7 +362,7 @@ namespace Logement.Schedular
                         </body>
                         </html>";
 
-                    await SendConfirmationEmail(notificationSent.Landlord.Email, subject, htmlMessage);
+                    await SendEmail(notificationSent.Landlord.Email, subject, htmlMessage);
 
                     NotificationSentForSubscription notificationSentForSubscription = new NotificationSentForSubscription
                     {

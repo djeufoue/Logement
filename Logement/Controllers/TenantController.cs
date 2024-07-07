@@ -225,10 +225,10 @@ namespace Logement.Controllers
                         {
                             //To Do: Need to pay Orange Api sms service per month
                             await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+                            await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
                         }
                         else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+                            await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
                     }
                     else
                         return StatusCode((int)HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
@@ -320,10 +320,10 @@ namespace Logement.Controllers
                         {
                             //To Do: Need to pay Orange Api sms service per month
                             await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+                            await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
                         }
                         else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
+                            await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
 
 
                         decimal nbOfMonthPaid = 0;

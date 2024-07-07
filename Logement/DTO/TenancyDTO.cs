@@ -7,6 +7,8 @@ namespace Logement.DTO
     {
         public DateTimeOffset LeaseStartDate { get; set; }
         public DateTimeOffset LeaseExpiryDate { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public int TenancyId { get; set; }
         public int ApartmentId { get; set; }
     }
 }

@@ -131,7 +131,7 @@ namespace Logement.Controllers
                .FirstOrDefaultAsync();
 
                 if (apartmemt == null)
-                    return NotFound();
+                    return NotFound("This apartment was not found or was deleted");
 
                 var apartmentsInfos = await dbc.Apartments
                         .Include(a => a.City)
@@ -183,6 +183,27 @@ namespace Logement.Controllers
                         ContentType = image.ContentType
                     });
                 }
+
+                var apartmentTenancies = await dbc.Tenancies
+                    .Where(at => at.ApartmentId == apartmemt.Id)
+                    .ToListAsync();
+
+                if(apartmentTenancies != null && apartmentTenancies.Count > 0)
+                {
+                    foreach(var tenancy in apartmentTenancies)
+                    {
+                        apartmentBaseInfos.ApartmentTenancies = new List<DTO.TenancyDTO>();
+
+                        apartmentBaseInfos.ApartmentTenancies.Add(new DTO.TenancyDTO
+                        {
+                            LeaseStartDate = tenancy.LeaseStartDate,
+                            LeaseExpiryDate = tenancy.LeaseExpiryDate,
+                            Status = tenancy.Status.ToString(),
+                            TenancyId = tenancy.Id,
+                        });
+                    }
+                }
+
                 return View(apartmentBaseInfos);
             }
             catch(Exception e)
@@ -198,7 +219,7 @@ namespace Logement.Controllers
             string emailSubject = "New Message from Apartment Contact Form";
             string emailBody = $"<p>Name: {name}\n</p> <p>Email: {email}\n</p> <p>Message:\n{message}</p>";
 
-            await baseScheduler.SendConfirmationEmail(landlordEmail, emailSubject, emailBody);
+            await baseScheduler.SendEmail(landlordEmail, emailSubject, emailBody);
             return RedirectToAction("GetAllApartmentImages", new { apartmentId = apartmentId });
         }
 
