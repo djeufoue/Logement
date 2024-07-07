@@ -64,13 +64,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - DJE Rentals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/intlTelInput.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/demo.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/js/site.js" asp-append-version="true" />
     <link rel="stylesheet" href="~/Logement.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>   
     <section id="menu">
@@ -134,9 +135,8 @@
                 &copy; 2024 - DJE Residence - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
         </footer>
-    </section>      
-       
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    </section>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
