@@ -126,20 +126,14 @@ namespace Logement.Controllers
         {          
             try
             {
-                var apartmemt = await dbc.Apartments
-               .Where(a => a.Id == apartmentId)
-               .FirstOrDefaultAsync();
-
-                if (apartmemt == null)
-                    return NotFound("This apartment was not found or was deleted");
-
-                var apartmentsInfos = await dbc.Apartments
+                var apartment = await dbc.Apartments
                         .Include(a => a.City)
                         .Include(a => a.Lessor)
                         .Select(a => new
                         {
                             Id = a.Id,
                             LessorId = a.LessorId,
+                            PropertyId = a.City.Id,
                             PhoneNumber = a.Lessor.PhoneNumber,
                             Email = a.Lessor.Email,
                             Price = a.Price,
@@ -149,23 +143,29 @@ namespace Logement.Controllers
                             FloorNumber = a.FloorNumber,
                             Type = a.Type,
                             LocatedAt = a.City.LocatedAt
-                        }).FirstOrDefaultAsync();
+                        })
+                        .Where(a => a.Id ==  apartmentId)
+                        .FirstOrDefaultAsync();
+
+                if (apartment == null)
+                    return NotFound("This apartment was not found or was deleted");
 
                 ApartmentBaseInfos apartmentBaseInfos = new ApartmentBaseInfos();
 
                 apartmentBaseInfos.ApartmentInfos = new ApartmentDescriptions
                 {
-                    Id = apartmentsInfos.Id,
-                    Price = (Int32)apartmentsInfos.Price,
-                    NumberOfRooms = apartmentsInfos.NumberOfRooms,
-                    NumberOfbathRooms = apartmentsInfos.NumberOfbathRooms,
-                    RoomArea = apartmentsInfos.RoomArea,
-                    FloorNumber = (Int32)apartmentsInfos.FloorNumber,
-                    ApartmentType = apartmentsInfos.Type,
-                    LocatedAt = apartmentsInfos.LocatedAt,
-                    LandlordId = apartmentsInfos.LessorId,
-                    LandlordPhoneNumber = apartmentsInfos.PhoneNumber,
-                    LandlordEmail = apartmentsInfos.Email,
+                    Id = apartment.Id,
+                    Price = (Int32)apartment.Price,
+                    NumberOfRooms = apartment.NumberOfRooms,
+                    NumberOfbathRooms = apartment.NumberOfbathRooms,
+                    RoomArea = apartment.RoomArea,
+                    FloorNumber = (Int32)apartment.FloorNumber,
+                    ApartmentType = apartment.Type,
+                    LocatedAt = apartment.LocatedAt,
+                    LandlordId = apartment.LessorId,
+                    LandlordPhoneNumber = apartment.PhoneNumber,
+                    LandlordEmail = apartment.Email,
+                    PropertyId = apartment.PropertyId,
                 };
 
                 var apartmentImages = await dbc.Fichiers
@@ -185,15 +185,14 @@ namespace Logement.Controllers
                 }
 
                 var apartmentTenancies = await dbc.Tenancies
-                    .Where(at => at.ApartmentId == apartmemt.Id)
+                    .Where(at => at.ApartmentId == apartment.Id)
                     .ToListAsync();
 
                 if(apartmentTenancies != null && apartmentTenancies.Count > 0)
                 {
-                    foreach(var tenancy in apartmentTenancies)
+                    apartmentBaseInfos.ApartmentTenancies = new List<DTO.TenancyDTO>();
+                    foreach (var tenancy in apartmentTenancies)
                     {
-                        apartmentBaseInfos.ApartmentTenancies = new List<DTO.TenancyDTO>();
-
                         apartmentBaseInfos.ApartmentTenancies.Add(new DTO.TenancyDTO
                         {
                             LeaseStartDate = tenancy.LeaseStartDate,

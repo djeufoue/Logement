@@ -195,6 +195,7 @@ namespace Logement.Controllers
                              Type = a.Type,
                              LocatedAt = a.City.LocatedAt,
                              CityName = a.City.Name,
+                             PropertyId = a.City.Id,
                          }).FirstOrDefaultAsync();
 
             if (apartmentsInfos == null)
@@ -217,6 +218,7 @@ namespace Logement.Controllers
                 {
                     Id = apartmentsInfos.Id,
                     CityName = apartmentsInfos.CityName,
+                    PropertyId = apartmentsInfos.PropertyId,
                     Price = (Int32)apartmentsInfos.Price,
                     NumberOfRooms = apartmentsInfos.NumberOfRooms,
                     NumberOfbathRooms = apartmentsInfos.NumberOfbathRooms,

@@ -1,0 +1,20 @@
+﻿@if (TempData["message"] != null)
+{
+    <script src="/lib/jquery/dist/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+    <script type="text/javascript">
+        // Parse the TempData message object
+        var messageData = @Html.Raw(Json.Serialize(TempData["message"]));
+
+        // Set the position to top center
+        toastr.options.positionClass = 'toast-top-center';
+
+        // Check the message type and display accordingly
+        if (messageData.Type === "success") {
+            toastr.success(messageData.Message);
+        } else if (messageData.Type === "error") {
+            toastr.error(messageData.Message);
+        }
+    </script>
+}

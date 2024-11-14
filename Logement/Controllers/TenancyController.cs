@@ -34,39 +34,67 @@ namespace Logement.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                string message = "";
+
+                var currentUser = await dbc.Users
+                    .Where(u => u.Id == UserId)
+                    .FirstOrDefaultAsync();
+
+                if (currentUser == null)
                 {
-                    var currentUser = await dbc.Users.Where(u => u.Id == UserId).FirstOrDefaultAsync();
-
-                    if (currentUser != null)
-                    {
-                        var apartment = await dbc.Apartments.Where(a => a.Id == model.ApartmentId).FirstOrDefaultAsync();
-
-                        if (apartment == null)
-                            return StatusCode((int)HttpStatusCode.NotFound, "This apartment does not exist or was deleted");
-
-                        Tenancy tenancy = new Tenancy()
-                        {
-                            LeaseStartDate = model.LeaseStartDate,
-                            LeaseExpiryDate = model.LeaseExpiryDate,
-                            DateAdded = DateTimeOffset.Now,
-                            ApartmentId = apartment.Id,
-                            AdderId = currentUser.Id,
-                            Status = Data.Enum.TenancyStatusEnum.Pending,
-                        };
-
-                        dbc.Tenancies.Add(tenancy);
-                        await dbc.SaveChangesAsync();
-                    }
-                    else
-                       return StatusCode((int)HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
+                    message = "The current user is not logged in or does not exist.";
+                    TempData["message"] = new { Message = message, Type = "error" };
+                    return StatusCode((int)HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
                 }
+
+                var apartment = await dbc.Apartments
+                    .Where(a => a.Id == model.ApartmentId && a.CityId == model.PropertyId)
+                    .FirstOrDefaultAsync();
+
+                if (apartment == null)
+                {
+                    message = "This apartment does not exist or was deleted";
+                    TempData["message"] = new { Message = message, Type = "error" };
+                    return StatusCode((int)HttpStatusCode.NotFound, "This apartment does not exist or was deleted");
+                }
+
+                var allUnitTenancies = await dbc.Tenancies
+                    .Where(x => x.ApartmentId == model.ApartmentId)
+                    .ToListAsync();
+
+                foreach (var tncy in allUnitTenancies)
+                {
+                    if (tncy.LeaseExpiryDate > model.LeaseStartDate)
+                    {
+                        message = $"Cet appartement a déjà un contrat de bail expirant le {tncy.LeaseExpiryDate:dd/MM/yyyy}. Veuillez sélectionner une date de début après celle-ci.";
+                        TempData["message"] = new { Message = message, Type = "error" };
+                        return StatusCode((int)HttpStatusCode.BadRequest, message);
+                    }
+                }
+
+                Tenancy tenancy = new Tenancy()
+                {
+                    LeaseStartDate = model.LeaseStartDate,
+                    LeaseExpiryDate = model.LeaseExpiryDate,
+                    DateAdded = DateTimeOffset.Now,
+                    ApartmentId = apartment.Id,
+                    AdderId = currentUser.Id,
+                    Status = Data.Enum.TenancyStatusEnum.Pending,
+                };
+
+                dbc.Tenancies.Add(tenancy);
+                await dbc.SaveChangesAsync();
+
+                message = "Tenancy added successfully!";
+                TempData["message"] = new { Message = message, Type = "success" };
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                TempData["message"] = new { Message = "An error occurred while processing your request.", Type = "error" };
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
     }
 }
