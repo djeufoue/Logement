@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>unnable</Nullable>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,11 +18,9 @@
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.8.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
+    <PackageReference Include="NPOI" Version="2.7.2" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DTO\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
-﻿namespace DjeResidenceAPI.Models.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DjeResidenceAPI.Models.Entities
 {
     public class LandlordSubscriptionPayment
     {
@@ -7,6 +9,8 @@
 
         public long LandlordId { get; set; }
         public virtual ApplicationUser Landlord { get; set; }
+
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal Amount { get; set; }
 
         public string Currency { get; set; } = "XAF";

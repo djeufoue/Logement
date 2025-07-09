@@ -5,12 +5,11 @@ namespace DjeResidenceAPI.Models.Entities
 {
     public class Apartment
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
 
-        public string ApartmentName { get; set; }
+        public string ApartmentName { get; set; } //Can be the apartment number
         public long AdderId { get; set; }
         public virtual ApplicationUser Adder { get; set; }
-        public long ApartmentNumber { get; set; }
         public long LandlordId { get; set; }
         public virtual ApplicationUser Landlord { get; set; }
 
