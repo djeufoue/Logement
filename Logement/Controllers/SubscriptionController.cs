@@ -27,7 +27,7 @@ namespace Logement.Controllers
             try
             {
                 // Check if current user is the systemAdmin 
-                var isInRole = await _userManager.IsInRoleAsync(GetUser(), "SystemAdmin");
+                var isInRole = await _userManager.IsInRoleAsync(GetCurrentUser(), "SystemAdmin");
 
                 if (isInRole)
                 {
@@ -72,7 +72,7 @@ namespace Logement.Controllers
         {
             try
             {
-                var isInRole = await _userManager.IsInRoleAsync(GetUser(), "SystemAdmin");
+                var isInRole = await _userManager.IsInRoleAsync(GetCurrentUser(), "SystemAdmin");
 
                 if (isInRole)
                 {

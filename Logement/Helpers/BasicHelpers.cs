@@ -28,5 +28,42 @@ namespace Logement.Helpers
 
             return apartment.LessorId == currentUser.Id;
         }
+
+        public static string GetUserFullName(ApplicationUser? user)
+        {
+            if (user == null)
+                return "";
+            else if (!string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName))
+                return $"{user.FirstName} {user.LastName}";
+            else if (!string.IsNullOrEmpty(user.FirstName))
+                return user.FirstName;
+            else if (!string.IsNullOrEmpty(user.LastName))
+                return user.LastName;
+            else if (!string.IsNullOrEmpty(user.Email))
+                return user.Email;
+            else return "";
+        }
+
+        public static TenancyMemberRoleEnum GetTenancyMemberRole(string role)
+        {
+            return role.ToLower().Trim() switch
+            {
+                "Main Tenant" => TenancyMemberRoleEnum.LocatairePrincipal,
+                "Co-tenant" => TenancyMemberRoleEnum.CoLocataire,
+                "Child" => TenancyMemberRoleEnum.Enfant,
+                _ => TenancyMemberRoleEnum.Unknown
+            };
+        }
+
+        public static string GetApartmentTypeName(ApartmentTypeEnum type)
+        {
+            return type switch
+            {
+                ApartmentTypeEnum.Studio => "Studio",
+                ApartmentTypeEnum.Room => "Room",
+                ApartmentTypeEnum.Apartment => "Apartment",
+                _ => "Unknown"
+            };
+        }
     }
 }

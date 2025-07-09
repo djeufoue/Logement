@@ -139,12 +139,12 @@ namespace Logement.Controllers
         {
             return await dbc.CityMembers
                 .Include(c => c.User)
-                .Where(c => c.CityId == cityId && c.Role == CityMemberRoleEnum.Landord && c.UserId == GetUser().Id)
+                .Where(c => c.CityId == cityId && c.Role == CityMemberRoleEnum.Landord && c.UserId == GetCurrentUser().Id)
                 .FirstOrDefaultAsync();      
         }
 
         private ApplicationUser? _user;
-        protected ApplicationUser GetUser()
+        protected ApplicationUser GetCurrentUser()
         {
             if (_user == null && User.Identity != null)
                 _user = dbc.Users
