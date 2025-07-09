@@ -244,7 +244,7 @@ namespace Logement.Controllers
 
         public async Task<IActionResult> SeeProfile()
         {
-            var userInfos = await dbc.Users.FindAsync(GetUser().Id);
+            var userInfos = await dbc.Users.FindAsync(GetCurrentUser().Id);
 
             if (userInfos != null)
             {
@@ -274,7 +274,7 @@ namespace Logement.Controllers
         {
             try
             {
-                var currentUser = GetUser();
+                var currentUser = GetCurrentUser();
                 if (currentUser != null)
                 {
                     if (!String.IsNullOrEmpty(phoneNumber) && !String.IsNullOrEmpty(email))
@@ -334,7 +334,7 @@ namespace Logement.Controllers
             foreach (var cookie in HttpContext.Request.Cookies)
                 Response.Cookies.Delete(cookie.Key);
 
-            _logger.LogInformation($"User {GetUser().UserName} logget out");
+            _logger.LogInformation($"User {GetCurrentUser().UserName} logget out");
             return LocalRedirect("/Account/Login");
         }
     }

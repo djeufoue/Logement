@@ -89,7 +89,7 @@ namespace Logement.Controllers
                 if (cities.Count > 0)
                 {
                     var CitiesMembers = await dbc.CityMembers
-                            .Where(c => c.UserId == GetUser().Id && (c.Role == CityMemberRoleEnum.Landord || c.Role == CityMemberRoleEnum.Tenant))
+                            .Where(c => c.UserId == GetCurrentUser().Id && (c.Role == CityMemberRoleEnum.Landord || c.Role == CityMemberRoleEnum.Tenant))
                             .Include(c => c.City)
                             .Include(c => c.Apartment)
                             .ToListAsync();
@@ -128,7 +128,7 @@ namespace Logement.Controllers
                     City city = AddCityFromViewModel("AddCity", model);
                     var fileModel = new FileModel();
 
-                    city.LandLordId = GetUser().Id;
+                    city.LandLordId = GetCurrentUser().Id;
 
                     dbc.Cities.Add(city);
                     await dbc.SaveChangesAsync();
@@ -482,7 +482,7 @@ namespace Logement.Controllers
                                 Amount = 5,
                                 PaymentDate = DateTime.UtcNow,
                                 NextPaymentDate = DateTimeOffset.UtcNow.AddMonths(1),
-                                LandLordId = GetUser().Id,
+                                LandLordId = GetCurrentUser().Id,
                                 IsPaid = true,
                             };
                             dbc.SubscriptionPayments.Add(subscriptionPayment);

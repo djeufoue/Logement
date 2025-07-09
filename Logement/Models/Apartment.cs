@@ -5,14 +5,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 namespace Logement.Models
-{
-    [Index(nameof(ApartmentName), IsUnique = true)]
+{  
     public class Apartment
     {
         public long Id { get; set; }
 
-        public string ApartmentName { get; set; } = string.Empty;
-        public long ApartmentAdderId { get; set; }
+        public string? ApartmentName { get; set; }
+        public long? ApartmentAdderId { get; set; }
         public virtual ApplicationUser? ApartmentAdder { get; set; }
         public long ApartmentNumber { get; set; }
         public long LessorId { get; set; }

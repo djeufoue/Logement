@@ -1,13 +1,10 @@
 using Hangfire;
-using Hangfire.SqlServer;
 using Logement.Data;
+using Logement.Helpers;
 using Logement.Models;
 using Logement.Schedular;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using NPOI.SS.Formula.Functions;
-using System.Threading.Tasks;
 
 namespace Logement
 {
@@ -26,7 +23,8 @@ namespace Logement
                 ConfigureIdentity(builder.Services);
 
                 builder.Services.AddControllersWithViews();
-                builder.Services.AddScoped<Schedular.PaymentSchedular>();
+                builder.Services.AddScoped<PaymentSchedular>();
+                builder.Services.AddScoped<TenancyHelpers>();
 
                 var app = builder.Build();
 

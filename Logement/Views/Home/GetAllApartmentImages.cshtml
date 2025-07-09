@@ -1,11 +1,20 @@
 ﻿@model Logement.ViewModels.ApartmentBaseInfos
+@using Microsoft.AspNetCore.Identity
+@using Logement.Helpers
+@using Logement.Data;
+@inject ApplicationDbContext DbContext
+@inject ILogger<Logement.ViewModels.ApartmentBaseInfos> Logger
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Apartment infos";
 }
 
+<partial name="_Notification" />
+
 <link rel="stylesheet" href="~/css/apartmentsInfos.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
 
 <style>
     .content-header {
@@ -22,15 +31,70 @@
     .table {
         margin-top: 50px;
     }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+    }
+
+    .card-body {
+        margin-top: 12px;
+    }
+
+    .btn-custom {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        margin-left: 20px;
+    }
+
+    .btn-custom:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .tenancies h2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-left: 20px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .datepicker {
+        cursor: pointer;
+        padding: 10px; /* Add padding to inputs for better look */
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .modal-content {
+        padding: 20px; /* Space inside the modal */
+    }
+
+    .modal-dialog {
+        max-width: 600px; /* Adjust the width if needed */
+        margin-top: 5vh; /* Center the modal vertically */
+    }
 </style>
 
 <section class="body">
     <div>
         <section class="content-header">
-            <h1>
-                Apartment
-            </h1>
-        </section>    
+            <h1>Apartment</h1>
+        </section>
         <section>
             <div class="images_owner_contact">
                 <div class="apartment-gallery">
@@ -44,39 +108,121 @@
                         </div>
                     }
                 </div>
-                <div class="contact-section">
-                  
-                    <div class="contact-form">
-                       @*<div class="phone-number">Phone @Model.ApartmentInfos.LandlordPhoneNumber</div>*@
-                        <span class="circle one"></span>
-                        <span class="circle two"></span>
 
-                       @* <div class="email">Email: <a href="mailto:@Model.ApartmentInfos.LandlordEmail" class="email-link">@Model.ApartmentInfos.LandlordEmail</a></div>*@
-                        <form action="/Home/SendMessage" method="post" autocomplete="off">
-                            <h3 class="title">Contact the Owner</h3>
-                            <div class="input-container">
-                                <input type="text" id="name" name="name" required class="input">
-                                <label for="name">Name</label>
-                                <span>Name</span>
+                @if (!string.IsNullOrEmpty(User.Identity.Name))
+                {
+                    var currentUser = await UserManager.GetUserAsync(User);
+
+                    if (currentUser != null)
+                    {
+                        bool isCurrentTheOwner = await BasicHelpers.GetCurrentApartmentOwner(DbContext, Logger, currentUser.Id, @Model.ApartmentInfos.Id);
+
+                        if (isCurrentTheOwner) // When the current logged-in user is the owner of this apartment
+                        {
+                            <div class="tenancies">
+                                <h2>
+                                    Tenancies
+                                    <button class="btn btn-custom" id="openAddTenancyModal" data-bs-toggle="modal" data-bs-target="#addTenancyModal">Add Tenancy</button>
+                                </h2>
+                                @foreach (var tenancy in Model.ApartmentTenancies)
+                                {
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <p><strong>Lease Start Date:</strong> @tenancy.LeaseStartDate.ToString("dd MMM yyyy")</p>
+                                            <p><strong>Lease Expiry Date:</strong> @tenancy.LeaseExpiryDate.ToString("dd MMM yyyy")</p>
+                                            <p><strong>Status:</strong> @tenancy.Status</p>
+                                            <a href="/Tenancies/Details/@tenancy.TenancyId" class="btn btn-primary">View Details</a>
+                                        </div>
+                                    </div>
+                                }
                             </div>
-                            <div class="input-container">
-                                <input type="email" id="email" name="email" required class="input">
-                                <label for="email">Email</label>
-                                <span>Email</span>
+
+                            <!-- Add Tenancy Modal -->
+                            <div class="modal fade" id="addTenancyModal" tabindex="-1" role="dialog" aria-labelledby="addTenancyModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addTenancyModalLabel">Add Tenancy</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" asp-controller="Tenancy" asp-action="AddTenancy" enctype="multipart/form-data">
+                                                <div class="form-group">
+                                                    <label for="leaseStartDate">Lease Start Date</label>
+                                                    <input type="text" id="leaseStartDate" name="LeaseStartDate" class="form-control datepicker" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="leaseExpiryDate">Lease Expiry Date</label>
+                                                    <input type="text" id="leaseExpiryDate" name="LeaseExpiryDate" class="form-control datepicker" required />
+                                                </div>
+                                                <input type="hidden" name="ApartmentId" value="@Model.ApartmentInfos.Id" />
+                                                <input type="hidden" name="PropertyId" value="@Model.ApartmentInfos.PropertyId" />
+                                                <button type="submit" class="btn btn-primary">Add Tenancy</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="input-container">
-                                <textarea id="message" name="message" required class="input"></textarea>
-                                <label for="message">Message</label>
-                                <span>Message</span>
+                        }
+                        else // If the current logged-in user is not the owner of this apartment
+                        {
+                            <div class="contact-section">
+                                <div class="contact-form">
+                                    <span class="circle one"></span>
+                                    <span class="circle two"></span>
+
+                                    <form action="/Home/SendMessage" method="post" autocomplete="off">
+                                        <h3 class="title">Contact the Owner</h3>
+                                        <div class="input-container">
+                                            <input type="text" id="name" name="name" required class="input">
+                                            <label for="name">Name</label>
+                                        </div>
+                                        <div class="input-container">
+                                            <input type="email" id="email" name="email" required class="input">
+                                            <label for="email">Email</label>
+                                        </div>
+                                        <div class="input-container">
+                                            <textarea id="message" name="message" required class="input"></textarea>
+                                            <label for="message">Message</label>
+                                        </div>
+                                        <input type="hidden" name="apartmentId" value="@Model.ApartmentInfos.Id" />
+                                        <input type="hidden" name="landlordEmail" value="@Model.ApartmentInfos.LandlordEmail" />
+                                        <button type="submit" class="send-btn btn-primary" style="margin-top:10px">Send</button>
+                                    </form>
+                                </div>
                             </div>
-                            <input type="hidden" name="apartmentId" value="@Model.ApartmentInfos.Id" />
-                            <input type="hidden" name="landlordEmail" value="@Model.ApartmentInfos.LandlordEmail" />
-                            <button type="submit" class="send-btn btn-primary" style="margin-top:10px">Send</button>
-                        </form>
+                        }
+                    }
+                }
+                else // If user is not logged in
+                {
+                    <div class="contact-section">
+                        <div class="contact-form">
+                            <span class="circle one"></span>
+                            <span class="circle two"></span>
+
+                            <form action="/Home/SendMessage" method="post" autocomplete="off">
+                                <h3 class="title">Contact the Owner</h3>
+                                <div class="input-container">
+                                    <input type="text" id="name" name="name" required class="input">
+                                    <label for="name">Name</label>
+                                </div>
+                                <div class="input-container">
+                                    <input type="email" id="email" name="email" required class="input">
+                                    <label for="email">Email</label>
+                                </div>
+                                <div class="input-container">
+                                    <textarea id="message" name="message" required class="input"></textarea>
+                                    <label for="message">Message</label>
+                                </div>
+                                <input type="hidden" name="apartmentId" value="@Model.ApartmentInfos.Id" />
+                                <input type="hidden" name="landlordEmail" value="@Model.ApartmentInfos.LandlordEmail" />
+                                <button type="submit" class="send-btn btn-primary" style="margin-top:10px">Send</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
+                }
             </div>
-           
             <div class="apartment-information" style="margin-top:40px;">
                 <h2 class="about-the-property u-freetext-fix" style="margin-bottom:20px;">About this rental</h2>
                 <ul class="four-pack list-unstyled">
@@ -109,7 +255,7 @@
                         </ul>
                     </li>
                     <li class="four-pack__block">
-                       <div class="four-pack__block-title h3 margin-bottom-0x">
+                        <div class="four-pack__block-title h3 margin-bottom-0x">
                             Located at
                         </div>
                         <ul class="four-pack__block-body list-unstyled list-inline text-muted margin-bottom-0x">
@@ -117,7 +263,7 @@
                                 @Model.ApartmentInfos.LocatedAt
                             </li>
                         </ul>
-                    </li>                  
+                    </li>
                     <li class="four-pack__block">
                         <div class="four-pack__block-title h3 margin-bottom-0x">
                             Floor
@@ -140,7 +286,7 @@
                     </li>
                 </ul>
             </div>
-           
+
             <!-- Modal -->
             <div id="modal" class="modal">
                 <div class="modal-content">
@@ -156,12 +302,19 @@
     </div>
 </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+
+
+<!-- JavaScript for datepicker -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
     $(document).ready(function () {
         var images = $(".apartment-image");
         var currentImageIndex = 0;
 
+        // Image Modal Logic
         $(".image-link").click(function (e) {
             e.preventDefault();
             var imageUrl = $(this).closest(".apartment-image").find("img").attr("src");
@@ -187,24 +340,33 @@
             var imageUrl = images.eq(currentImageIndex).find("img").attr("src");
             $("#modal-image").attr("src", imageUrl);
         });
-    });
 
-    const inputs = document.querySelectorAll(".input");
-
-    function focusFunc() {
-        let parent = this.parentNode;
-        parent.classList.add("focus");
-    }
-
-    function blurFunc() {
-        let parent = this.parentNode;
-        if (this.value == "") {
-            parent.classList.remove("focus");
+        // Focus and Blur Functions
+        function focusFunc() {
+            let parent = this.parentNode;
+            parent.classList.add("focus");
         }
-    }
 
-    inputs.forEach((input) => {
-        input.addEventListener("focus", focusFunc);
-        input.addEventListener("blur", blurFunc);
+        function blurFunc() {
+            let parent = this.parentNode;
+            if (this.value == "") {
+                parent.classList.remove("focus");
+            }
+        }
+
+        // Apply focus and blur events to inputs
+        let inputs = document.querySelectorAll('input');
+        inputs.forEach((input) => {
+            input.addEventListener("focus", focusFunc);
+            input.addEventListener("blur", blurFunc);
+        });
+
+        // Initialize Flatpickr for date pickers
+        flatpickr(".datepicker", {
+            dateFormat: "Y-m-d", // Specify the format for the date
+            allowInput: true, // Allow text input for the date
+            minDate: "today", // Prevent selecting past dates
+            disableMobile: true, // Disable mobile picker (optional)
+        });
     });
 </script>

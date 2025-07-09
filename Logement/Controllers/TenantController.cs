@@ -15,6 +15,7 @@ using Logement.DTO;
 using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.OpenXmlFormats.Dml.Diagram;
 using Microsoft.AspNetCore.Authorization;
+using Logement.Helpers;
 
 namespace Logement.Controllers
 {
@@ -28,14 +29,13 @@ namespace Logement.Controllers
 
         public TenantController(ApplicationDbContext context, IConfiguration configuration,
             ILogger<T> logger, Services.EmailService emailService, UserManager<ApplicationUser> userManager,
-                Services.SMSservice smsService)
+                Services.SMSservice smsService, TenancyHelpers tenancyHelpers)
             : base(context, configuration)
         {
             _userManager = userManager;
             _logger = logger;
             baseScheduler = new BaseScheduler(context, logger, emailService, userManager, smsService);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CheckMultipleImageExistence(List<IFormFile> files)
@@ -159,80 +159,66 @@ namespace Logement.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var currentUser = await dbc.Users.Where(u => u.Id == UserId).FirstOrDefaultAsync();
+                    var currentUser = GetCurrentUser();
 
-                    if (currentUser != null)
-                    {
-                        var user = await dbc.Users.Where(u => u.Id == model.TenantId).FirstOrDefaultAsync();
-
-                        if (user == null)
-                            return StatusCode((int)HttpStatusCode.NotFound, "This user does not exist");
-
-                        var tenancy = await dbc.Tenancies
-                            .Include(t => t.Apartment).ThenInclude(t => t.City)
-                            .Where(t => t.Id == model.TenancyId).FirstOrDefaultAsync();
-
-                        if (tenancy == null)
-                            return StatusCode((int)HttpStatusCode.NotFound, "This tenancy does not exist or was deleted");
-
-                        var tenantMember = await dbc.TenancyMembers.Where(tm => tm.TenancyId == tenancy.Id && tm.TenantId == user.Id).FirstOrDefaultAsync();
-
-                        if(tenantMember != null)
-                            return StatusCode((int)HttpStatusCode.BadRequest, "This user is already a tenant of this tenancy");
-
-                        TenancyMemberRoleEnum tenantRole = model.Role == "Locataire Principal" ?
-                            TenancyMemberRoleEnum.LocatairePrincipal : model.Role == "Co Locataire" ?
-                            TenancyMemberRoleEnum.CoLocataire : model.Role == "Enfant" ?
-                            TenancyMemberRoleEnum.Enfant : TenancyMemberRoleEnum.Unknown;
-
-                        tenantMember = new TenancyMember
-                        {
-                            TenancyId = tenancy.Id,
-                            TenantId = user.Id,
-                            AdderId = currentUser.Id,
-                            DateAdded = DateTime.UtcNow,
-                            Role = tenantRole,
-                            SendEmail = model.SendEmail
-                        };
-
-                        dbc.TenancyMembers.Add(tenantMember);
-                        await dbc.SaveChangesAsync();
-
-                        //For users having email
-                        string emailSubject = $"You have been added as a tenant by {GetUser().LastName} {GetUser().FirstName}.";
-                        string emailBody = $"<p>Housing type: {tenancy.Apartment!.Type.ToString()}</p>";
-                        emailBody += $"<p>Located at: {tenancy.Apartment!.City.LocatedAt}</p>";
-                        emailBody += $"<p>City name: {tenancy.Apartment!.City.Name}</p>";
-                        emailBody += $"<p>Area: {tenancy.Apartment!.RoomArea} m²</p>";
-                        emailBody += $"<p>Number of bedrooms: {tenancy.Apartment!.NumberOfRooms}</p>";
-                        emailBody += $"<p>Number of bathrooms: {tenancy.Apartment!.NumberOfbathRooms}</p><br>";
-                        emailBody += "<p>Thanks for trusting us.</p>";
-                        emailBody += "<p>Best regards, your landlord</p>";
-
-                        //For users having phone number                              
-                        string smsBody = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.\n\n";
-                        smsBody += $"Housing type: {tenancy.Apartment!.Type}\n";
-                        smsBody += $"Located at: {tenancy.Apartment!.City.LocatedAt}\n";
-                        smsBody += $"City name: {tenancy.Apartment!.City.Name}\n";
-                        smsBody += $"Area: {tenancy.Apartment!.RoomArea} m²\n";
-                        smsBody += $"Number of bedrooms: {tenancy.Apartment!.NumberOfRooms}\n";
-                        smsBody += $"Number of bathrooms: {tenancy.Apartment!.NumberOfbathRooms}\n\n";
-                        smsBody += $"Thanks for trusting us\n";
-                        smsBody += "Best regards,\n";
-                        smsBody += "your landlord";
-
-                        if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
-                        {
-                            //To Do: Need to pay Orange Api sms service per month
-                            await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
-                        }
-                        else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
-                    }
-                    else
+                    if (currentUser == null)
                         return StatusCode((int)HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
+
+                    if (currentUser == null)
+                        return StatusCode((int) HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
+
+                    var user = await dbc.Users.Where(u => u.Id == model.TenantId).FirstOrDefaultAsync();
+
+                    if (user == null)
+                        return StatusCode((int)HttpStatusCode.NotFound, "This user does not exist");
+
+                    var tenancy = await dbc.Tenancies
+                        .Include(t => t.Apartment).ThenInclude(t => t.City)
+                        .Where(t => t.Id == model.TenancyId).FirstOrDefaultAsync();
+
+                    if (tenancy == null)
+                        return StatusCode((int)HttpStatusCode.NotFound, "This tenancy does not exist or was deleted");
+
+                    var tenantMember = await dbc.TenancyMembers
+                        .Where(tm => tm.TenancyId == tenancy.Id && tm.TenantId == user.Id)
+                        .FirstOrDefaultAsync();
+
+                    if (tenantMember != null)
+                        return StatusCode((int)HttpStatusCode.BadRequest, "This user is already a tenant of this tenancy");
+
+                    TenancyMemberRoleEnum tenantRole = BasicHelpers.GetTenancyMemberRole(model.Role);
+
+                    tenantMember = new TenancyMember
+                    {
+                        TenancyId = tenancy.Id,
+                        TenantId = user.Id,
+                        AdderId = currentUser.Id,
+                        DateAdded = DateTime.UtcNow,
+                        Role = tenantRole,
+                        SendEmail = model.SendEmail
+                    };
+
+                    dbc.TenancyMembers.Add(tenantMember);
+                    await dbc.SaveChangesAsync();
+
+                    // Generate personalized message contents
+                    string recipientName = BasicHelpers.GetUserFullName(user);
+                    string currentUserFullName = BasicHelpers.GetUserFullName(currentUser);
+
+                    var (emailSubject, emailBody) = TenancyHelpers.GenerateEmailContent(tenancy, currentUserFullName, recipientName);
+                    string smsBody = TenancyHelpers.GenerateSmsContent(tenancy, currentUserFullName);
+
+                    if (!string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(user.PhoneNumber))
+                    {
+                        await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                        await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
+                    }
+                    else if (!string.IsNullOrEmpty(user.Email))
+                    {
+                        await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
+                    }                
                 }
+
                 return Ok(model);
             }
             catch (Exception ex)
@@ -248,11 +234,15 @@ namespace Logement.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    var currentUser = GetCurrentUser();
+
+                    if (currentUser == null)
+                        return StatusCode((int)HttpStatusCode.NotFound, "The current user is not logged in or does not exist");
+
                     var checkApartmentNumber = await dbc.Apartments
                         .Where(ap => ap.CityId == model.AppartmentMember.CityId
                         && ap.ApartmentNumber == model.AppartmentMember.ApartmentNunber)
                         .FirstOrDefaultAsync();
-
 
                     if (checkApartmentNumber != null)
                         return BadRequest();
@@ -262,118 +252,98 @@ namespace Logement.Controllers
                     //Check if the user we are trying to add even exist
                     var user = await _userManager.FindByIdAsync(model.TenantId.ToString());
 
-                    if (user != null)
-                    {
-                        TenantRentApartment tenantRentApartment;
-                        var fileModel = new FileModel();
-
-                        await SaveFile(model.ContractFile, fileModel, user.Id, model.AppartmentMember.CityId, model.AppartmentMember.Id);
-
-                        tenantRentApartment = new TenantRentApartment()
-                        {
-                            TenantId = (long)model.TenantId,
-                            TenantPhoneNumber = user.PhoneNumber,
-                            ApartmentId = model.AppartmentMember.Id,
-                            Price = model.AppartmentMember.Price,
-                            BailId = contractId,
-                            AmountPaidByTenant = model.AmountPaidByTenant,
-                            DepositePrice = model.DepositePrice,
-                            PaymentMethodEnum = model.PaymentMethod,
-                            StartOfContract = model.StartOfContract,
-                            EndOfContract = model.EndOfContract,
-                            IsActiveAsTenant = true
-                        };
-
-                        dbc.TenantRentApartments.Add(tenantRentApartment);
-                        await dbc.SaveChangesAsync();
-
-                        string cityName = await dbc.Cities
-                            .Where(c => c.Id == model.AppartmentMember.CityId)
-                            .Select(c => c.Name)
-                            .FirstOrDefaultAsync();
-
-                        //For users having email
-                        string emailSubject = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.";
-                        string emailBody = $"<p>Housing type: {model.AppartmentMember.Type}</p>";
-                        emailBody += $"<p>Located at: {model.AppartmentMember.LocatedAt}</p>";
-                        emailBody += $"<p>City name: {cityName}</p>";
-                        emailBody += $"<p>Area: {model.AppartmentMember.RoomArea} m²</p>";
-                        emailBody += $"<p>Number of bedrooms: {model.AppartmentMember.NumberOfRooms}</p>";
-                        emailBody += $"<p>Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}</p><br>";
-                        emailBody += "<p>Thanks for trusting us.</p>";
-                        emailBody += "<p>Best regards, your landlord</p>";
-
-                        //For users having phone number                              
-                        string smsBody = $"You have been added as a tenant by Mr {GetUser().LastName} {GetUser().FirstName}.\n\n";
-                        smsBody += $"Housing type: {model.AppartmentMember.Type}\n";
-                        smsBody += $"Located at: {model.AppartmentMember.LocatedAt}\n";
-                        smsBody += $"City name: {cityName}\n";
-                        smsBody += $"Area: {model.AppartmentMember.RoomArea} m²\n";
-                        smsBody += $"Number of bedrooms: {model.AppartmentMember.NumberOfRooms}\n";
-                        smsBody += $"Number of bathrooms: {model.AppartmentMember.NumberOfbathRooms}\n\n";
-                        smsBody += $"Thanks for trusting us\n";
-                        smsBody += "Best regards,\n";
-                        smsBody += "your landlord";
-
-
-                        if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
-                        {
-                            //To Do: Need to pay Orange Api sms service per month
-                            await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
-                        }
-                        else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
-                            await baseScheduler.SendConfirmationEmail(user.Email, emailSubject, emailBody);
-
-
-                        decimal nbOfMonthPaid = 0;
-
-                        nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, model.AppartmentMember.Price);
-                
-                        //Add 30 days on the current payment date in case the amount paid is not enough
-                        //Remind tenant after 30 days that he must pay his rent
-                        Logement.Models.PaymentHistory newPayment = new Logement.Models.PaymentHistory()
-                        {
-                            TenantId = user.Id,
-                            CityId = model.AppartmentMember.CityId,
-                            ApartmentNumber = model.AppartmentMember.ApartmentNunber,
-                            AmountPaid = model.AmountPaidByTenant,
-                            PaidDate = DateTime.UtcNow
-                        };
-                        dbc.PaymentHistories.Add(newPayment);
-                        await dbc.SaveChangesAsync();
-
-                        decimal extraAmount = model.AmountPaidByTenant - (model.AppartmentMember.Price * Math.Floor(nbOfMonthPaid));
-
-                        //Schedule the next date to pay the rent 
-                        RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
-                        {
-                            TenantId = user.Id,
-                            CityId = model.AppartmentMember.CityId,
-                            ApartmentNumber = model.AppartmentMember.ApartmentNunber,
-                            AmountAlreadyPaid = extraAmount > 0 ? extraAmount: 0,
-                            RemainingAmount = model.AppartmentMember.Price,
-                            RentStatus = extraAmount > 0 ? RentStatusEnum.Partially_paid : RentStatusEnum.Unpaid,
-                            AmmountSupposedToPay = model.AppartmentMember.Price,
-                            NextDateToPay = DateTime.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
-                        };
-                        dbc.RentPaymentDatesSchedulars.Add(rentPaymentDatesSchedular);
-                        await dbc.SaveChangesAsync();
-
-                        CityMember cityMember = new CityMember
-                        {
-                            CityId = model.AppartmentMember.CityId,
-                            ApartmentId = (long)model.AppartmentMember.Id,
-                            UserId = user.Id,
-                            Role = CityMemberRoleEnum.Tenant
-                        };
-                        dbc.CityMembers.Add(cityMember);
-                        await dbc.SaveChangesAsync();
-
-                        return Redirect("/Apartment/Index?cityId=" + model.AppartmentMember.CityId);
-                    }
-                    else
+                    if (user == null)
                         return BadRequest($"The user does not even exist");
+
+                    TenantRentApartment tenantRentApartment;
+                    var fileModel = new FileModel();
+
+                    await SaveFile(model.ContractFile, fileModel, user.Id, model.AppartmentMember.CityId, model.AppartmentMember.Id);
+
+                    tenantRentApartment = new TenantRentApartment()
+                    {
+                        TenantId = (long)model.TenantId,
+                        TenantPhoneNumber = user.PhoneNumber,
+                        ApartmentId = model.AppartmentMember.Id,
+                        Price = model.AppartmentMember.Price,
+                        BailId = contractId,
+                        AmountPaidByTenant = model.AmountPaidByTenant,
+                        DepositePrice = model.DepositePrice,
+                        PaymentMethodEnum = model.PaymentMethod,
+                        StartOfContract = model.StartOfContract,
+                        EndOfContract = model.EndOfContract,
+                        IsActiveAsTenant = true
+                    };
+
+                    dbc.TenantRentApartments.Add(tenantRentApartment);
+                    await dbc.SaveChangesAsync();
+
+                    string propertyName = await dbc.Cities
+                        .Where(c => c.Id == model.AppartmentMember.CityId)
+                        .Select(c => c.Name)
+                        .FirstOrDefaultAsync();
+
+                    // Generate personalized message contents
+                    string recipientName = BasicHelpers.GetUserFullName(user);
+                    string currentUserFullName = BasicHelpers.GetUserFullName(currentUser);
+
+                    var (emailSubject, emailBody) = TenancyHelpers.GenerateEmailContent(model, currentUserFullName, recipientName);
+                    string smsBody = TenancyHelpers.GenerateSmsContent(model, currentUserFullName);
+
+                    if (!String.IsNullOrEmpty(user.Email) && !String.IsNullOrEmpty(user.PhoneNumber))
+                    {
+                        //To Do: Need to pay Orange Api sms service per month
+                        await baseScheduler.sendSMStoTenant(user.PhoneNumber, smsBody);
+                        await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
+                    }
+                    else if (!String.IsNullOrEmpty(user.Email) && String.IsNullOrEmpty(user.PhoneNumber))
+                        await baseScheduler.SendEmail(user.Email, emailSubject, emailBody);
+
+                    decimal nbOfMonthPaid = 0;
+
+                    nbOfMonthPaid = Decimal.Divide(model.AmountPaidByTenant, model.AppartmentMember.Price);
+                
+                    //Add 30 days on the current payment date in case the amount paid is not enough
+                    //Remind tenant after 30 days that he must pay his rent
+                    Logement.Models.PaymentHistory newPayment = new Logement.Models.PaymentHistory()
+                    {
+                        TenantId = user.Id,
+                        CityId = model.AppartmentMember.CityId,
+                        ApartmentNumber = model.AppartmentMember.ApartmentNunber,
+                        AmountPaid = model.AmountPaidByTenant,
+                        PaidDate = DateTime.UtcNow
+                    };
+                    dbc.PaymentHistories.Add(newPayment);
+                    await dbc.SaveChangesAsync();
+
+                    decimal extraAmount = model.AmountPaidByTenant - (model.AppartmentMember.Price * Math.Floor(nbOfMonthPaid));
+
+                    //Schedule the next date to pay the rent 
+                    RentPaymentDatesSchedular rentPaymentDatesSchedular = new RentPaymentDatesSchedular
+                    {
+                        TenantId = user.Id,
+                        CityId = model.AppartmentMember.CityId,
+                        ApartmentNumber = model.AppartmentMember.ApartmentNunber,
+                        AmountAlreadyPaid = extraAmount > 0 ? extraAmount: 0,
+                        RemainingAmount = model.AppartmentMember.Price,
+                        RentStatus = extraAmount > 0 ? RentStatusEnum.Partially_paid : RentStatusEnum.Unpaid,
+                        AmmountSupposedToPay = model.AppartmentMember.Price,
+                        NextDateToPay = DateTime.UtcNow.AddMonths(Decimal.ToInt32(nbOfMonthPaid))
+                    };
+                    dbc.RentPaymentDatesSchedulars.Add(rentPaymentDatesSchedular);
+                    await dbc.SaveChangesAsync();
+
+                    CityMember cityMember = new CityMember
+                    {
+                        CityId = model.AppartmentMember.CityId,
+                        ApartmentId = (long)model.AppartmentMember.Id,
+                        UserId = user.Id,
+                        Role = CityMemberRoleEnum.Tenant
+                    };
+                    dbc.CityMembers.Add(cityMember);
+                    await dbc.SaveChangesAsync();
+
+                    return Redirect("/Apartment/Index?cityId=" + model.AppartmentMember.CityId);                                        
                 }
                 return View(model);
             }
@@ -407,7 +377,7 @@ namespace Logement.Controllers
             try
             {
                 var cityOwner = await dbc.Cities
-                    .Where(c => c.Id == cityId && c.LandLordId == GetUser().Id)
+                    .Where(c => c.Id == cityId && c.LandLordId == GetCurrentUser().Id)
                     .FirstOrDefaultAsync();
 
                 List<RentPaymentDatesSchedularViewModel> tenantRentStatus = new List<RentPaymentDatesSchedularViewModel>();
@@ -450,7 +420,7 @@ namespace Logement.Controllers
             {
                 var cityOwner = await dbc.CityMembers
                     .Include(c => c.City)
-                    .Where(c => c.UserId == GetUser().Id && c.Role == CityMemberRoleEnum.Landord)
+                    .Where(c => c.UserId == GetCurrentUser().Id && c.Role == CityMemberRoleEnum.Landord)
                     .FirstOrDefaultAsync();
 
                 if (cityOwner == null)

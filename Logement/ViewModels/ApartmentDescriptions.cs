@@ -7,7 +7,8 @@ namespace Logement.ViewModels
     public class ApartmentDescriptions
     {
         public long Id { get; set; }    
-        public string? CityName { get; set; }
+        public string? CityName { get; set; } //Will change this to propertyName
+        public long PropertyId { get; set; }
         public long LandlordId { get; set; }
         public string? LandlordPhoneNumber { get; set; }
         public string? LandlordEmail { get; set; }

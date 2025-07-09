@@ -30,6 +30,12 @@ namespace Logement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
+                    b.Property<long?>("ApartmentAdderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ApartmentName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("ApartmentNumber")
                         .HasColumnType("bigint");
 
@@ -48,6 +54,9 @@ namespace Logement.Migrations
 
                     b.Property<long>("LessorId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("MinimunTenancyPeriod")
+                        .HasColumnType("int");
 
                     b.Property<int>("NumberOfRooms")
                         .HasColumnType("int");
@@ -69,6 +78,8 @@ namespace Logement.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApartmentAdderId");
 
                     b.HasIndex("CityId");
 
@@ -485,6 +496,40 @@ namespace Logement.Migrations
                     b.ToTable("RentPaymentDatesSchedulars");
                 });
 
+            modelBuilder.Entity("Logement.Models.RentTerm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("DepositPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsFirstPaymemt")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRentPayForThisMonth")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("decimal(14,2)");
+
+                    b.Property<int>("RentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenancyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenancyId");
+
+                    b.ToTable("RentTerms");
+                });
+
             modelBuilder.Entity("Logement.Models.SubscriptionPayment", b =>
                 {
                     b.Property<long>("Id")
@@ -520,6 +565,93 @@ namespace Logement.Migrations
                     b.HasIndex("CityId");
 
                     b.ToTable("SubscriptionPayments");
+                });
+
+            modelBuilder.Entity("Logement.Models.Tenancy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<long?>("AdderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ApartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("DateAdded")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DateLeaseDeleted")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DateLeaseTerminate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsLeaseDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("LeaseExpiryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("LeaseStartDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdderId");
+
+                    b.HasIndex("ApartmentId");
+
+                    b.ToTable("Tenancies");
+                });
+
+            modelBuilder.Entity("Logement.Models.TenancyMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<long>("AdderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("DateAdded")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DateDelete")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DateModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SendEmail")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TenancyId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdderId");
+
+                    b.HasIndex("TenancyId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("TenancyMembers");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
@@ -683,6 +815,10 @@ namespace Logement.Migrations
 
             modelBuilder.Entity("Logement.Models.Apartment", b =>
                 {
+                    b.HasOne("Logement.Models.ApplicationUser", "ApartmentAdder")
+                        .WithMany()
+                        .HasForeignKey("ApartmentAdderId");
+
                     b.HasOne("Logement.Models.City", "City")
                         .WithMany()
                         .HasForeignKey("CityId")
@@ -694,6 +830,8 @@ namespace Logement.Migrations
                         .HasForeignKey("LessorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ApartmentAdder");
 
                     b.Navigation("City");
 
@@ -852,6 +990,17 @@ namespace Logement.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("Logement.Models.RentTerm", b =>
+                {
+                    b.HasOne("Logement.Models.Tenancy", "Tenancy")
+                        .WithMany()
+                        .HasForeignKey("TenancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenancy");
+                });
+
             modelBuilder.Entity("Logement.Models.SubscriptionPayment", b =>
                 {
                     b.HasOne("Logement.Models.City", "City")
@@ -861,6 +1010,50 @@ namespace Logement.Migrations
                         .IsRequired();
 
                     b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Logement.Models.Tenancy", b =>
+                {
+                    b.HasOne("Logement.Models.ApplicationUser", "Adder")
+                        .WithMany()
+                        .HasForeignKey("AdderId");
+
+                    b.HasOne("Logement.Models.Apartment", "Apartment")
+                        .WithMany()
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Adder");
+
+                    b.Navigation("Apartment");
+                });
+
+            modelBuilder.Entity("Logement.Models.TenancyMember", b =>
+                {
+                    b.HasOne("Logement.Models.ApplicationUser", "Adder")
+                        .WithMany()
+                        .HasForeignKey("AdderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Logement.Models.Tenancy", "Tenancy")
+                        .WithMany("Members")
+                        .HasForeignKey("TenancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Logement.Models.ApplicationUser", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Adder");
+
+                    b.Navigation("Tenancy");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Logement.Models.TenantRentApartment", b =>
@@ -935,6 +1128,11 @@ namespace Logement.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Logement.Models.Tenancy", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

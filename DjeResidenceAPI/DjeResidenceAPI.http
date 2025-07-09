@@ -1,0 +1,6 @@
+@DjeResidenceAPI_HostAddress = http://localhost:5001
+
+GET {{DjeResidenceAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

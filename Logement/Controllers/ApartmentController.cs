@@ -129,7 +129,7 @@ namespace Logement.Controllers
             try
             {
                 var cityCreator = await dbc.CityMembers
-                    .Where(c => c.UserId == GetUser().Id && c.CityId == cityId && c.Role == CityMemberRoleEnum.Landord)
+                    .Where(c => c.UserId == GetCurrentUser().Id && c.CityId == cityId && c.Role == CityMemberRoleEnum.Landord)
                     .FirstOrDefaultAsync();
 
                 if (cityCreator != null)
@@ -195,21 +195,22 @@ namespace Logement.Controllers
                              Type = a.Type,
                              LocatedAt = a.City.LocatedAt,
                              CityName = a.City.Name,
+                             PropertyId = a.City.Id,
                          }).FirstOrDefaultAsync();
 
             if (apartmentsInfos == null)
                 return NotFound();
 
             var tenant = await dbc.TenantRentApartments
-                .Where(t => t.ApartmentId == apartmentsInfos.Id && t.TenantId == GetUser().Id)
+                .Where(t => t.ApartmentId == apartmentsInfos.Id && t.TenantId == GetCurrentUser().Id)
                 .FirstOrDefaultAsync();
 
 
-            if (tenant == null && apartmentsInfos.LessorId != GetUser().Id)
+            if (tenant == null && apartmentsInfos.LessorId != GetCurrentUser().Id)
                 return Forbid("This apartment does not belong to you!");
 
             //Tenant or landlord
-            else if (tenant != null || apartmentsInfos.LessorId == GetUser().Id)
+            else if (tenant != null || apartmentsInfos.LessorId == GetCurrentUser().Id)
             {
                 ApartmentBaseInfos apartmentBaseInfos = new ApartmentBaseInfos();
 
@@ -217,6 +218,7 @@ namespace Logement.Controllers
                 {
                     Id = apartmentsInfos.Id,
                     CityName = apartmentsInfos.CityName,
+                    PropertyId = apartmentsInfos.PropertyId,
                     Price = (Int32)apartmentsInfos.Price,
                     NumberOfRooms = apartmentsInfos.NumberOfRooms,
                     NumberOfbathRooms = apartmentsInfos.NumberOfbathRooms,
