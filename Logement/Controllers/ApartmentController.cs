@@ -170,9 +170,9 @@ namespace Logement.Controllers
             }
         }
 
-        public async Task<IActionResult> ApartmentDetails(long? cityId, long? apartmentNumber)
+        public async Task<IActionResult> ApartmentDetails(long? cityId, long? apartmentId)
         {
-            if (cityId == null || apartmentNumber == null)
+            if (cityId == null || apartmentId == null)
             {
                 return NotFound();
             }
@@ -180,7 +180,7 @@ namespace Logement.Controllers
             var apartmentsInfos = await dbc.Apartments
                          .Include(a => a.City)
                          .Include(a => a.Lessor)
-                         .Where(a => a.CityId == cityId && a.ApartmentNumber == apartmentNumber)
+                         .Where(a => a.CityId == cityId && a.Id == apartmentId)
                          .Select(a => new
                          {
                              Id = a.Id,

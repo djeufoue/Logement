@@ -103,7 +103,7 @@
                         </div>
                     </td>
                     <td>
-                        <a class="city-name" asp-controller="Apartment" asp-action="ApartmentDetails" asp-route-cityId="@item.CityId" asp-route-apartmentNumber="@item.ApartmentNunber">@item.ApartmentNunber</a>
+                        <a class="city-name" asp-controller="Apartment" asp-action="ApartmentDetails" asp-route-cityId="@item.CityId" asp-route-apartmentId="@item.ApartmentNunber">@item.ApartmentNunber</a>
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.OccupiedBy)

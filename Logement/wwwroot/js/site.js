@@ -2,9 +2,6 @@
     table_rows = document.querySelectorAll('tbody tr'),
     table_headings = document.querySelectorAll('thead th');
 
-// 1. Searching for specific data of HTML table
-search.addEventListener('input', searchTable);
-
 function searchTable() {
     table_rows.forEach((row, i) => {
         let table_data = row.textContent.toLowerCase(),

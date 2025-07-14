@@ -1,5 +1,6 @@
 ﻿using Logement.Data;
 using Logement.Data.Enum;
+using Logement.DTO;
 using Logement.Models;
 using Logement.Services;
 using Logement.ViewModels;
@@ -152,6 +153,28 @@ namespace Logement.Controllers
             catch (Exception e)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPropertyApartments(long propertyId)
+        {
+            try
+            {
+                var propertyApartments = await dbc.Apartments
+                     .Where(x => x.CityId == propertyId)
+                     .Select(x => new PropertyApartmentDTO
+                     {
+                         ApartmentId = x.Id,
+                         ApartmentName = x.ApartmentName,
+                     })
+                     .ToListAsync();
+
+                return Json(propertyApartments);
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
