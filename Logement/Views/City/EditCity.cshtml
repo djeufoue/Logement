@@ -1,175 +1,90 @@
 ﻿@model Logement.ViewModels.CityViewModel
 
 @{
-    ViewData["Title"] = "Edit city";
+    ViewData["Title"] = "Property Overview";
 }
 
-<link rel="stylesheet" href="~/css/style.css">
+<link rel="stylesheet" href="~/css/site-common.css">
 
 <style>
-    .content-header h1 {
-        margin: 0;
-        font-size: 25px;
-    }
-
-    .form-group {
-        margin-top: 10px;
-    }
-
-    .button {
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .cityList {
-        display: grid;
-        height: 35px;
-        width: 100px;
-        background-color: #445744;
-        margin-right: 5px;
-        font-family: "Poppins", sans-serif;
-        color: #ffffff;
+    /* Style for apartment links */
+    .apartment-link {
+        display: block;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        background-color: #f3f4f6;
+        border-radius: 6px;
+        color: #1f2937;
         font-weight: 500;
         text-decoration: none;
-        border-radius: 10px;
-        place-items: center;
+        transition: background-color 0.2s, color 0.2s;
+        border: 1px solid #e5e7eb;
     }
 
-    .danger-zone {
-        margin-top: 20px;
-        padding: 20px;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-        font-weight: bold;
-    }
-
-    .danger-zone p {
-        margin-bottom: 10px;
-    }
-
-    .buttonDelete {
-        color: #721c24;
-        background-color: #f5c6cb;
-        border-color: #f5c6cb;
-        padding: 10px 20px;
-        text-decoration: none;
-    }
-
-    .buttonDelete:hover {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: white;
-    }
+        .apartment-link:hover {
+            background-color: #e2e8f0; /* soft light gray-blue */
+            color: #1e3a8a; /* soft blue for text */
+        }
 </style>
 
+<div class="page-container">
+    <!-- Main Left Section -->
+    <div class="main-content">
+        <section class="content-header">
+            <h1>Property Overview</h1>
+        </section>
 
-<section>
-    <div class="container">
-        <h1>
-            Edit City
-        </h1>
-
-        <hr />
-        <div class="row">
-            <div class="col-md-4">
-                <form asp-controller="City" asp-action="EditCity" enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label" onchange="CheckCityName()></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Town" class="control-label"></label>
-                        <input asp-for="Town" class="form-control" />
-                        <span asp-validation-for="Town" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="LocatedAt" class="control-label"></label>
-                        <input asp-for="LocatedAt" class="form-control" />
-                        <span asp-validation-for="LocatedAt" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="NumbersOfApartment" class="control-label"></label>
-                        <input asp-for="NumbersOfApartment" class="form-control" />
-                        <span asp-validation-for="NumbersOfApartment" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Floor" class="control-label"></label>
-                        <input asp-for="Floor" class="form-control" />
-                        <span asp-validation-for="Floor" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-primary" />
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-8">
-                <div class="city-image">
-                    <img src="data:@Model.ContentType;base64,@Convert.ToBase64String(Model.Data)" alt="@Model.Name" style="max-width: 500px; max-height: 300px; margin-top: 15px; border-radius: 10px;" />
+        <div class="apartment-info">
+            <h3>City Name: @Model.Name</h3>
+            <div class="details-grid">
+                <div>
+                    <p><strong>Town:</strong><br />@Model.Town</p>
+                    <p><strong>Located At:</strong><br />@Model.LocatedAt</p>
                 </div>
-
-                <div class="change-image">
-                    <form action="/EditCity/EditCityImage/@Model.Id" enctype="multipart/form-data" method="post">
-                        <input type="hidden" asp-for="Id" />
-                        <div class="form-group">
-                            <label for="image-input" class="control-label">Change Image</label>
-                            <input id="image-input" type="file" name="file" accept="image/*" onchange="checkImageExistence(event)" required/>
-                        </div>
-                        <div id="errorMessage" class="alert alert-danger d-none" role="alert" style="color: red; margin-top: 10px;"></div>
-                        <div class="form-group">
-                            <input type="submit" value="Change" class="btn btn-primary" />
-                        </div>
-                    </form>
+                <div>
+                    <p><strong>Number of Apartments:</strong><br />@Model.NumbersOfApartment</p>
+                    <p><strong>Floors:</strong><br />@Model.Floor</p>
                 </div>
             </div>
         </div>
 
-        <div class="button">
-            <a class="cityList" href="@Url.Action("Index", "City")">
-                <span>Back to List</span>
-            </a>
-        </div>
-        <div class="danger-zone">
-            <p>This action cannot be undone. Proceed with caution!</p>
-            <a href="@Url.Action("DeleteCity", "City", new { cityId = @Model.Id })" class="buttonDelete">Delete</a>
+        <div class="image-container">
+            <div class="image-card">
+                <img src="data:@Model.ContentType;base64,@Convert.ToBase64String(Model.Data)" alt="City Image" />
+            </div>
         </div>
     </div>
-</section>
 
-<script src="~/js/site.js"></script>
+    <!-- Sidebar Section -->
+    <div class="sidebar">
+        <!-- Apartments Accordion -->
+        <div class="card">
+            <h4 class="accordion-header active" onclick="toggleAccordion(this)">
+                Apartments
+                <button class="add-button" onclick="event.stopPropagation(); openModal('apartment')">+ Add</button>
+            </h4>
+            <ul id="apartmentList" style="max-height: 500px;"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="addModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h3 id="modalTitle">Add Apartment</h3>
+        <input type="text" id="modalInput" placeholder="Enter apartment name..." />
+        <div class="modal-actions">
+            <button onclick="submitModal()">Submit</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script src="~/js/apartment/city-apartments.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadApartments(@Model.Id); // pass the city/property ID to fetch apartments
+        });
+    </script>
 }
-
-<script>   
-    //Check for a duplicate city name
-    function CheckCityName() {
-        $.post("@Url.Action("CheckCityNameAvailability", "City")",
-            {
-                cityName: $("#Name").val()
-            },
-
-            function (data) {
-                if (data == 1) {
-                    $("#Name").next(".validation").remove(); // remove previous message
-                    $("#Name").after("<div class='validation' style='color:red;'>Ce nom appartient déjà à une autre citeé, veuillez en choisir un autre.</div>");
-
-                    //disable save button:
-                    $(':input[type="submit"]').prop('disabled', true);
-
-                    $('#Name').focus();
-                }
-                else if (data == 0) {
-                    $(':input[type="submit"]').prop('disabled', false);
-                    $("#Name").next(".validation").remove(); // remove previous message
-                }
-            });
-    }
-</script>
-
